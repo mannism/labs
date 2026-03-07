@@ -37,3 +37,32 @@ To add, edit, or remove projects, simply modify the `src/data/projects.json` fil
   "githubUrl": "https://..."
 }
 ```
+
+## Docker
+
+This project is configured strings for Docker with a multi-stage build that leverages Next.js standalone output to minimize image size. 
+
+### Building the Image
+
+```bash
+docker build -t labs-app .
+```
+
+### Running the Container
+
+```bash
+docker run -p 3000:3000 labs-app
+```
+
+### Using Docker Compose
+
+For a simpler experience, you can use Docker Compose to build and run the application in detached mode:
+
+```bash
+docker compose up -d --build
+```
+
+To stop the container:
+```bash
+docker compose down
+```
