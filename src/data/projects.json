@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1",
+    "title": "CV/JD Comparison Tool",
+    "description": "A sophisticated web application designed to help job seekers optimize their resumes (CVs) and prepare for interviews using advanced AI models.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "Next.js",
+      "OpenAI",
+      "MySQL",
+      "Tailwind CSS"
+    ],
+    "demoUrl": "#",
+    "githubUrl": "#"
+  },
+  {
+    "id": "2",
+    "title": "Event Chat Scheduler",
+    "description": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "Vercel AI SDK",
+      "OpenAI",
+      "Next.js",
+      "JSON"
+    ],
+    "demoUrl": "#",
+    "githubUrl": "#"
+  },
+  {
+    "id": "3",
+    "title": "GEO Audit",
+    "description": "A React web application to evaluate a webpage's likelihood of being cited by Generative Engine Optimization (GEO) AI search engines like Perplexity or SearchGPT.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "React 19",
+      "Gemini API",
+      "TypeScript",
+      "Tailwind CSS"
+    ],
+    "demoUrl": "#",
+    "githubUrl": "#"
+  },
+  {
+    "id": "4",
+    "title": "Telegram Digital Twin",
+    "description": "A Telegram Digital Twin Bot backend built with FastAPI and OpenAI, acting as a personal digital replica to answer questions based on a resume and personal notes.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "FastAPI",
+      "OpenAI",
+      "Python",
+      "Firestore"
+    ],
+    "demoUrl": "#",
+    "githubUrl": "#"
+  }
+]
