@@ -1,6 +1,22 @@
 [
   {
     "id": "1",
+    "title": "Diana's Digital Twin",
+    "description": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT. Answerable via Telegram or a built-in Web Chat Widget, with Redis-backed memory and cross-platform session pairing.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "FastAPI",
+      "OpenAI",
+      "Redis",
+      "Railway"
+    ],
+    "demoUrl": "https://twin.dianaismail.me/web/",
+    "githubUrl": "#"
+  },
+  {
+    "id": "2",
     "title": "CV/JD Comparison Tool",
     "description": "A sophisticated web application designed to help job seekers optimize their resumes (CVs) and prepare for interviews using advanced AI models.",
     "category": "Agentic-AI",
@@ -16,7 +32,7 @@
     "githubUrl": "#"
   },
   {
-    "id": "2",
+    "id": "3",
     "title": "Event AI Scheduler",
     "description": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
     "category": "Agentic-AI",
@@ -32,7 +48,7 @@
     "githubUrl": "#"
   },
   {
-    "id": "3",
+    "id": "4",
     "title": "GEO Audit",
     "description": "A React web application to evaluate a webpage's likelihood of being cited by Generative Engine Optimization (GEO) AI search engines like Perplexity or SearchGPT.",
     "category": "Agentic-AI",
@@ -45,22 +61,6 @@
       "Tailwind CSS"
     ],
     "demoUrl": "https://geoaudit.dianaismail.me/",
-    "githubUrl": "#"
-  },
-  {
-    "id": "4",
-    "title": "Telegram Digital Twin",
-    "description": "A Telegram Digital Twin Bot backend built with FastAPI and OpenAI, acting as a personal digital replica to answer questions based on a resume and personal notes.",
-    "category": "Agentic-AI",
-    "status": "Active",
-    "display": true,
-    "tags": [
-      "FastAPI",
-      "OpenAI",
-      "Python",
-      "Firestore"
-    ],
-    "demoUrl": "#",
     "githubUrl": "#"
   }
 ]
