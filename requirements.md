@@ -7,8 +7,8 @@ To run this application, ensure your environment meets the following requirement
 
 ## Tech Stack Dependencies
 
-- **Framework**: Next.js 16 (App Router)
-- **UI Library**: React 19
+- **Framework**: Next.js 16.1 (App Router)
+- **UI Library**: React 19.2
 - **Styling**: Tailwind CSS v4
-- **Icons**: Lucide React
-- **Animations**: Framer Motion
+- **Icons**: Lucide React v0.577
+- **Animations**: Framer Motion v12.35
