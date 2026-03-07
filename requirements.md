@@ -2,7 +2,7 @@
 
 To run this application, ensure your environment meets the following requirements:
 
-- **Node.js**: v18.17.0 or higher
+- **Node.js**: v20.0.0 or higher
 - **Package Manager**: npm, yarn, pnpm, or bun
 
 ## Tech Stack Dependencies
