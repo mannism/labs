@@ -17,7 +17,7 @@
   },
   {
     "id": "2",
-    "title": "Event Chat Scheduler",
+    "title": "Event AI Scheduler",
     "description": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
     "category": "Agentic-AI",
     "status": "Active",
@@ -28,7 +28,7 @@
       "Next.js",
       "JSON"
     ],
-    "demoUrl": "#",
+    "demoUrl": "https://scheduler.dianaismail.me/",
     "githubUrl": "#"
   },
   {
