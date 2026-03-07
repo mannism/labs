@@ -1,25 +1,45 @@
 /**
- * Hero component for the Labs landing page.
- * Displays the main headline, subtitle, and an animated status indicator.
- * Utilizes Tailwind CSS for layout, typography, and responsive design.
+ * Hero component – styled to match the twin site's Cyber-Minimalist aesthetic.
+ * Uses Merriweather for display headings and Open Sans for body.
  */
 export function Hero() {
     return (
         <section className="py-20 md:py-32 flex flex-col items-center justify-center text-center px-4">
-            {/* Status Indicator Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm font-mono text-neutral-300 mb-6">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                dianaismail.me/labs
+
+            {/* Status badge — identical pill style from twin site */}
+            <div
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono mb-8"
+                style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.12em",
+                }}
+            >
+                <span
+                    className="w-2 h-2 rounded-full animate-pulse-dot"
+                    style={{ background: "#22C55E" }}
+                />
+                // DIANA ISMAIL LABS
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6 max-w-3xl">
-                Labs by Diana — Where creativity meets <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-400 to-white">experimental tech.</span>
+            {/* Main Headline — Merriweather, matching twin site typography */}
+            <h1
+                className="font-display text-4xl md:text-6xl font-bold mb-6 max-w-3xl leading-tight"
+                style={{ color: "var(--text-primary)" }}
+            >
+                Labs by Diana —{" "}
+                <span style={{ color: "var(--accent-blue)" }}>
+                    Where creativity meets experimental tech.
+                </span>
             </h1>
 
-            {/* Subtitle / Description */}
-            <p className="text-lg text-neutral-400 max-w-2xl font-mono">
-                Just scratching an itch -  my random musings/projects.
+            {/* Subtitle */}
+            <p
+                className="text-base md:text-lg max-w-2xl"
+                style={{ color: "var(--text-muted)", fontFamily: "'Open Sans', sans-serif" }}
+            >
+                Just scratching an itch — my random musings and projects.
             </p>
         </section>
     );
