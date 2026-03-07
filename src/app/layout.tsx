@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 // Global static metadata for SEO and tab titles
 export const metadata: Metadata = {
-  title: "Scratching Post | Diana Ismail",
+  title: "Labs | Diana Ismail",
   description: "Just scratching an itch, the random projects by Diana Ismail.",
 };
 
