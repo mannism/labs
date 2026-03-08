@@ -37,7 +37,7 @@ export function ProjectCard({ project }: { project: Project }) {
             <div className="flex justify-between items-start mb-4 relative z-10">
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="badge-category">{project.category}</span>
-                    <span className={`px-2.5 py-1 text-xs font-mono rounded-full border ${statusClass(project.status)}`}>
+                    <span className={`px-2.5 py-1 text-sm font-mono rounded-full border ${statusClass(project.status)}`}>
                         {project.status}
                     </span>
                 </div>
@@ -67,19 +67,19 @@ export function ProjectCard({ project }: { project: Project }) {
             </div>
 
             {/* Title — Merriweather display font */}
-            <h3 className="font-display text-lg font-bold mb-2 relative z-10" style={{ color: "var(--text-primary)" }}>
+            <h3 className="font-display text-xl font-bold mb-3 relative z-10 tracking-tight" style={{ color: "var(--text-primary)" }}>
                 {project.title}
             </h3>
 
             {/* Description */}
-            <p className="text-sm mb-6 flex-grow relative z-10 leading-relaxed" style={{ color: "var(--text-muted)" }}>
+            <p className="text-base mb-6 flex-grow relative z-10 font-normal opacity-90 leading-[1.625]" style={{ color: "var(--text-muted)" }}>
                 {project.description}
             </p>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 relative z-10 mt-auto">
                 {project.tags.map(tag => (
-                    <span key={tag} className="text-xs font-mono" style={{ color: "#4b566b" }}>
+                    <span key={tag} className="text-sm font-mono tracking-wider font-medium" style={{ color: "#748099" }}>
                         #{tag}
                     </span>
                 ))}

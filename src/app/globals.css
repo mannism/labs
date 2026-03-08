@@ -182,7 +182,7 @@ body {
 /* ─── Category badge ─────────────────────────────────────────── */
 .badge-category {
   padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-family: monospace;
   border-radius: 9999px;
   background: rgba(0, 105, 255, 0.12);
