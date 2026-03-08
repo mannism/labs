@@ -1,10 +1,26 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Geist_Mono, Merriweather, Open_Sans } from "next/font/google";
 import "./globals.css";
+
+// Self-hosted via next/font — no runtime request to fonts.googleapis.com
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,10 +36,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistMono.variable} antialiased`}
+        className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} antialiased`}
         style={{ position: "relative" }}
       >
-        {/* Fixed decorative background orbs — matches twin site aesthetic */}
+        {/* Fixed decorative background orbs */}
         <div className="bg-orbs" aria-hidden="true">
           <div className="bg-orb bg-orb-blue" />
           <div className="bg-orb bg-orb-purple" />
