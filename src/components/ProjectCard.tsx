@@ -56,7 +56,7 @@ export function ProjectCard({ project }: { project: Project }) {
                     {project.demoUrl && project.demoUrl !== "#" && (
                         <a
                             href={project.demoUrl}
-                            target="_blank"
+                            target="_self"
                             rel="noopener noreferrer"
                             className="card-icon-btn demo"
                         >
