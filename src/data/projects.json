@@ -2,7 +2,8 @@
   {
     "id": "1",
     "title": "Diana's Digital Twin",
-    "description": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT. Answerable via Telegram or a built-in Web Chat Widget, with Redis-backed memory and cross-platform session pairing.",
+    "shortDescription": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT, accessible via Telegram or a Web Chat Widget.",
+    "detailedDescription": "Acts as a Digital Twin answering questions about professional background, skills, and projects based on Diana's resume and notes. Built with a modular architecture supporting easy integration of new interfaces. Features include seamless cross-platform pairing between web and Telegram, Redis-backed persistent memory, and a glassmorphic chat widget. Deployed on Railway.app.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -12,13 +13,14 @@
       "Redis",
       "Railway"
     ],
-    "demoUrl": "https://twin.dianaismail.me/web/",
+    "demoUrl": "https://twin.dianaismail.me",
     "githubUrl": "#"
   },
   {
     "id": "2",
     "title": "CV/JD Comparison Tool",
-    "description": "A sophisticated web application designed to help job seekers optimize their resumes (CVs) and prepare for interviews using advanced AI models.",
+    "shortDescription": "A sophisticated web application designed to help job seekers optimize their resumes (CVs) and prepare for interviews using advanced AI.",
+    "detailedDescription": "Analyzes the user's uploaded CV against a specific job description, providing a detailed match score, tailored CV improvements, and customized interview questions. Features include dual authentication via Email/Google OAuth, a flexible pay-per-use credit system, and automated background jobs to anonymize PII (Personally Identifiable Information) from stored data.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -34,7 +36,8 @@
   {
     "id": "3",
     "title": "Event AI Scheduler",
-    "description": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
+    "shortDescription": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
+    "detailedDescription": "Leverages the Vercel AI SDK and OpenAI to provide a conversational AI interface. Uses dynamic background tool execution to retrieve JSON event data (sessions, exhibitors) and seamlessly integrate it into the context. Includes an interactive schedule generator that produces a printable, conflict-free daily itinerary based on the user's thematic interests and attendance days.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -50,7 +53,8 @@
   {
     "id": "4",
     "title": "GEO Audit",
-    "description": "A React web application to evaluate a webpage's likelihood of being cited by Generative Engine Optimization (GEO) AI search engines like Perplexity or SearchGPT.",
+    "shortDescription": "A React web application to evaluate a webpage's likelihood of being cited by Generative Engine Optimization (GEO) AI search engines.",
+    "detailedDescription": "Analyzes a target URL based on 2026 AI Search standards (e.g., Perplexity, SearchGPT). Evaluates Fact Density, Entity Salience, and Extractability. Built with a secure two-service architecture: a static React/Vite frontend served by Nginx, and a lightweight Express backend proxy that securely holds LLM API keys and processes audits.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,

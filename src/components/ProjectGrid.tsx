@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ProjectCard, Project } from "./ProjectCard";
+import { ProjectDetailsDrawer } from "./ProjectDetailsDrawer";
 import projectsData from "../data/projects.json";
 
 /**
@@ -11,6 +12,7 @@ import projectsData from "../data/projects.json";
  */
 export function ProjectGrid() {
     const [activeCategory, setActiveCategory] = useState("All");
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
     const visibleProjects = projectsData.filter(p => p.display !== false);
     const categories = ["All", ...Array.from(new Set(visibleProjects.map(p => p.category)))];
@@ -36,9 +38,20 @@ export function ProjectGrid() {
             {/* Responsive card grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.map((project) => (
-                    <ProjectCard key={project.id} project={project as Project} />
+                    <ProjectCard
+                        key={project.id}
+                        project={project as Project}
+                        onClick={() => setSelectedProject(project as Project)}
+                    />
                 ))}
             </div>
+
+            {/* Slide-out details drawer */}
+            <ProjectDetailsDrawer
+                project={selectedProject}
+                isOpen={!!selectedProject}
+                onClose={() => setSelectedProject(null)}
+            />
         </div>
     );
 }

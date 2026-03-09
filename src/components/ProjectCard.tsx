@@ -10,7 +10,8 @@ import { ArrowUpRight, Github } from "lucide-react";
 export interface Project {
     id: string;
     title: string;
-    description: string;
+    shortDescription: string;
+    detailedDescription: string;
     category: string;
     status: string;
     display: boolean;
@@ -34,11 +35,20 @@ function statusClass(status: string) {
  * 🪟 Backdrop Blur: 16px
  * 🚀 Animations: Framer Motion (entry + hover)
  */
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ project, onClick }: { project: Project; onClick?: () => void }) {
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
 
     return (
         <motion.div
+            onClick={onClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onClick?.();
+                }
+            }}
             whileHover={{ y: -6, scale: 1.01 }}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,10 +96,25 @@ export function ProjectCard({ project }: { project: Project }) {
                 {project.title}
             </h3>
 
-            {/* Description */}
+            {/* Short Description */}
             <p className="text-base mb-6 flex-grow relative z-10 font-normal opacity-90 leading-[1.625]" style={{ color: "var(--text-muted)" }}>
-                {project.description}
+                {project.shortDescription}
             </p>
+
+            {/* View Details Button inside Card */}
+            <div className="mb-6 relative z-10">
+                <button
+                    className="flex items-center gap-1.5 text-sm font-mono transition-colors hover:text-white group/btn"
+                    style={{ color: "var(--accent-blue)" }}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevents double firing if clicking button inside card
+                        onClick?.();
+                    }}
+                >
+                    View Details
+                    <span className="transform transition-transform group-hover/btn:translate-x-1">→</span>
+                </button>
+            </div>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 relative z-10 mt-auto">
