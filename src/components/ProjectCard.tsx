@@ -35,6 +35,8 @@ function statusClass(status: string) {
  * 🚀 Animations: Framer Motion (entry + hover)
  */
 export function ProjectCard({ project }: { project: Project }) {
+    const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
+
     return (
         <motion.div
             whileHover={{ y: -6, scale: 1.01 }}
@@ -69,8 +71,8 @@ export function ProjectCard({ project }: { project: Project }) {
                     {project.demoUrl && project.demoUrl !== "#" && (
                         <a
                             href={project.demoUrl}
-                            target="_self"
-                            rel="noopener noreferrer"
+                            target={isInternalDemo ? "_self" : "_blank"}
+                            rel={isInternalDemo ? undefined : "noopener noreferrer"}
                             className="card-icon-btn demo"
                         >
                             <ArrowUpRight className="w-4 h-4" />

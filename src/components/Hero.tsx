@@ -23,7 +23,7 @@ export function Hero() {
                     className="w-2 h-2 rounded-full animate-pulse-dot"
                     style={{ background: "#22C55E" }}
                 />
-                // DIANA ISMAIL LABS
+                {"// DIANA ISMAIL LABS"}
             </div>
 
             {/* Main Headline — Merriweather, matching twin site typography */}
