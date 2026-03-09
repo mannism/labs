@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist_Mono, Merriweather, Open_Sans } from "next/font/google";
 import "./globals.css";
 
-// Self-hosted via next/font — no runtime request to fonts.googleapis.com
+// Next.js Font Optimization:
+// These fonts are downloaded at build time and served from the application origin,
+// eliminating external requests to Google Fonts API and improving performance/privacy.
 const merriweather = Merriweather({
   variable: "--font-merriweather",
   subsets: ["latin"],
@@ -36,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} antialiased`}
+        className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} antialiased font-sans`}
         style={{ position: "relative" }}
       >
         {/* Fixed decorative background orbs */}

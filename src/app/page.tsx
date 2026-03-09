@@ -3,12 +3,14 @@ import { ProjectGrid } from "@/components/ProjectGrid";
 import { Footer } from "@/components/Footer";
 
 /**
- * The main entry point for the application.
- * Renders the primary layout structure:
- * - A central flex container restricted to max-w-7xl
- * - The Hero section (introduction)
- * - The dynamic ProjectGrid (filterable list of projects)
- * - The global Footer
+ * Main Application Layout (Home)
+ * Orchestrates the "Cyber-Minimalist" frontend architecture:
+ * - A responsive, globally centered layout constrained to max-w-7xl.
+ * - Hero: Brand introduction and high-impact visual anchors.
+ * - ProjectGrid: Dynamic, filterable ecosystem of Agentic-AI and Mixed Reality POCs.
+ * - Footer: Global navigation and copyright containment.
+ * 
+ * NOTE: The background depth (orbs & grid) is managed upstream in layout.tsx.
  */
 export default function Home() {
   return (

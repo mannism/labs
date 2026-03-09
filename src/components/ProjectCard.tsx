@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 
+/**
+ * Defines the schema for a project. 
+ * Updated to include the 'display' flag for visibility control.
+ */
 export interface Project {
     id: string;
     title: string;
@@ -15,12 +19,21 @@ export interface Project {
     githubUrl: string;
 }
 
+/**
+ * Maps project status to specific Tailwind color classes for the status badge.
+ */
 function statusClass(status: string) {
     if (status === "Active") return "border-green-500/30 text-green-400 bg-green-500/10";
     if (status === "Research") return "border-amber-500/30 text-amber-400 bg-amber-500/10";
     return "border-neutral-500/30 text-neutral-400 bg-neutral-500/10";
 }
 
+/**
+ * ProjectCard Component
+ * Implements a glassmorphic design with hover states and motion animations.
+ * 🪟 Backdrop Blur: 16px
+ * 🚀 Animations: Framer Motion (entry + hover)
+ */
 export function ProjectCard({ project }: { project: Project }) {
     return (
         <motion.div

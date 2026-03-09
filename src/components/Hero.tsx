@@ -1,6 +1,9 @@
 /**
- * Hero component – styled to match the twin site's Cyber-Minimalist aesthetic.
- * Uses Merriweather for display headings and Open Sans for body.
+ * Hero Component
+ * Sets the tone for the application with a "Cyber-Minimalist" aesthetic.
+ * Incorporates brand-specific typography (Merriweather display, Open Sans body)
+ * and the glowing status badge modeled after the twin site's digital agent interface.
+ * Engineered for high-contrast readability and impact.
  */
 export function Hero() {
     return (

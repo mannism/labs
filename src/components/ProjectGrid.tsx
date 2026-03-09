@@ -4,6 +4,11 @@ import { useState } from "react";
 import { ProjectCard, Project } from "./ProjectCard";
 import projectsData from "../data/projects.json";
 
+/**
+ * ProjectGrid Component
+ * Manages the display of project cards with dynamic category filtering.
+ * Toggled categories apply an electric-blue active state to match the design system.
+ */
 export function ProjectGrid() {
     const [activeCategory, setActiveCategory] = useState("All");
 

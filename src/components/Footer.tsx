@@ -2,6 +2,10 @@
 
 import { ArrowUpRight } from "lucide-react";
 
+/**
+ * Footer Component
+ * Displays copyright information and a link to the main portfolio site.
+ */
 export function Footer() {
     return (
         <footer className="py-10 mt-20" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
