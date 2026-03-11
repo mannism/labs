@@ -2,15 +2,16 @@
   {
     "id": "1",
     "title": "Diana's Digital Twin",
-    "shortDescription": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT, accessible via Telegram or a Web Chat Widget.",
-    "detailedDescription": "Acts as a Digital Twin answering questions about professional background, skills, and projects based on Diana's resume and notes. Built with a modular architecture supporting easy integration of new interfaces. Features include seamless cross-platform pairing between web and Telegram, Redis-backed persistent memory, and a glassmorphic chat widget. Deployed on Railway.app.",
+    "shortDescription": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT, accessible via Telegram and an embeddable web chat widget.",
+    "detailedDescription": "A modular FastAPI backend that separates core AI orchestration from interface adapters, currently supporting Telegram and web chat. Uses Redis for persistent history, rolling summarization, rate limiting, and OTP linking. Includes seamless Web-Telegram account pairing, on-demand context loading for token efficiency, structured JSON logging, and Railway-ready deployment with Docker.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
       "FastAPI",
-      "OpenAI",
+      "OpenAI GPT",
       "Redis",
+      "Telegram Bot API",
       "Railway"
     ],
     "demoUrl": "https://twin.dianaismail.me/web/",
@@ -19,15 +20,16 @@
   {
     "id": "2",
     "title": "CV/JD Comparison Tool",
-    "shortDescription": "A sophisticated web application designed to help job seekers optimize their resumes (CVs) and prepare for interviews using advanced AI.",
-    "detailedDescription": "Analyzes the user's uploaded CV against a specific job description, providing a detailed match score, tailored CV improvements, and customized interview questions. Features include dual authentication via Email/Google OAuth, a flexible pay-per-use credit system, and automated background jobs to anonymize PII (Personally Identifiable Information) from stored data.",
+    "shortDescription": "An AI-powered resume optimization platform that compares CVs against job descriptions and generates tailored interview preparation content.",
+    "detailedDescription": "A Next.js 16 application that performs fit analysis between uploaded CVs and target job descriptions, producing match scores, gap insights, tailored CV rewrites, and interview Q&A. Includes Email/Google authentication, credit-based usage monetization, historical analysis tracking, localization preferences, and scheduled LLM-powered anonymization of PII in stored records.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
-      "Next.js",
+      "Next.js 16",
       "OpenAI",
       "MySQL",
+      "Firebase Auth",
       "Tailwind CSS"
     ],
     "demoUrl": "#",
@@ -36,16 +38,17 @@
   {
     "id": "3",
     "title": "Event AI Scheduler",
-    "shortDescription": "An intelligent, personalized AI companion for conference attendees to navigate their event schedule and generate customized itineraries.",
-    "detailedDescription": "Leverages the Vercel AI SDK and OpenAI to provide a conversational AI interface. Uses dynamic background tool execution to retrieve JSON event data (sessions, exhibitors) and seamlessly integrate it into the context. Includes an interactive schedule generator that produces a printable, conflict-free daily itinerary based on the user's thematic interests and attendance days.",
+    "shortDescription": "A conversational AI event assistant that helps attendees discover sessions and generate personalized, conflict-free itineraries.",
+    "detailedDescription": "Built with Next.js 16, React 19, and the Vercel AI SDK, this scheduler uses tool-calling over JSON datasets to search sessions, presenters, and exhibitors in real time. It generates personalized multi-day plans with conflict handling and scoring logic, then outputs printable schedules and one-click iCalendar exports for Google, Apple, and Outlook calendar workflows.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
       "Vercel AI SDK",
-      "OpenAI",
-      "Next.js",
-      "JSON"
+      "OpenAI GPT-5.1",
+      "Next.js 16",
+      "TypeScript",
+      "Tailwind CSS"
     ],
     "demoUrl": "https://scheduler.dianaismail.me/",
     "githubUrl": "#"
@@ -53,14 +56,16 @@
   {
     "id": "4",
     "title": "GEO Audit",
-    "shortDescription": "A React web application to evaluate a webpage's likelihood of being cited by Generative Engine Optimization (GEO) AI search engines.",
-    "detailedDescription": "Analyzes a target URL based on 2026 AI Search standards (e.g., Perplexity, SearchGPT). Evaluates Fact Density, Entity Salience, and Extractability. Built with a secure two-service architecture: a static React/Vite frontend served by Nginx, and a lightweight Express backend proxy that securely holds LLM API keys and processes audits.",
+    "shortDescription": "A GEO analyzer that scores how likely a webpage is to be cited by AI search engines using structured LLM audits.",
+    "detailedDescription": "A React 19 + Vite frontend paired with an Express API proxy that securely manages LLM keys and runs URL audits against GEO criteria: Fact Density, Entity Salience, and Extractability. Supports Gemini or OpenAI providers, enforces schema-validated JSON responses, and presents findings, recommendations, and citation previews through a report-focused UI.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
       "React 19",
-      "Gemini API",
+      "Express",
+      "Gemini",
+      "OpenAI",
       "TypeScript",
       "Tailwind CSS"
     ],
