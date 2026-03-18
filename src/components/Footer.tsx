@@ -22,7 +22,7 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="footer-link"
                 >
-                    Return to main site <ArrowUpRight className="w-4 h-4" />
+                    Return to portfolio <ArrowUpRight className="w-4 h-4" />
                 </a>
             </div>
         </footer>
