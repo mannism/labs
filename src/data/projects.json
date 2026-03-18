@@ -2,8 +2,8 @@
   {
     "id": "1",
     "title": "Diana's Digital Twin",
-    "shortDescription": "A multi-interface AI Digital Twin built with FastAPI and OpenAI GPT, accessible via Telegram and an embeddable web chat widget.",
-    "detailedDescription": "A modular FastAPI backend that separates core AI orchestration from interface adapters, currently supporting Telegram and web chat. Uses Redis for persistent history, rolling summarization, rate limiting, and OTP linking. Includes seamless Web-Telegram account pairing, on-demand context loading for token efficiency, structured JSON logging, and Railway-ready deployment with Docker.",
+    "shortDescription": "A multi-interface AI Digital Twin backend built with FastAPI and OpenAI GPT, reachable via Telegram and an embeddable web chat widget.",
+    "detailedDescription": "A modular FastAPI service that separates core AI orchestration from interface adapters, currently supporting Telegram and web chat. Uses Redis for persistent history, rolling summarization, rate limiting, and OTP pairing, with seamless Web-Telegram deep-link sync. Includes tiered on-demand context loading for token efficiency, structured JSON logging, and Railway-ready Docker deployment.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -19,27 +19,28 @@
   },
   {
     "id": "2",
-    "title": "CV/JD Comparison Tool",
-    "shortDescription": "An AI-powered resume optimization platform that compares CVs against job descriptions and generates tailored interview preparation content.",
-    "detailedDescription": "A Next.js 16 application that performs fit analysis between uploaded CVs and target job descriptions, producing match scores, gap insights, tailored CV rewrites, and interview Q&A. Includes Email/Google authentication, credit-based usage monetization, historical analysis tracking, localization preferences, and scheduled LLM-powered anonymization of PII in stored records.",
+    "title": "Reso (FitCheckerApp)",
+    "shortDescription": "An AI-powered job search platform for CV/JD fit scoring, gap analysis, tailored CV generation, interview prep, and application tracking.",
+    "detailedDescription": "A Next.js 16 + React 19 platform with PostgreSQL and NextAuth.js v5 that analyzes CV-job fit, generates tailored CV suggestions, and builds interview prep packs. Includes a job tracker with interview session logs, pipeline insights, credit-based usage, email verification/password reset flows, feedback tooling, and PII anonymization maintenance scripts for deleted-user records.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
       "Next.js 16",
-      "OpenAI",
-      "MySQL",
-      "Firebase Auth",
-      "Tailwind CSS"
+      "React 19",
+      "PostgreSQL",
+      "NextAuth.js v5",
+      "OpenAI API",
+      "Tailwind CSS 4"
     ],
-    "demoUrl": "#",
+    "demoUrl": "https://reso.dianaismail.me/",
     "githubUrl": "#"
   },
   {
     "id": "3",
-    "title": "Event AI Scheduler",
+    "title": "Custom Chat Scheduler",
     "shortDescription": "A conversational AI event assistant that helps attendees discover sessions and generate personalized, conflict-free itineraries.",
-    "detailedDescription": "Built with Next.js 16, React 19, and the Vercel AI SDK, this scheduler uses tool-calling over JSON datasets to search sessions, presenters, and exhibitors in real time. It generates personalized multi-day plans with conflict handling and scoring logic, then outputs printable schedules and one-click iCalendar exports for Google, Apple, and Outlook calendar workflows.",
+    "detailedDescription": "Built with Next.js 16, React 19, and the Vercel AI SDK, this scheduler uses tool-calling over JSON datasets to search sessions, presenters, and exhibitors in real time. It generates personalized multi-day plans with conflict detection and relevance scoring, then provides printable schedule views and one-click iCalendar exports for Google, Apple, and Outlook workflows.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -47,8 +48,9 @@
       "Vercel AI SDK",
       "OpenAI GPT-5.1",
       "Next.js 16",
-      "TypeScript",
-      "Tailwind CSS"
+      "React 19",
+      "TypeScript 5",
+      "Tailwind CSS 4"
     ],
     "demoUrl": "https://scheduler.dianaismail.me/",
     "githubUrl": "#"
@@ -57,17 +59,17 @@
     "id": "4",
     "title": "GEO Audit",
     "shortDescription": "A GEO analyzer that scores how likely a webpage is to be cited by AI search engines using structured LLM audits.",
-    "detailedDescription": "A React 19 + Vite frontend paired with an Express API proxy that securely manages LLM keys and runs URL audits against GEO criteria: Fact Density, Entity Salience, and Extractability. Supports Gemini or OpenAI providers, enforces schema-validated JSON responses, and presents findings, recommendations, and citation previews through a report-focused UI.",
+    "detailedDescription": "A React 19 + Vite frontend with an Express API proxy that keeps LLM keys server-side and audits URLs against GEO metrics: Fact Density, Entity Salience, and Extractability. Supports Gemini and OpenAI providers, schema-validates JSON outputs, and presents scorecards, findings, recommendations, and citation previews in a report-first UI.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
       "React 19",
+      "Vite 7",
       "Express",
       "Gemini",
       "OpenAI",
-      "TypeScript",
-      "Tailwind CSS"
+      "Tailwind CSS 4"
     ],
     "demoUrl": "https://geoaudit.dianaismail.me/",
     "githubUrl": "#"

@@ -1,68 +1,96 @@
-# Diana Ismail Labs — Cyber-Minimalist Showcase
+# Diana Ismail Labs
 
-A premium Next.js 15 application meticulously showcasing Proof of Concepts (POCs) and experiments in Agentic-AI, Immersive Experiences, and Experimental Tech.
+A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic-AI, Immersive Experiences, and Experimental Technology.
 
-## ✨ Aesthetic: "Cyber-Minimalist"
+## Design System: "Cyber-Minimalist"
 
-The Labs UI has been specifically engineered to embody a "Cyber-Minimalist" design system. This system is deeply influenced by high-end, agentic digital interfaces:
+The UI is built around a single coherent design language:
 
-- **Atmospheric Depth:** A deep charcoal background (`#0A0C10`) overlaid with a subtle 48x48px CSS grid pattern and large, heavily blurred ambient orbs (electric blue and purple), giving the interface physical depth.
-- **Glassmorphism:** High-end, translucent component cards with sharp 16px backdrop blurs. Hover interaction states trigger an electric-blue radiant glow (`#0069FF`).
-- **Tactile Typography:** A sophisticated dual-font system. **Merriweather** (serif) handles large display headings with tight tracking for impact, while **Open Sans** (sans-serif) is scaled precisely (16px base, 1.625 leading) for extended readability and accessibility.
-- **Micro-Interactions:** Fluid, CSS-driven transitions (avoiding heavy JS re-renders) structure the filter tabs and interactive links, providing instant, tactile feedback to the user.
+- **Atmospheric Depth:** Deep charcoal background (`#0A0C10`) with a 48×48px CSS grid pattern and large, heavily blurred ambient orbs (electric blue + purple) rendered at fixed positions to create physical depth without scroll cost.
+- **Glassmorphism:** Translucent cards with 16px backdrop blur. Hover states trigger an electric-blue radiant glow (`#0069FF`).
+- **Typography:** Dual-font system — **Merriweather** (serif) for display headings, **Open Sans** (sans-serif, 16px / 1.625 leading) for body text, and **Geist Mono** for badges and technical labels.
+- **Micro-interactions:** CSS-driven transitions on filter tabs and links (no JS re-renders). Framer Motion handles component entry and card hover animations.
 
-## 🛠 Features & Tech Stack
+## Tech Stack
 
-- **Framework:** Next.js 15 (App Router, Standalone Output for optimized Dockerization)
-- **Styling:** Tailwind CSS v4 + Vanilla CSS Design Tokens (for precision glass/glow effects)
-- **Animations:** Framer Motion (for smooth 60fps entry and hover transitions)
-- **Security & Privacy:**
-  - **Zero External HTTP Requests:** Google Fonts (Open Sans, Merriweather, Geist Mono) are self-hosted via `next/font/google`. This eliminates all mixed-content HTTP risks and CDN tracking.
-  - **Enterprise Security Headers:** Fully hardened `next.config.ts` enforcing strict HSTS (2-year preload), X-Frame-Options (Clickjacking defense), and restrictive Permissions-Policies.
-- **Data Architecture:** A fully data-driven, client-side filterable grid, populated by a centralized, tightly-typed JSON manifest.
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router, standalone output) |
+| Language | TypeScript (strict mode) |
+| Styling | Tailwind CSS v4 + CSS custom properties |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Deployment | Docker (multi-stage, Node 22 Alpine) |
 
-## 🚀 Getting Started
+**Security & Privacy:**
+- All fonts (Merriweather, Open Sans, Geist Mono) are self-hosted via `next/font/google` — zero external HTTP requests at runtime.
+- Strict security headers enforced in `next.config.ts`: HSTS (2-year preload), `X-Frame-Options: DENY`, restrictive `Permissions-Policy`, and a tight CSP.
 
-1. **Clone the repository**
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+## Architecture
 
-## 📂 Managing Projects
+The app is a single-page client-side React application. All data lives in `src/data/projects.json` — no backend, no database, no API routes.
 
-To seamlessly add, edit, or remove projects, simply modify the `src/data/projects.json` file. The grid architecture and category taxonomy filters will update and re-render automatically.
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout: fonts, metadata, background orbs
+│   ├── page.tsx            # Home page: Hero + ProjectGrid + Footer
+│   └── globals.css         # Design tokens, animations, component base styles
+├── components/
+│   ├── Hero.tsx            # Status badge + headline
+│   ├── ProjectGrid.tsx     # Category filtering + grid layout
+│   ├── ProjectCard.tsx     # Individual card with Framer Motion animations
+│   ├── ProjectDetailsDrawer.tsx  # Slide-out panel (bottom-sheet on mobile, side-panel on desktop)
+│   └── Footer.tsx          # Copyright + main site link
+└── data/
+    └── projects.json       # Single source of truth for all project data
+```
 
-### Project Schema:
+## Managing Projects
+
+Add, edit, or hide projects by modifying `src/data/projects.json`. The category filter tabs and grid are generated entirely from this file.
+
+### Project schema
+
 ```json
 {
-  "id": "unique-id",
+  "id": "unique-slug",
   "title": "Project Title",
-  "description": "Short description of the project, optimized for 16px reading.",
-  "category": "e.g., Agentic-AI | Immersive | Creative",
-  "status": "Active | Research | Archived",
-  "display": true, // toggle visibility in the grid immediately
-  "tags": ["Tag1", "Tag2"],
-  "demoUrl": "https://...",
-  "githubUrl": "https://..."
+  "shortDescription": "One-line summary shown on the card.",
+  "detailedDescription": "Full description shown in the details drawer.",
+  "category": "Agentic-AI",
+  "status": "Active",
+  "display": true,
+  "tags": ["Python", "OpenAI"],
+  "demoUrl": "https://project.dianaismail.me",
+  "githubUrl": "https://github.com/..."
 }
 ```
 
-## 🐳 Docker Deployment
+**Field notes:**
+- `display: false` hides the project from the grid without deleting it.
+- `status` accepts `"Active"`, `"Research"`, or `"Archived"` — each maps to a distinct badge colour.
+- Setting `demoUrl` or `githubUrl` to `"#"` hides the corresponding action button.
+- Demo URLs containing `dianaismail.me` open in the same tab; all other URLs open in a new tab with `noopener noreferrer`.
 
-This project heavily leverages Next.js **standalone output** to generate minimal, production-grade Docker images.
+## Getting Started
 
-### Build and Run with Docker Compose (Recommended):
+```bash
+npm install
+npm run dev
+```
+
+## Docker Deployment
+
+**Recommended (Docker Compose):**
 ```bash
 docker compose up -d --build
 ```
 
-### Manual Docker Build:
+**Manual:**
 ```bash
 docker build -t labs-app .
 docker run -p 3000:3000 labs-app
 ```
+
+The Docker build uses a three-stage pipeline (deps → builder → runner) with Next.js standalone output for a minimal production image.

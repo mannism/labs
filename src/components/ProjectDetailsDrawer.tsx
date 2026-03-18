@@ -12,7 +12,8 @@ interface ProjectDetailsDrawerProps {
 }
 
 /**
- * Maps project status to specific Tailwind color classes for the status badge (copied from Card).
+ * Maps project status to Tailwind color classes for the status badge.
+ * Intentionally mirrors the same helper in ProjectCard to keep components self-contained.
  */
 function statusClass(status: string) {
     if (status === "Active") return "border-green-500/30 text-green-400 bg-green-500/10";
@@ -88,11 +89,15 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
                         className="sm:!y-0 sm:!translate-y-0 sm:initial-x-full sm:animate-x-0 sm:exit-x-full w-full sm:w-[500px] md:w-[600px] bg-[#0a0f1c] bg-opacity-95 backdrop-blur-2xl border-t sm:border-t-0 sm:border-l border-white/10 h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
                         style={{
-                            // CSS override for sm/desktop breakpoint since Framer styles apply inline
+                            // Framer Motion applies its initial animation value as an inline style,
+                            // which overrides Tailwind's responsive classes. We set the correct
+                            // initial transform here so the entry animation starts from the right edge
+                            // on desktop (translateX) rather than the bottom (translateY).
                             transform: window.innerWidth >= 640 ? "translateX(100%)" : "translateY(100%)"
                         }}
                         onAnimationStart={() => {
-                            // Quick hack to fix framer motion inline styles fighting tailwind breakpoints
+                            // Once the animation begins, clear the inline transform so Framer
+                            // can drive it freely without fighting the initial override above.
                             if (drawerRef.current && window.innerWidth >= 640) {
                                 drawerRef.current.style.transform = "none";
                             }

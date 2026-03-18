@@ -31,9 +31,9 @@ function statusClass(status: string) {
 
 /**
  * ProjectCard Component
- * Implements a glassmorphic design with hover states and motion animations.
- * 🪟 Backdrop Blur: 16px
- * 🚀 Animations: Framer Motion (entry + hover)
+ * Glassmorphic card with 16px backdrop blur, Framer Motion entry animation,
+ * and a hover lift effect (y: -6px, scale: 1.01).
+ * Click or keyboard-activate (Enter/Space) to open the details drawer.
  */
 export function ProjectCard({ project, onClick }: { project: Project; onClick?: () => void }) {
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
