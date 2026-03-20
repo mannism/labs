@@ -5,6 +5,17 @@ Format: `## [x.y.z] - YYYY-MM-DD`
 
 ---
 
+## [1.2.0] - 2026-03-20
+
+### Added
+- Live site-reachability ping on each `ProjectCard` — fetches `demoUrl` with `no-cors` on mount; green bullet = reachable, muted bullet + "Not active" = unreachable, pulsing dot = checking
+
+### Changed
+- `ProjectCard` metadata row replaced with clean bullet points (no "Status:" / "Type:" label text)
+- Removed redundant top status badge; category badge remains
+
+---
+
 ## [1.1.0] - 2026-03-20
 
 ### Added

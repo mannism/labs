@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 
@@ -21,16 +22,6 @@ export interface Project {
 }
 
 /**
- * Maps project status to Tailwind badge classes.
- * Includes dark: variants so the badge reads correctly in both themes.
- */
-function statusClass(status: string) {
-    if (status === "Active")   return "border-green-400/60  text-green-700  bg-green-500/10  dark:border-green-500/30  dark:text-green-400";
-    if (status === "Research") return "border-amber-400/60  text-amber-700  bg-amber-500/10  dark:border-amber-500/30  dark:text-amber-400";
-    return                            "border-neutral-400/60 text-neutral-600 bg-neutral-500/10 dark:border-neutral-500/30 dark:text-neutral-400";
-}
-
-/**
  * ProjectCard Component
  * Glassmorphic card using CSS vars that swap between dark/light themes.
  * Fades in when scrolled into view (whileInView, fires once).
@@ -39,6 +30,26 @@ function statusClass(status: string) {
  */
 export function ProjectCard({ project, onClick }: { project: Project; onClick?: () => void }) {
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
+
+    /**
+     * Ping the demo URL to determine live reachability.
+     * Uses no-cors so CORS headers don't block the check — an opaque response
+     * means the server responded; a network error means it's unreachable.
+     */
+    const [siteUp, setSiteUp] = useState<boolean | null>(null);
+    useEffect(() => {
+        if (!project.demoUrl || project.demoUrl === "#") {
+            setSiteUp(true);
+            return;
+        }
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        fetch(project.demoUrl, { mode: "no-cors", signal: controller.signal })
+            .then(() => setSiteUp(true))
+            .catch(() => setSiteUp(false))
+            .finally(() => clearTimeout(timer));
+        return () => { controller.abort(); clearTimeout(timer); };
+    }, [project.demoUrl]);
 
     return (
         <motion.div
@@ -61,13 +72,10 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
             {/* Blue gradient overlay — fades in via CSS on .project-card:hover */}
             <div className="card-overlay" />
 
-            {/* Header: badges + action icons */}
+            {/* Header: category badge + action icons */}
             <div className="flex justify-between items-start mb-4 relative z-10">
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="badge-category">{project.category}</span>
-                    <span className={`px-2.5 py-1 text-sm font-mono rounded-full border ${statusClass(project.status)}`}>
-                        {project.status}
-                    </span>
                 </div>
 
                 <div className="flex gap-1">
@@ -106,13 +114,23 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                 {project.shortDescription}
             </p>
 
-            {/* Structured metadata row — "Status: X / Type: X" pattern */}
-            <div className="flex flex-col gap-1 mb-5 relative z-10">
-                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-                    Status: <span style={{ color: "var(--text-primary)" }}>{project.status}</span>
+            {/* Live status + category bullets */}
+            <div className="flex flex-col gap-1.5 mb-5 relative z-10">
+                {/* Status bullet — driven by live ping of demoUrl */}
+                <span className="flex items-center gap-2 text-xs font-mono">
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                        siteUp === null  ? "animate-pulse-dot bg-neutral-500" :
+                        siteUp          ? "bg-green-400" :
+                                          "bg-neutral-500"
+                    }`} />
+                    <span style={{ color: siteUp === false ? "var(--text-muted)" : "var(--text-primary)" }}>
+                        {siteUp === null ? project.status : siteUp ? project.status : "Not active"}
+                    </span>
                 </span>
-                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-                    Type: <span style={{ color: "var(--text-primary)" }}>{project.category}</span>
+                {/* Category bullet */}
+                <span className="flex items-center gap-2 text-xs font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "var(--text-muted)" }} />
+                    <span style={{ color: "var(--text-primary)" }}>{project.category}</span>
                 </span>
             </div>
 
