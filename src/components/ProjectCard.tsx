@@ -3,17 +3,17 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 
-/**
- * Defines the schema for a project. 
- * Updated to include the 'display' flag for visibility control.
- */
+/** Schema for a single project entry in src/data/projects.json. */
 export interface Project {
     id: string;
+    /** Controls display order in the grid — lower numbers appear first. */
+    order?: number;
     title: string;
     shortDescription: string;
     detailedDescription: string;
     category: string;
     status: string;
+    /** Set to false to hide from the grid without deleting the entry. */
     display: boolean;
     tags: string[];
     demoUrl: string;
@@ -21,18 +21,20 @@ export interface Project {
 }
 
 /**
- * Maps project status to specific Tailwind color classes for the status badge.
+ * Maps project status to Tailwind badge classes.
+ * Includes dark: variants so the badge reads correctly in both themes.
  */
 function statusClass(status: string) {
-    if (status === "Active") return "border-green-500/30 text-green-400 bg-green-500/10";
-    if (status === "Research") return "border-amber-500/30 text-amber-400 bg-amber-500/10";
-    return "border-neutral-500/30 text-neutral-400 bg-neutral-500/10";
+    if (status === "Active")   return "border-green-400/60  text-green-700  bg-green-500/10  dark:border-green-500/30  dark:text-green-400";
+    if (status === "Research") return "border-amber-400/60  text-amber-700  bg-amber-500/10  dark:border-amber-500/30  dark:text-amber-400";
+    return                            "border-neutral-400/60 text-neutral-600 bg-neutral-500/10 dark:border-neutral-500/30 dark:text-neutral-400";
 }
 
 /**
  * ProjectCard Component
- * Glassmorphic card with 16px backdrop blur, Framer Motion entry animation,
- * and a hover lift effect (y: -6px, scale: 1.01).
+ * Glassmorphic card using CSS vars that swap between dark/light themes.
+ * Fades in when scrolled into view (whileInView, fires once).
+ * Hover: y: -6px lift + accent-blue border glow.
  * Click or keyboard-activate (Enter/Space) to open the details drawer.
  */
 export function ProjectCard({ project, onClick }: { project: Project; onClick?: () => void }) {
@@ -51,9 +53,10 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
             }}
             whileHover={{ y: -6, scale: 1.01 }}
             initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="project-card group relative flex flex-col overflow-hidden min-h-[260px] p-6"
+            className="project-card group relative flex flex-col overflow-hidden min-h-[260px] p-6 cursor-pointer"
         >
             {/* Blue gradient overlay — fades in via CSS on .project-card:hover */}
             <div className="card-overlay" />
@@ -74,6 +77,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                             target="_blank"
                             rel="noopener noreferrer"
                             className="card-icon-btn"
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <Github className="w-4 h-4" />
                         </a>
@@ -84,6 +88,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                             target={isInternalDemo ? "_self" : "_blank"}
                             rel={isInternalDemo ? undefined : "noopener noreferrer"}
                             className="card-icon-btn demo"
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <ArrowUpRight className="w-4 h-4" />
                         </a>
@@ -97,15 +102,25 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
             </h3>
 
             {/* Short Description */}
-            <p className="text-base mb-6 flex-grow relative z-10 font-normal opacity-90 leading-[1.625]" style={{ color: "var(--text-muted)" }}>
+            <p className="text-base mb-6 flex-grow relative z-10 font-normal leading-[1.625]" style={{ color: "var(--text-muted)" }}>
                 {project.shortDescription}
             </p>
 
-            {/* View Details Button inside Card */}
+            {/* Structured metadata row — "Status: X / Type: X" pattern */}
+            <div className="flex flex-col gap-1 mb-5 relative z-10">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+                    Status: <span style={{ color: "var(--text-primary)" }}>{project.status}</span>
+                </span>
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+                    Type: <span style={{ color: "var(--text-primary)" }}>{project.category}</span>
+                </span>
+            </div>
+
+            {/* View Details — filled pill CTA */}
             <div className="mb-6 relative z-10">
                 <button
-                    className="flex items-center gap-1.5 text-sm font-mono transition-colors hover:text-white group/btn"
-                    style={{ color: "var(--accent-blue)" }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-mono font-semibold transition-opacity hover:opacity-85 group/btn"
+                    style={{ background: "var(--accent-blue)", color: "#fff" }}
                     onClick={(e) => {
                         e.stopPropagation(); // Prevents double firing if clicking button inside card
                         onClick?.();
@@ -116,11 +131,15 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                 </button>
             </div>
 
-            {/* Tags */}
+            {/* Tags — bordered chips */}
             <div className="flex flex-wrap gap-2 relative z-10 mt-auto">
                 {project.tags.map(tag => (
-                    <span key={tag} className="text-sm font-mono tracking-wider font-medium" style={{ color: "#748099" }}>
-                        #{tag}
+                    <span
+                        key={tag}
+                        className="px-2.5 py-1 text-xs font-mono rounded-md border"
+                        style={{ color: "var(--tag-color)", borderColor: "var(--tag-border)", background: "var(--tag-bg)" }}
+                    >
+                        {tag}
                     </span>
                 ))}
             </div>
