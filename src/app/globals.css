@@ -1,14 +1,18 @@
-/* 
+/*
  * Cyber-Minimalist Design System
  * -------------------------------
- * Base:   #0A0C10 (Charcoal)
- * Accent: #0069FF (Electric Blue)
- * Body:   Open Sans (16px)
- * Title:  Merriweather (Serif)
+ * Dark  base: #0A0C10 (Charcoal)
+ * Light base: #f8fafc (Slate-50)
+ * Accent:     #0069FF (Electric Blue)
+ * Body:       Open Sans (16px)
+ * Title:      Merriweather (Serif)
  */
 
 /* ─── Tailwind v4 ────────────────────────────────────────────── */
 @import "tailwindcss";
+
+/* Enable class-based dark mode so dark: prefixes respond to html.dark */
+@variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -18,8 +22,9 @@
   --font-serif: var(--font-merriweather);
 }
 
-/* ─── Design Tokens ─────────────────────────────────────────── */
-:root {
+/* ─── Design Tokens: Dark mode (default) ────────────────────── */
+:root,
+html.dark {
   --bg-primary: #0A0C10;
   --bg-glass: rgba(16, 19, 26, 0.85);
 
@@ -32,7 +37,69 @@
 
   --border-subtle: rgba(255, 255, 255, 0.08);
 
+  /* Cards */
+  --card-bg: rgba(16, 19, 26, 0.72);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: rgba(0, 0, 0, 0.35);
+
+  /* Filter tabs */
+  --tab-bg: rgba(255, 255, 255, 0.05);
+  --tab-border: rgba(255, 255, 255, 0.08);
+  --tab-hover-bg: rgba(255, 255, 255, 0.09);
+
+  /* Category badge */
+  --badge-category-color: #60a5fa;
+  --badge-category-bg: rgba(0, 105, 255, 0.12);
+  --badge-category-border: rgba(0, 105, 255, 0.25);
+
+  /* Tag chips */
+  --tag-color: #748099;
+  --tag-border: rgba(255, 255, 255, 0.12);
+  --tag-bg: rgba(255, 255, 255, 0.05);
+
+  /* Card icon buttons */
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --icon-btn-hover-color: #fff;
+
   /* Tailwind compat aliases */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+/* ─── Design Tokens: Light mode overrides ───────────────────── */
+html.light {
+  --bg-primary: #f8fafc;
+  --bg-glass: rgba(255, 255, 255, 0.80);
+
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+
+  /* Cards */
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Filter tabs */
+  --tab-bg: rgba(0, 0, 0, 0.04);
+  --tab-border: rgba(0, 0, 0, 0.1);
+  --tab-hover-bg: rgba(0, 0, 0, 0.07);
+
+  /* Category badge */
+  --badge-category-color: #0050cc;
+  --badge-category-bg: rgba(0, 105, 255, 0.1);
+  --badge-category-border: rgba(0, 105, 255, 0.35);
+
+  /* Tag chips */
+  --tag-color: #5a6578;
+  --tag-border: rgba(90, 101, 120, 0.35);
+  --tag-bg: rgba(90, 101, 120, 0.06);
+
+  /* Card icon buttons */
+  --icon-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  --icon-btn-hover-color: #0A0C10;
+
   --background: var(--bg-primary);
   --foreground: var(--text-primary);
 }
@@ -55,13 +122,21 @@ body {
   font-family: var(--font-open-sans), 'Open Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 
-  /* Subtle 48×48px grid — identical to twin site */
+  /* Subtle 48×48px grid — dark mode: white lines */
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
   background-size: 48px 48px;
   background-attachment: fixed;
+}
+
+/* Light mode: invert grid lines to dark */
+html.light body {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
 }
 
 /* ─── Display / serif font helper ───────────────────────────── */
@@ -83,6 +158,7 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(100px);
+  transition: opacity 0.3s ease;
 }
 
 .bg-orb-blue {
@@ -103,6 +179,10 @@ body {
   opacity: 0.22;
 }
 
+/* Reduce orb intensity in light mode */
+html.light .bg-orb-blue  { opacity: 0.1; }
+html.light .bg-orb-purple { opacity: 0.12; }
+
 /* ─── Status badge pulse ─────────────────────────────────────── */
 @keyframes pulse-dot {
 
@@ -122,14 +202,26 @@ body {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
+/* ─── Navbar ─────────────────────────────────────────────────── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
 /* ─── Filter tabs ────────────────────────────────────────────── */
 .filter-tab {
   padding: 0.5rem 1.25rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-family: monospace;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border);
   color: var(--text-muted);
   cursor: pointer;
   transition:
@@ -141,7 +233,7 @@ body {
 }
 
 .filter-tab:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: var(--tab-hover-bg);
   color: var(--text-primary);
 }
 
@@ -157,28 +249,28 @@ body {
 
 /* ─── Project cards ──────────────────────────────────────────── */
 .project-card {
-  background: rgba(16, 19, 26, 0.72);
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
   border-radius: 1rem;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 24px var(--card-shadow);
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease;
 }
 
 .project-card:hover {
-  border-color: rgba(0, 105, 255, 0.45);
+  border-color: rgba(0, 105, 255, 0.5);
   box-shadow:
-    0 0 32px rgba(0, 105, 255, 0.18),
-    0 4px 32px rgba(0, 0, 0, 0.35);
+    0 0 32px rgba(0, 105, 255, 0.15),
+    0 4px 24px var(--card-shadow);
 }
 
 .card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(145deg, rgba(0, 105, 255, 0.07) 0%, transparent 60%);
+  background: linear-gradient(145deg, rgba(0, 105, 255, 0.05) 0%, transparent 60%);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -195,9 +287,9 @@ body {
   font-size: 0.875rem;
   font-family: monospace;
   border-radius: 9999px;
-  background: rgba(0, 105, 255, 0.12);
-  border: 1px solid rgba(0, 105, 255, 0.25);
-  color: #60a5fa;
+  background: var(--badge-category-bg);
+  border: 1px solid var(--badge-category-border);
+  color: var(--badge-category-color);
 }
 
 /* ─── Card icon action buttons ───────────────────────────────── */
@@ -210,14 +302,20 @@ body {
 }
 
 .card-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--icon-btn-hover-bg);
+  color: var(--icon-btn-hover-color);
 }
 
 .card-icon-btn.demo:hover {
   background: rgba(0, 105, 255, 0.15);
   color: var(--accent-blue);
 }
+
+/* ─── Custom scrollbar (drawer) ─────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar        { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track  { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb  { background: var(--border-subtle); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ─── Footer link ────────────────────────────────────────────── */
 .footer-link {

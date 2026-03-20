@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowUpRight, Github } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Project } from "./ProjectCard";
 
 interface ProjectDetailsDrawerProps {
@@ -12,13 +12,14 @@ interface ProjectDetailsDrawerProps {
 }
 
 /**
- * Maps project status to Tailwind color classes for the status badge.
+ * Maps project status to Tailwind badge classes.
  * Intentionally mirrors the same helper in ProjectCard to keep components self-contained.
+ * The drawer stays dark in both themes (overlay), so dark: variants are the primary styles.
  */
 function statusClass(status: string) {
-    if (status === "Active") return "border-green-500/30 text-green-400 bg-green-500/10";
-    if (status === "Research") return "border-amber-500/30 text-amber-400 bg-amber-500/10";
-    return "border-neutral-500/30 text-neutral-400 bg-neutral-500/10";
+    if (status === "Active")   return "border-green-400/60  text-green-700  bg-green-500/10  dark:border-green-500/30  dark:text-green-400";
+    if (status === "Research") return "border-amber-400/60  text-amber-700  bg-amber-500/10  dark:border-amber-500/30  dark:text-amber-400";
+    return                            "border-neutral-400/60 text-neutral-600 bg-neutral-500/10 dark:border-neutral-500/30 dark:text-neutral-400";
 }
 
 /**
@@ -28,6 +29,17 @@ function statusClass(status: string) {
  */
 export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetailsDrawerProps) {
     const drawerRef = useRef<HTMLDivElement>(null);
+
+    // Track viewport width client-side to drive the correct slide animation axis.
+    // Defaults to false (mobile) so SSR never touches window.
+    const [isDesktop, setIsDesktop] = useState(false);
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 640px)");
+        setIsDesktop(mq.matches);
+        const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+        mq.addEventListener("change", handler);
+        return () => mq.removeEventListener("change", handler);
+    }, []);
 
     // Lock body scroll when drawer is open
     useEffect(() => {
@@ -63,11 +75,18 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
 
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
 
+    /** Slide axis swaps between mobile (y) and desktop (x) based on hydrated isDesktop. */
+    const drawerVariants = {
+        hidden: isDesktop ? { x: "100%", y: 0 } : { y: "100%", x: 0 },
+        visible: { x: 0, y: 0 },
+        exit:   isDesktop ? { x: "100%", y: 0 } : { y: "100%", x: 0 },
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-stretch justify-end">
-                    
+
                     {/* Backdrop Overlay */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -82,26 +101,12 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                     {/* Drawer Content Area */}
                     <motion.div
                         ref={drawerRef}
-                        // Mobile: Slide up from bottom. Desktop: Slide in from right.
-                        initial={{ y: "100%", x: 0 }}
-                        animate={{ y: 0, x: 0 }}
-                        exit={{ y: "100%", x: 0 }}
+                        variants={drawerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="sm:!y-0 sm:!translate-y-0 sm:initial-x-full sm:animate-x-0 sm:exit-x-full w-full sm:w-[500px] md:w-[600px] bg-[#0a0f1c] bg-opacity-95 backdrop-blur-2xl border-t sm:border-t-0 sm:border-l border-white/10 h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
-                        style={{
-                            // Framer Motion applies its initial animation value as an inline style,
-                            // which overrides Tailwind's responsive classes. We set the correct
-                            // initial transform here so the entry animation starts from the right edge
-                            // on desktop (translateX) rather than the bottom (translateY).
-                            transform: window.innerWidth >= 640 ? "translateX(100%)" : "translateY(100%)"
-                        }}
-                        onAnimationStart={() => {
-                            // Once the animation begins, clear the inline transform so Framer
-                            // can drive it freely without fighting the initial override above.
-                            if (drawerRef.current && window.innerWidth >= 640) {
-                                drawerRef.current.style.transform = "none";
-                            }
-                        }}
+                        className="w-full sm:w-[500px] md:w-[600px] bg-[#0a0f1c] bg-opacity-95 backdrop-blur-2xl border-t sm:border-t-0 sm:border-l border-white/10 h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
                     >
                         {/* Mobile Drag Indicator (Visual Only) */}
                         <div className="w-full h-1.5 flex justify-center pt-4 sm:hidden">
