@@ -8,6 +8,17 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 
 ---
 
+## Conventions
+
+- **Components:** PascalCase, one per file. Props defined as TypeScript interfaces.
+- **Functions:** camelCase. Constants: `UPPER_SNAKE_CASE`.
+- **CSS classes:** kebab-case with BEM-style prefixes (`glass-*`, `card-*`, `filter-*`).
+- **Fonts:** Merriweather (display/headings), Open Sans (body), Geist Mono (badges/code).
+- **Colors:** always via CSS custom properties — `var(--bg-primary)`, `var(--accent-blue)`, `var(--text-primary)`. Never raw hex values in components.
+- **TypeScript:** strict mode on — no `any` types, no unused locals or parameters.
+
+---
+
 ## Architecture Conventions
 
 - **Single source of truth:** `src/data/projects.json` drives the grid, category filters, and drawer content. Never hardcode project data in components.
@@ -23,14 +34,15 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 - Never hardcode API keys or environment-specific URLs in source files. Use `.env.local` (already in `.gitignore`). Only prefix with `NEXT_PUBLIC_` when browser exposure is intentional.
 - All fonts are self-hosted via `next/font/google` — do not add external CDN links.
 - Security headers are configured in `next.config.ts`. Do not weaken them (HSTS, X-Frame-Options, CSP, Permissions-Policy).
-- Never use `dangerouslySetInnerHTML` with user-controlled content.
+- Never use `dangerouslySetInnerHTML` with user-controlled content — React's default escaping is sufficient; don't bypass it.
 - All external links must carry `rel="noopener noreferrer"`.
+- Never expose stack traces, raw error objects, or internal file paths in UI-visible output.
 
 ---
 
 ## Code Quality
 
-- Use descriptive names. Add comments only where the logic isn't obvious from the code.
+- Use descriptive names. Add JSDoc comments where the logic isn't obvious from the code.
 - Do not duplicate the `Project` interface — it is exported from `ProjectCard.tsx` and imported wherever needed.
 - Keep components focused. `ProjectGrid` owns filtering state and drawer visibility. Individual cards are stateless display components.
 
@@ -38,23 +50,28 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 
 ## Git Workflow
 
+### Versioning
+Current version: **1.0.0** (semantic versioning — `MAJOR.MINOR.PATCH`).
+
+| Type | Version bump | Example |
+|------|------|------|
+| `feature/` | Minor: `1.0.0 → 1.1.0` | New functionality |
+| `bugfix/` | Patch: `1.0.0 → 1.0.1` | Bug fixes |
+| `refactor/` | Patch: `1.0.0 → 1.0.1` | Code restructuring |
+| `chore/` | Patch: `1.0.0 → 1.0.1` | Config, deps, tooling |
+
 ### Branching
-One branch per task: `<type>/<short-description>-v<version>`
-
-| Type | When |
-|------|------|
-| `feature/` | New functionality |
-| `bugfix/` | Bug fixes |
-| `refactor/` | Code restructuring |
-| `chore/` | Config, deps, tooling |
-
-Start at `v0.1` if no prior version exists.
+One branch per task: `<type>/<short-description>-v<new-version>`
 
 ### Commits
-Break large tasks into focused subtasks. Commit after each subtask.
+Format: `[v<new-version>] <type>: <what was done>`
 
-Format: `[v<version>] <type>: <what was done>`
+**After every commit:**
+1. Bump `"version"` in `package.json` to the new version number.
+2. Add an entry to `CHANGELOG.md` under `## [x.y.z] - YYYY-MM-DD`.
+3. Tag the commit: `git tag v<version>`.
+4. Update `README.md` if the change affects usage, setup, features, or configuration.
 
 **Examples:**
-- `feature/add-search-v0.1` → `[v0.1] feature: add keyword search to project grid`
-- `bugfix/fix-drawer-scroll-v1.1` → `[v1.1] bugfix: fix body scroll not restored on drawer close`
+- Branch: `feature/add-search-v1.1.0` → Commit: `[v1.1.0] feature: add keyword search to project grid`
+- Branch: `bugfix/fix-drawer-scroll-v1.0.1` → Commit: `[v1.0.1] bugfix: fix body scroll not restored on drawer close`
