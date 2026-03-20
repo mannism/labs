@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 
@@ -21,14 +22,12 @@ export interface Project {
 }
 
 /**
- * Maps project status to Tailwind badge classes.
- * Includes dark: variants so the badge reads correctly in both themes.
+ * Badge classes for the active/up state (green).
+ * Used when the site is reachable or no demoUrl is present.
  */
-function statusClass(status: string) {
-    if (status === "Active")   return "border-green-400/60  text-green-700  bg-green-500/10  dark:border-green-500/30  dark:text-green-400";
-    if (status === "Research") return "border-amber-400/60  text-amber-700  bg-amber-500/10  dark:border-amber-500/30  dark:text-amber-400";
-    return                            "border-neutral-400/60 text-neutral-600 bg-neutral-500/10 dark:border-neutral-500/30 dark:text-neutral-400";
-}
+const STATUS_UP   = "border-green-400/60 text-green-700 bg-green-500/10 dark:border-green-500/30 dark:text-green-400";
+/** Badge classes for the down/muted state (neutral). */
+const STATUS_DOWN = "border-neutral-400/60 text-neutral-500 bg-neutral-500/10 dark:border-neutral-500/30 dark:text-neutral-400";
 
 /**
  * ProjectCard Component
@@ -39,6 +38,30 @@ function statusClass(status: string) {
  */
 export function ProjectCard({ project, onClick }: { project: Project; onClick?: () => void }) {
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
+
+    /**
+     * Ping demoUrl on mount to check live reachability.
+     * no-cors avoids CORS preflight — an opaque response means the server answered;
+     * a network error (or timeout) means it's unreachable.
+     * null = still checking, true = up, false = down.
+     */
+    const [siteUp, setSiteUp] = useState<boolean | null>(null);
+    useEffect(() => {
+        if (!project.demoUrl || project.demoUrl === "#") {
+            setSiteUp(true);
+            return;
+        }
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        fetch(project.demoUrl, { mode: "no-cors", signal: controller.signal })
+            .then(() => setSiteUp(true))
+            .catch(() => setSiteUp(false))
+            .finally(() => clearTimeout(timer));
+        return () => { controller.abort(); clearTimeout(timer); };
+    }, [project.demoUrl]);
+
+    const badgeClass  = siteUp === false ? STATUS_DOWN : STATUS_UP;
+    const badgeLabel  = siteUp === false ? "Not Active" : project.status;
 
     return (
         <motion.div
@@ -65,8 +88,8 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
             <div className="flex justify-between items-start mb-4 relative z-10">
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="badge-category">{project.category}</span>
-                    <span className={`px-2.5 py-1 text-sm font-mono rounded-full border ${statusClass(project.status)}`}>
-                        {project.status}
+                    <span className={`px-2.5 py-1 text-sm font-mono rounded-full border transition-colors duration-300 ${badgeClass}`}>
+                        {badgeLabel}
                     </span>
                 </div>
 

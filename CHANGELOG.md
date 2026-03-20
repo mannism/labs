@@ -8,11 +8,8 @@ Format: `## [x.y.z] - YYYY-MM-DD`
 ## [1.2.0] - 2026-03-20
 
 ### Added
-- Live site-reachability ping on each `ProjectCard` — fetches `demoUrl` with `no-cors` on mount; green bullet = reachable, muted bullet + "Not active" = unreachable, pulsing dot = checking
-
-### Changed
-- `ProjectCard` metadata row replaced with clean bullet points (no "Status:" / "Type:" label text)
-- Removed redundant top status badge; category badge remains
+- Live site-reachability ping on each `ProjectCard` — fetches `demoUrl` with `no-cors` on mount; status badge turns green ("Active") if reachable, muted ("Not Active") if unreachable
+- `connect-src 'self' https://*.dianaismail.me` added to CSP in `next.config.ts` to allow outbound pings
 
 ---
 
