@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/mannism/labs/compare/v1.1.0...v1.1.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* **data:** correct demoUrl for Diana's Digital Twin ([402e289](https://github.com/mannism/labs/commit/402e2898a5ac83b25fafbb8cb3868f1dca35fd02))
+
 # [1.1.0](https://github.com/mannism/labs/compare/v1.0.0...v1.1.0) (2026-03-21)
 
 
