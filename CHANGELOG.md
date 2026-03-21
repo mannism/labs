@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/mannism/labs/compare/v1.0.0...v1.1.0) (2026-03-21)
+
+
+### Features
+
+* add favicon pack and SEO metadata ([47769f9](https://github.com/mannism/labs/commit/47769f9a07e2deb9ae17b375d3407a99751a7d7f))
+
 # 1.0.0 (2026-03-21)
 
 
