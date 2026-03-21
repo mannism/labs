@@ -1,5 +1,5 @@
 {
-  "siteName": "Diana Ismail Labs",
+  "siteName": "Labs by Diana",
   "title": "Labs | Diana Ismail",
   "description": "A collection of experimental AI and full-stack projects by Diana Ismail — digital twins, agentic tools, and developer utilities.",
   "keywords": [
@@ -25,6 +25,6 @@
     "imageUrl": "/favicon-512x512.png",
     "imageWidth": 512,
     "imageHeight": 512,
-    "imageAlt": "Diana Ismail Labs — AI & full-stack experiments"
+    "imageAlt": "Labs by Diana — AI & full-stack experiments"
   }
 }
