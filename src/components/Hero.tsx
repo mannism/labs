@@ -30,7 +30,7 @@ export function Hero() {
                     className="w-2 h-2 rounded-full animate-pulse-dot"
                     style={{ background: "#22C55E" }}
                 />
-                {"// DIANA ISMAIL LABS"}
+                {"// Labs by Diana"}
             </motion.div>
 
             {/* Main Headline — Merriweather display font */}
