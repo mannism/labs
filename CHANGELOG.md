@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/mannism/labs/compare/v1.1.1...v1.1.2) (2026-03-21)
+
+
+### Bug Fixes
+
+* **favicon:** remove incorrect favicon.ico and drop its metadata reference ([303668a](https://github.com/mannism/labs/commit/303668a3ebb091920130a9a54525a8d6d6c9dc5f))
+
 ## [1.1.1](https://github.com/mannism/labs/compare/v1.1.0...v1.1.1) (2026-03-21)
 
 
