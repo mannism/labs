@@ -50,28 +50,32 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 
 ## Git Workflow
 
-### Versioning
-Current version: **1.0.0** (semantic versioning — `MAJOR.MINOR.PATCH`).
+### Branching (GitHub Flow)
+One branch per task: `<type>/<short-description>` — no version in the branch name.
 
-| Type | Version bump | Example |
-|------|------|------|
-| `feature/` | Minor: `1.0.0 → 1.1.0` | New functionality |
-| `bugfix/` | Patch: `1.0.0 → 1.0.1` | Bug fixes |
-| `refactor/` | Patch: `1.0.0 → 1.0.1` | Code restructuring |
-| `chore/` | Patch: `1.0.0 → 1.0.1` | Config, deps, tooling |
+Common types: `feature/`, `fix/`, `refactor/`, `chore/`
 
-### Branching
-One branch per task: `<type>/<short-description>-v<new-version>`
+### Commits (Conventional Commits)
+Format: `<type>(<optional scope>): <description>`
 
-### Commits
-Format: `[v<new-version>] <type>: <what was done>`
-
-**After every commit:**
-1. Bump `"version"` in `package.json` to the new version number.
-2. Add an entry to `CHANGELOG.md` under `## [x.y.z] - YYYY-MM-DD`.
-3. Tag the commit: `git tag v<version>`.
-4. Update `README.md` if the change affects usage, setup, features, or configuration.
+| Prefix | When to use | Version bump |
+|--------|-------------|--------------|
+| `feat` | New functionality | Minor (`X.Y → X.Y+1`) |
+| `fix` | Bug fixes | Patch (`X.Y.Z → X.Y.Z+1`) |
+| `refactor` | Code restructuring (no API change) | Patch |
+| `chore` | Config, deps, tooling | Patch |
+| `feat!` / `BREAKING CHANGE:` footer | Breaking changes | Major (`X → X+1`) |
 
 **Examples:**
-- Branch: `feature/add-search-v1.1.0` → Commit: `[v1.1.0] feature: add keyword search to project grid`
-- Branch: `bugfix/fix-drawer-scroll-v1.0.1` → Commit: `[v1.0.1] bugfix: fix body scroll not restored on drawer close`
+- Branch: `feature/add-search` → Commit: `feat: add keyword search to project grid`
+- Branch: `fix/drawer-scroll` → Commit: `fix: restore body scroll on drawer close`
+
+### Versioning & Releases (automated)
+On every merge to `main`, `semantic-release` automatically:
+1. Bumps `"version"` in `package.json`
+2. Generates / appends `CHANGELOG.md`
+3. Creates a `vX.Y.Z` Git tag
+4. Publishes a GitHub Release
+
+**No manual version bumps, tags, or changelog edits needed.**
+Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
