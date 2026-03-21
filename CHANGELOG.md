@@ -1,3 +1,15 @@
+# 1.0.0 (2026-03-21)
+
+
+### Bug Fixes
+
+* **ci:** bump Node.js to 22 in release workflow ([6e22ecf](https://github.com/mannism/labs/commit/6e22ecf0e26235d991be26a5f0ac1936d8789a2b))
+* **docker:** use JSON CMD form and disable Next.js telemetry ([6a69609](https://github.com/mannism/labs/commit/6a69609b6b4f593b10a5d48d0630e38f5347a3a1))
+* restore Navbar import and usage in page.tsx ([54bfe96](https://github.com/mannism/labs/commit/54bfe96dee1111a9966c6e05643a4f9b7768fb95))
+* restore top badges, remove metadata bullets and ping feature ([71e0876](https://github.com/mannism/labs/commit/71e0876eb39f7b93e34cf9ce02c6385dafda8814))
+* Revert ESLint to v9 to fix Docker build & increment Node req to v21+ ([ac0363b](https://github.com/mannism/labs/commit/ac0363b7b193b1e833cce69efda96499004f16e4))
+* upgrade Next.js to 16.2.1 to resolve 5 CVEs ([80dacca](https://github.com/mannism/labs/commit/80dacca7c1cc3966d514db09750c09ca5b44c894))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
