@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/mannism/labs/compare/v1.1.2...v1.1.3) (2026-03-21)
+
+
+### Bug Fixes
+
+* **ui:** update hero label to '// Labs by Diana' ([94465a1](https://github.com/mannism/labs/commit/94465a125d9537cadd633d921cc6381f9cfb78bf))
+
 ## [1.1.2](https://github.com/mannism/labs/compare/v1.1.1...v1.1.2) (2026-03-21)
 
 
