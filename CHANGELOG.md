@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/mannism/labs/compare/v1.1.3...v1.1.4) (2026-03-21)
+
+
+### Bug Fixes
+
+* **seo:** update siteName and imageAlt to 'Labs by Diana' ([86dd53e](https://github.com/mannism/labs/commit/86dd53ed6e3b319148843a778698cb14b1cc2726))
+
 ## [1.1.3](https://github.com/mannism/labs/compare/v1.1.2...v1.1.3) (2026-03-21)
 
 
