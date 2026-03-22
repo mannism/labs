@@ -1,15 +1,30 @@
 {
   "branches": ["main"],
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
-    ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
-    ["@semantic-release/npm", { "npmPublish": false }],
     [
-      "@semantic-release/git",
+      "@semantic-release/commit-analyzer",
       {
-        "assets": ["package.json", "CHANGELOG.md"],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        "parserOpts": {
+          "headerPattern": "^(?:\\[v[\\d.]+\\] )?(\\w*)(?:\\(([\\w$.* -]*)\\))?!?: (.*)$",
+          "headerCorrespondence": ["type", "scope", "subject"]
+        },
+        "releaseRules": [
+          { "type": "feature", "release": "minor" },
+          { "type": "bugfix", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "chore", "release": "patch" },
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "parserOpts": {
+          "headerPattern": "^(?:\\[v[\\d.]+\\] )?(\\w*)(?:\\(([\\w$.* -]*)\\))?!?: (.*)$",
+          "headerCorrespondence": ["type", "scope", "subject"]
+        }
       }
     ],
     "@semantic-release/github"

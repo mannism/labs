@@ -1,3 +1,9 @@
+## [1.1.7] - 2026-03-22
+
+### Chore
+* reconfigure semantic-release to only create GitHub Releases; manual versioning now owns package.json, CHANGELOG, and tags
+* update CLAUDE.md to document new semantic-release role
+
 ## [1.1.6] - 2026-03-22
 
 ### Chore

@@ -80,3 +80,8 @@ Format: `[v<new-version>] <type>: <what was done>`
 
 ### Merge to main
 **Never push or merge directly to `main`.** Only merge when explicitly requested.
+
+### Automated GitHub Releases (semantic-release)
+On every merge to `main`, semantic-release automatically creates a GitHub Release using the commit history since the last tag. It does **not** bump `package.json`, update `CHANGELOG.md`, or push tags — those are done manually as part of the versioning steps above.
+
+Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
