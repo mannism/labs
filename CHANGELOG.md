@@ -5,6 +5,10 @@
 
 * **icons:** rename apple-touch-icon to remove duplicate extension ([60be858](https://github.com/mannism/labs/commit/60be8584096a559069a25ce551993eb468444f0c))
 
+### Chore
+
+* update CLAUDE.md git workflow to manual versioned branching convention
+
 ## [1.1.4](https://github.com/mannism/labs/compare/v1.1.3...v1.1.4) (2026-03-21)
 
 

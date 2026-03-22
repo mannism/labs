@@ -50,32 +50,33 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 
 ## Git Workflow
 
-### Branching (GitHub Flow)
-One branch per task: `<type>/<short-description>` — no version in the branch name.
+### Branching
+One branch per task: `<type>/<short-description>-v<new-version>`
 
-Common types: `feature/`, `fix/`, `refactor/`, `chore/`
-
-### Commits (Conventional Commits)
-Format: `<type>(<optional scope>): <description>`
-
-| Prefix | When to use | Version bump |
-|--------|-------------|--------------|
-| `feat` | New functionality | Minor (`X.Y → X.Y+1`) |
-| `fix` | Bug fixes | Patch (`X.Y.Z → X.Y.Z+1`) |
-| `refactor` | Code restructuring (no API change) | Patch |
-| `chore` | Config, deps, tooling | Patch |
-| `feat!` / `BREAKING CHANGE:` footer | Breaking changes | Major (`X → X+1`) |
+| Type | When to use | Version bump |
+|------|-------------|--------------|
+| `feature/` | New functionality | Minor: `1.0.0 → 1.1.0` |
+| `bugfix/` | Bug fixes | Patch: `1.0.0 → 1.0.1` |
+| `refactor/` | Code restructuring | Patch: `1.0.0 → 1.0.1` |
+| `chore/` | Config, deps, tooling | Patch: `1.0.0 → 1.0.1` |
 
 **Examples:**
-- Branch: `feature/add-search` → Commit: `feat: add keyword search to project grid`
-- Branch: `fix/drawer-scroll` → Commit: `fix: restore body scroll on drawer close`
+- `feature/add-search-v1.2.0`
+- `bugfix/fix-drawer-scroll-v1.1.4`
 
-### Versioning & Releases (automated)
-On every merge to `main`, `semantic-release` automatically:
-1. Bumps `"version"` in `package.json`
-2. Generates / appends `CHANGELOG.md`
-3. Creates a `vX.Y.Z` Git tag
-4. Publishes a GitHub Release
+### Commits
+Format: `[v<new-version>] <type>: <what was done>`
 
-**No manual version bumps, tags, or changelog edits needed.**
-Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
+**Examples:**
+- `[v1.2.0] feature: add keyword search to project grid`
+- `[v1.1.4] bugfix: restore body scroll on drawer close`
+
+### Versioning steps (manual, on every commit)
+1. Bump `"version"` in `package.json` to the new version
+2. Add an entry to `CHANGELOG.md` under `## [x.y.z] - YYYY-MM-DD`
+3. Tag the commit: `git tag v<version>`
+4. Update code comments in any changed files to reflect new behavior
+5. Update `README.md` if the change affects usage, setup, features, or configuration
+
+### Merge to main
+**Never push or merge directly to `main`.** Only merge when explicitly requested.
