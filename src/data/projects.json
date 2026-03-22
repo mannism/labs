@@ -42,18 +42,19 @@
     "id": "3",
     "order": 3,
     "title": "AI Chat Scheduler",
-    "shortDescription": "A conversational AI event assistant that helps attendees discover sessions and generate personalized, conflict-free itineraries.",
-    "detailedDescription": "AI-powered chat companion that helps attendees navigate multi-day events like conferences, effortlessly discovering sessions, stages, and exhibitors tailored to their interests. Users share preferences like topics and attendance days via a quick onboarding, then converse naturally to get recommendations, details, and conflict-free personalized schedules, turning overwhelming agendas into optimized, actionable plans for an enhanced event experience.",
+    "shortDescription": "A conversational AI assistant that helps event attendees discover sessions and build personalized, conflict‑free schedules.",
+    "detailedDescription": "This AI Event Scheduler lets attendees chat naturally to explore sessions, exhibitors, and tracks, then generates a tailored, day‑by‑day itinerary that avoids time conflicts and matches their interests. It supports multi‑day events and adaptive personalization, built as a Next.js web app using the Vercel AI SDK and OpenAI’s language models for conversational understanding and planning.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
+      "Agentic AI",
+      "Conversational UI",
+      "Event tech",
+      "Next.js",
       "Vercel AI SDK",
-      "OpenAI GPT-5.1",
-      "Next.js 16",
-      "React 19",
-      "TypeScript 5",
-      "Tailwind CSS 4"
+      "OpenAI",
+      "AI planner"
     ],
     "demoUrl": "https://scheduler.dianaismail.me/",
     "githubUrl": "#"
