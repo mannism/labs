@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/mannism/labs/compare/v1.1.4...v1.1.5) (2026-03-22)
+
+
+### Bug Fixes
+
+* **icons:** rename apple-touch-icon to remove duplicate extension ([60be858](https://github.com/mannism/labs/commit/60be8584096a559069a25ce551993eb468444f0c))
+
 ## [1.1.4](https://github.com/mannism/labs/compare/v1.1.3...v1.1.4) (2026-03-21)
 
 
