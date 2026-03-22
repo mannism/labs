@@ -1,3 +1,8 @@
+## [1.1.8] - 2026-03-22
+
+### Chore
+* update project descriptions and tags for Digital Twin, CV/JD Matcher, and GEO Audit
+
 ## [1.1.7] - 2026-03-22
 
 ### Chore

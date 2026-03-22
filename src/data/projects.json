@@ -3,17 +3,19 @@
     "id": "1",
     "order": 1,
     "title": "Diana's Digital Twin",
-    "shortDescription": "A multi-interface AI Digital Twin backend built with FastAPI and OpenAI GPT, reachable via Telegram and an embeddable web chat widget.",
-    "detailedDescription": "A modular FastAPI service that separates core AI orchestration from interface adapters, currently supporting Telegram and web chat. Uses Redis for persistent history, rolling summarization, rate limiting, and OTP pairing, with seamless Web-Telegram deep-link sync. Includes tiered on-demand context loading for token efficiency, structured JSON logging, and Railway-ready Docker deployment.",
+    "shortDescription": "Chat with my AI digital twin to explore my professional background, skills, and projects effortlessly across web and Telegram.",
+    "detailedDescription": "Engage in natural conversations with my digital twin, which speaks in my voice to share grounded insights from my 20+ years in project leadership, creative tech, and AI innovation. It draws from tiered context like my resume and project notes for accurate, personalized responses without hallucinations. Seamlessly switch between the glassmorphic web chat widget and Telegram bot, with persistent memory via Redis ensuring your conversation history follows you. Built with FastAPI, OpenAI GPT, and modular design for easy extension to new interfaces.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
+      "Agentic AI",
+      "Digital Twin",
+      "Conversational UI",
       "FastAPI",
-      "OpenAI GPT",
+      "OpenAI",
       "Redis",
-      "Telegram Bot API",
-      "Railway"
+      "Telegram Bot"
     ],
     "demoUrl": "https://twin.dianaismail.me/",
     "githubUrl": "#"
@@ -21,19 +23,20 @@
   {
     "id": "2",
     "order": 2,
-    "title": "CV & Job Application Tool",
-    "shortDescription": "An AI-powered job search platform for CV/JD fit scoring, gap analysis, tailored CV generation, interview prep, and application tracking.",
-    "detailedDescription": "A Next.js 16 + React 19 platform with PostgreSQL and NextAuth.js v5 that analyzes CV-job fit, generates tailored CV suggestions, and builds interview prep packs. Includes a job tracker with interview session logs, pipeline insights, credit-based usage, email verification/password reset flows, feedback tooling, and PII anonymization maintenance scripts for deleted-user records.",
+    "title": "CV/JD Matcher & Application Tool",
+    "shortDescription": "AI analyzes your CV against job descriptions, revealing match scores, gaps, and tailored suggestions to boost your applications. Track jobs, prep for interviews, and gain pipeline insights effortlessly.",
+    "detailedDescription": "“Upload your CV and a job description into Reso, and instantly receive a match score, strengths, gaps, and personalized recommendations—it feels intuitive and actionable from the first use. Key capabilities include conversational analysis powered by AI, tailored CV generation, interview prep packs with custom questions, and a full job tracker for managing applications, logging sessions with AI note summaries, and viewing dashboard insights. Built with Next.js and OpenAI APIs for seamless performance.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
-      "Next.js 16",
-      "React 19",
+      "Job Search",
+      "CV Analysis",
+      "Next.js",
+      "OpenAI",
+      "Tailwind CSS",
       "PostgreSQL",
-      "NextAuth.js v5",
-      "OpenAI API",
-      "Tailwind CSS 4"
+      "NextAuth"
     ],
     "demoUrl": "https://reso.dianaismail.me/",
     "githubUrl": "#"
@@ -63,18 +66,23 @@
     "id": "4",
     "order": 4,
     "title": "GEO Audit",
-    "shortDescription": "A GEO analyzer that scores how likely a webpage is to be cited by AI search engines using structured LLM audits.",
-    "detailedDescription": "A React 19 + Vite frontend with an Express API proxy that keeps LLM keys server-side and audits URLs against GEO metrics: Fact Density, Entity Salience, and Extractability. Supports Gemini and OpenAI providers, schema-validates JSON outputs, and presents scorecards, findings, recommendations, and citation previews in a report-first UI.",
+    "shortDescription": "Test any webpage’s potential to appear in AI search results like Perplexity and Gemini. Get instant scored reports with actionable improvements.",
+    "detailedDescription": "GEO Audit analyzes your website content against 2026 AI search standards, delivering a clear score and prioritized recommendations to boost citation chances. Start with a free basic scan covering fact density, entity salience, and extractability, or unlock advanced insights including competitor gaps and platform-specific fits for deeper optimization. The conversational flow feels intuitive: enter a URL, watch the progress, and receive polished reports with charts and PDF export. Built with React 19 frontend on Vite, Express backend powered by Gemini and OpenAI APIs, PostgreSQL for data persistence, and deployed on Railway.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
     "tags": [
+      "Agentic AI",
+      "SEO Tool",
+      "AI Search Optimization",
       "React 19",
-      "Vite 7",
-      "Express",
+      "Vite",
+      "Tailwind CSS",
+      "Express.js",
       "Gemini",
       "OpenAI",
-      "Tailwind CSS 4"
+      "PostgreSQL",
+      "Railway"
     ],
     "demoUrl": "https://geoaudit.dianaismail.me/",
     "githubUrl": "#"
