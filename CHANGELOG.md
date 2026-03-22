@@ -1,3 +1,8 @@
+## [1.1.5] - 2026-03-22
+
+### Chore
+* update CLAUDE.md git workflow to manual versioned branching convention
+
 ## [1.1.4](https://github.com/mannism/labs/compare/v1.1.3...v1.1.4) (2026-03-21)
 
 
