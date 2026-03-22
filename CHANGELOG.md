@@ -1,3 +1,8 @@
+## [1.1.6] - 2026-03-22
+
+### Chore
+* update AI Chat Scheduler project description and tags
+
 ## [1.1.5](https://github.com/mannism/labs/compare/v1.1.4...v1.1.5) (2026-03-22)
 
 
