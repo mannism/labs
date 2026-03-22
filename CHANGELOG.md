@@ -1,3 +1,8 @@
+## [1.1.9] - 2026-03-22
+
+### Chore
+* wire semantic-release to update README.md version on every release
+
 ## [1.1.8] - 2026-03-22
 
 ### Chore

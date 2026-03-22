@@ -1,5 +1,7 @@
 # Diana Ismail Labs
 
+**Version:** 1.1.8
+
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic-AI, Immersive Experiences, and Experimental Technology.
 
 ## Design System: "Cyber-Minimalist"
