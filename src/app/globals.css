@@ -336,7 +336,7 @@ html.light .bg-orb-purple { opacity: 0.12; }
 /* ─── Chat Widget ─────────────────────────────────────────────── */
 .chat-toggle-btn {
   position: fixed;
-  bottom: 56px;
+  bottom: 100px;
   /* Align with the right edge of the max-w-7xl (80rem) content container.
      On wide viewports this offsets inward from the viewport edge; falls back
      to 28px on screens narrower than the content max-width. */
@@ -370,7 +370,7 @@ html.light .bg-orb-purple { opacity: 0.12; }
 
 .chat-window {
   position: fixed;
-  bottom: 116px;
+  bottom: 160px;
   right: max(28px, calc((100vw - 80rem) / 2 + 28px));
   z-index: 45;
   width: 400px;
@@ -469,10 +469,10 @@ html.light .chat-msg-assistant {
     left: 12px;
     width: auto;
     max-width: none;
-    bottom: 104px;
+    bottom: 160px;
   }
   .chat-toggle-btn {
-    bottom: 48px;
+    bottom: 100px;
     right: 16px;
   }
 }
