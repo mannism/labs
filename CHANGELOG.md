@@ -1,3 +1,8 @@
+## [1.3.4] - 2026-03-24
+
+### Bugfix
+* lower chat widget z-index from 60 to 45 so the project details drawer (z-50) renders on top of the chat toggle and chat window
+
 ## [1.3.3] - 2026-03-24
 
 ### Bugfix
