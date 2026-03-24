@@ -321,14 +321,14 @@ export function ChatWidget() {
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <div>
                                     <p
-                                        className="font-display font-bold text-base"
-                                        style={{ color: "var(--text-primary)", margin: 0 }}
+                                        className="font-display font-bold"
+                                        style={{ color: "var(--text-primary)", margin: 0, fontSize: "1.0625rem" }}
                                     >
                                         AI Diana
                                     </p>
                                     <p
                                         className="font-mono"
-                                        style={{ color: "var(--text-muted)", fontSize: "0.7rem", margin: 0 }}
+                                        style={{ color: "var(--text-muted)", fontSize: "0.8125rem", margin: 0 }}
                                     >
                                         Ask me anything
                                     </p>

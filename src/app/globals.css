@@ -368,12 +368,17 @@ html.light .bg-orb-purple { opacity: 0.12; }
   display: flex;
   flex-direction: column;
   border-radius: 1.25rem;
-  background: var(--bg-glass);
+  /* More opaque than --bg-glass for legibility over background orbs */
+  background: rgba(12, 15, 22, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   box-shadow: 0 20px 60px var(--card-shadow);
   overflow: hidden;
+}
+
+html.light .chat-window {
+  background: rgba(255, 255, 255, 0.97);
 }
 
 .chat-msg-user {
@@ -390,7 +395,8 @@ html.light .bg-orb-purple { opacity: 0.12; }
 
 .chat-msg-assistant {
   align-self: flex-start;
-  background: var(--tab-bg);
+  /* More opaque than --tab-bg (0.05) so bubble shape is visible */
+  background: rgba(255, 255, 255, 0.09);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   border-radius: 1rem 1rem 1rem 0.25rem;
@@ -399,6 +405,10 @@ html.light .bg-orb-purple { opacity: 0.12; }
   line-height: 1.5;
   max-width: 85%;
   word-break: break-word;
+}
+
+html.light .chat-msg-assistant {
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .chat-msg-assistant a {
@@ -438,6 +448,20 @@ html.light .bg-orb-purple { opacity: 0.12; }
 @keyframes chat-dot-bounce {
   0%, 80%, 100% { transform: translateY(0); }
   40%           { transform: translateY(-6px); }
+}
+
+/* Mobile: stretch chat window to ≥80% viewport width */
+@media (max-width: 480px) {
+  .chat-window {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+  .chat-toggle-btn {
+    bottom: 20px;
+    right: 20px;
+  }
 }
 
 /* ─── Footer link ────────────────────────────────────────────── */

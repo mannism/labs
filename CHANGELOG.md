@@ -1,3 +1,10 @@
+## [1.3.1] - 2026-03-24
+
+### Bugfix
+* chat widget mobile: stretch window to ≥80% viewport width on screens ≤480px via left/right anchoring
+* chat widget WCAG AA: bump subheader from 11.2px (0.7rem) to 13px (0.8125rem); title to 17px (1.0625rem)
+* chat widget legibility: increase chat window background opacity (0.96/0.97) and assistant bubble opacity for improved contrast over background orbs
+
 ## [1.3.0] - 2026-03-24
 
 ### Feature
