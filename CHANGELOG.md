@@ -1,3 +1,8 @@
+## [1.2.2] - 2026-03-24
+
+### Bugfix
+* fix drawer light mode: replace all hardcoded dark hex/rgba values with CSS custom properties and shared globals.css classes; add drawer-btn-primary and drawer-btn-secondary CSS classes for theme-aware action buttons
+
 ## [1.2.1] - 2026-03-24
 
 ### Bugfix

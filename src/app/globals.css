@@ -317,6 +317,22 @@ html.light .bg-orb-purple { opacity: 0.12; }
 .custom-scrollbar::-webkit-scrollbar-thumb  { background: var(--border-subtle); border-radius: 3px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
+/* ─── Drawer action buttons ──────────────────────────────────── */
+.drawer-btn-primary {
+  background: var(--accent-blue);
+  color: #fff;
+  transition: opacity 0.2s ease;
+}
+.drawer-btn-primary:hover { opacity: 0.88; }
+
+.drawer-btn-secondary {
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.drawer-btn-secondary:hover { background: var(--tab-hover-bg); }
+
 /* ─── Footer link ────────────────────────────────────────────── */
 .footer-link {
   display: inline-flex;

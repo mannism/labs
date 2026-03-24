@@ -14,7 +14,7 @@ interface ProjectDetailsDrawerProps {
 /**
  * Maps project status to Tailwind badge classes.
  * Intentionally mirrors the same helper in ProjectCard to keep components self-contained.
- * The drawer stays dark in both themes (overlay), so dark: variants are the primary styles.
+ * Uses both light and dark: variants so the drawer respects the active theme.
  */
 function statusClass(status: string) {
     if (status === "Active")   return "border-green-400/60  text-green-700  bg-green-500/10  dark:border-green-500/30  dark:text-green-400";
@@ -29,7 +29,7 @@ function statusClass(status: string) {
 function renderWithCode(text: string) {
     return text.split(/`([^`]+)`/).map((part, i) =>
         i % 2 === 1
-            ? <code key={i} className="font-mono text-xs px-1.5 py-0.5 rounded bg-white/10 text-[var(--accent-blue)]">{part}</code>
+            ? <code key={i} className="font-mono text-xs px-1.5 py-0.5 rounded border" style={{ background: "var(--tag-bg)", borderColor: "var(--tag-border)", color: "var(--accent-blue)" }}>{part}</code>
             : part
     );
 }
@@ -118,21 +118,22 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                         animate="visible"
                         exit="exit"
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="w-full sm:w-[500px] md:w-[600px] bg-[#0a0f1c] bg-opacity-95 backdrop-blur-2xl border-t sm:border-t-0 sm:border-l border-white/10 h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
+                        className="w-full sm:w-[500px] md:w-[600px] backdrop-blur-2xl border-t sm:border-t-0 sm:border-l h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
+                        style={{ background: "var(--bg-glass)", borderColor: "var(--border-subtle)" }}
                     >
                         {/* Mobile Drag Indicator (Visual Only) */}
                         <div className="w-full h-1.5 flex justify-center pt-4 sm:hidden">
-                            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+                            <div className="w-12 h-1.5 rounded-full dark:bg-white/20 bg-black/20" />
                         </div>
 
                         {/* Sticky Header */}
-                        <div className="flex justify-between items-center p-6 border-b border-white/5">
-                            <h2 className="font-display text-2xl font-bold tracking-tight text-white m-0">
+                        <div className="flex justify-between items-center p-6 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+                            <h2 className="font-display text-2xl font-bold tracking-tight m-0" style={{ color: "var(--text-primary)" }}>
                                 {project.title}
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="p-2 -mr-2 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+                                className="p-2 -mr-2 card-icon-btn"
                                 aria-label="Close details"
                             >
                                 <X className="w-5 h-5" />
@@ -144,7 +145,7 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                             
                             {/* Meta Badges */}
                             <div className="flex items-center gap-2 mb-6 flex-wrap">
-                                <span className="px-3 py-1 text-xs font-mono rounded-full bg-white/10 text-neutral-300">
+                                <span className="badge-category">
                                     {project.category}
                                 </span>
                                 <span className={`px-3 py-1 text-xs font-mono rounded-full border ${statusClass(project.status)}`}>
@@ -153,8 +154,8 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                             </div>
 
                             {/* Detailed Description */}
-                            <div className="prose prose-invert prose-neutral max-w-none">
-                                <p className="text-base text-neutral-300 leading-relaxed mb-8">
+                            <div className="prose prose-neutral max-w-none">
+                                <p className="text-base leading-relaxed mb-8" style={{ color: "var(--text-primary)" }}>
                                     {project.detailedDescription}
                                 </p>
                             </div>
@@ -165,8 +166,8 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                     className="mb-8 rounded-lg p-4"
                                     style={{ background: "rgba(0, 105, 255, 0.06)", borderLeft: "3px solid var(--accent-blue)" }}
                                 >
-                                    <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Key Learnings</h4>
-                                    <p className="text-sm text-neutral-300 leading-relaxed">
+                                    <h4 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Key Learnings</h4>
+                                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
                                         {renderWithCode(project.keyLearnings)}
                                     </p>
                                 </div>
@@ -174,10 +175,10 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
 
                             {/* Tags Grid */}
                             <div className="mb-8">
-                                <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Technologies</h4>
+                                <h4 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Technologies</h4>
                                 <div className="flex flex-wrap gap-2">
                                     {project.tags.map(tag => (
-                                        <span key={tag} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded text-sm font-mono text-neutral-400">
+                                        <span key={tag} className="px-2.5 py-1 rounded text-sm font-mono border" style={{ background: "var(--tag-bg)", borderColor: "var(--tag-border)", color: "var(--tag-color)" }}>
                                             {tag}
                                         </span>
                                     ))}
@@ -186,13 +187,13 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                         </div>
 
                         {/* Sticky Footer: Action Links */}
-                        <div className="p-6 border-t border-white/5 flex gap-4 bg-[#0a0f1c]/80 backdrop-blur-md">
+                        <div className="p-6 border-t flex gap-4 backdrop-blur-md" style={{ background: "var(--bg-glass)", borderColor: "var(--border-subtle)" }}>
                             {project.demoUrl && project.demoUrl !== "#" && (
                                 <a
                                     href={project.demoUrl}
                                     target={isInternalDemo ? "_self" : "_blank"}
                                     rel={isInternalDemo ? undefined : "noopener noreferrer"}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white text-black font-semibold hover:bg-neutral-200 transition-colors"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold drawer-btn-primary"
                                 >
                                     Launch Demo <ArrowUpRight className="w-4 h-4" />
                                 </a>
@@ -203,7 +204,7 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                     href={project.githubUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-white/20 text-white hover:bg-white/10 transition-colors ${!project.demoUrl || project.demoUrl === "#" ? "flex-1" : ""}`}
+                                    className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl drawer-btn-secondary ${!project.demoUrl || project.demoUrl === "#" ? "flex-1" : ""}`}
                                 >
                                     <Github className="w-5 h-5" /> Source
                                 </a>
