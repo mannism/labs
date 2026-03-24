@@ -30,13 +30,27 @@ export function Navbar() {
         <nav className="navbar w-full">
             <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
 
-                {/* Logo */}
-                <span
-                    className="font-mono text-sm font-semibold tracking-widest uppercase"
-                    style={{ color: "var(--accent-blue)" }}
-                >
-                    Labs by Diana
-                </span>
+                {/* Logo + Portfolio link */}
+                <div className="flex items-center gap-3">
+                    <span
+                        className="font-mono text-base font-semibold tracking-widest uppercase"
+                        style={{ color: "var(--text-primary)" }}
+                    >
+                        Labs by Diana
+                    </span>
+                    <span style={{ color: "var(--border-subtle)", fontSize: "1.1rem" }}>|</span>
+                    <a
+                        href="https://dianaismail.me"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-base font-semibold tracking-widest uppercase"
+                        style={{ color: "var(--text-muted)", textDecoration: "none", transition: "color 0.2s ease" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "var(--text-primary)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
+                    >
+                        Portfolio
+                    </a>
+                </div>
 
                 {/* Theme toggle */}
                 <motion.button

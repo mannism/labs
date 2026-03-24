@@ -1,3 +1,11 @@
+## [1.4.0] - 2026-03-24
+
+### Feature
+* move "Return to portfolio" link into Navbar as "Labs by Diana | Portfolio" with theme-aware text colors (--text-primary dark/light)
+* increase navbar font size from text-sm to text-base
+* remove portfolio link from Footer; simplify to copyright only with theme-aware border
+* set chat widget (toggle + window) bottom to 30px from viewport edge
+
 ## [1.3.7] - 2026-03-24
 
 ### Bugfix
