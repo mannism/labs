@@ -1,3 +1,8 @@
+## [1.3.2] - 2026-03-24
+
+### Chore
+* add issues: write and pull-requests: write permissions to release workflow so semantic-release can comment on PRs/issues after publishing a GitHub Release
+
 ## [1.3.1] - 2026-03-24
 
 ### Bugfix
