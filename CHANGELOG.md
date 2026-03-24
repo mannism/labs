@@ -1,3 +1,10 @@
+## [1.3.3] - 2026-03-24
+
+### Bugfix
+* chat toggle button: expand to pill shape with "Talk to AI Diana" label alongside icon
+* chat header: match project card title style (Merriweather text-xl font-bold tracking-tight)
+* chat header: remove subheader "Ask me anything"
+
 ## [1.3.2] - 2026-03-24
 
 ### Chore

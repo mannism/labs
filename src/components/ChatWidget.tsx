@@ -293,7 +293,8 @@ export function ChatWidget() {
                         whileTap={{ scale: 0.9 }}
                         aria-label="Open AI Diana chat"
                     >
-                        <MessageCircle className="w-6 h-6" />
+                        <MessageCircle className="w-5 h-5" />
+                        <span className="chat-toggle-label">Talk to AI Diana</span>
                     </motion.button>
                 )}
             </AnimatePresence>
@@ -320,18 +321,12 @@ export function ChatWidget() {
                         >
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <div>
-                                    <p
-                                        className="font-display font-bold"
-                                        style={{ color: "var(--text-primary)", margin: 0, fontSize: "1.0625rem" }}
+                                    <h3
+                                        className="font-display text-xl font-bold tracking-tight"
+                                        style={{ color: "var(--text-primary)", margin: 0 }}
                                     >
                                         AI Diana
-                                    </p>
-                                    <p
-                                        className="font-mono"
-                                        style={{ color: "var(--text-muted)", fontSize: "0.8125rem", margin: 0 }}
-                                    >
-                                        Ask me anything
-                                    </p>
+                                    </h3>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                                     {/* Open in Telegram */}
