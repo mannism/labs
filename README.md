@@ -1,6 +1,6 @@
 # Diana Ismail Labs
 
-**Version:** 1.3.6
+**Version:** 1.3.7
 
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic-AI, Immersive Experiences, and Experimental Technology.
 

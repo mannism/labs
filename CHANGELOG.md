@@ -1,3 +1,8 @@
+## [1.3.7] - 2026-03-24
+
+### Bugfix
+* raise chat widget bottom from 120px to 160px to clear footer on mobile (stacked 2-row footer is ~120px tall); update max-height accordingly
+
 ## [1.3.6] - 2026-03-24
 
 ### Bugfix
