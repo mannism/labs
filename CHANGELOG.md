@@ -1,3 +1,9 @@
+## [1.3.5] - 2026-03-24
+
+### Bugfix
+* align chat widget right edge to max-w-7xl content container using CSS max() so it tracks the page body width on wide viewports
+* raise chat toggle bottom from 28px to 56px (mobile: 48px) and window bottom from 96px to 116px so the footer is not obscured when scrolled to bottom
+
 ## [1.3.4] - 2026-03-24
 
 ### Bugfix
