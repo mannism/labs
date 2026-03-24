@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { Footer } from "@/components/Footer";
+import { ChatWidget } from "@/components/ChatWidget";
 
 /**
  * Main Application Page
@@ -24,6 +25,9 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto">
         <Footer />
       </div>
+
+      {/* Floating chat widget — fixed position, outside layout flow */}
+      <ChatWidget />
     </main>
   );
 }

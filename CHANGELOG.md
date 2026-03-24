@@ -1,3 +1,8 @@
+## [1.3.0] - 2026-03-24
+
+### Feature
+* add floating AI Diana chat widget with SSE streaming, glassmorphic styling, dark/light mode, Telegram deep-link, and inline account linking
+
 ## [1.2.2] - 2026-03-24
 
 ### Bugfix
