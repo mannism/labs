@@ -1,3 +1,8 @@
+## [1.2.1] - 2026-03-24
+
+### Bugfix
+* render inline code chips for backtick-wrapped terms in keyLearnings; mark sessionStorage, SSR, [GENERATE_SCHEDULE], schedule_download, and VITE_* as code in project data
+
 ## [1.2.0] - 2026-03-24
 
 ### Feature

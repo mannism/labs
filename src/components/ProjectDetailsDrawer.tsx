@@ -23,6 +23,18 @@ function statusClass(status: string) {
 }
 
 /**
+ * Splits a string on backtick-delimited spans and renders inline <code> chips
+ * for each matched segment. Safe for static content — no dangerouslySetInnerHTML.
+ */
+function renderWithCode(text: string) {
+    return text.split(/`([^`]+)`/).map((part, i) =>
+        i % 2 === 1
+            ? <code key={i} className="font-mono text-xs px-1.5 py-0.5 rounded bg-white/10 text-[var(--accent-blue)]">{part}</code>
+            : part
+    );
+}
+
+/**
  * ProjectDetailsDrawer Component
  * A responsive slide-out drawer (bottom-sheet on mobile, side-panel on desktop).
  * Utilizes Framer Motion for exit/enter animations and glassmorphism styling.
@@ -155,7 +167,7 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                 >
                                     <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Key Learnings</h4>
                                     <p className="text-sm text-neutral-300 leading-relaxed">
-                                        {project.keyLearnings}
+                                        {renderWithCode(project.keyLearnings)}
                                     </p>
                                 </div>
                             )}
