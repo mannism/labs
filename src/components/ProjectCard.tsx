@@ -19,6 +19,8 @@ export interface Project {
     tags: string[];
     demoUrl: string;
     githubUrl: string;
+    /** A single key insight or engineering decision highlighted in the drawer. */
+    keyLearnings?: string;
 }
 
 /**

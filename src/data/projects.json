@@ -18,7 +18,8 @@
       "Telegram Bot"
     ],
     "demoUrl": "https://twin.dianaismail.me/",
-    "githubUrl": "#"
+    "githubUrl": "#",
+    "keyLearnings": "Tiered context injection (always-on vs on-demand keyword triggers) reduced token usage by ~57% vs injecting everything."
   },
   {
     "id": "2",
@@ -39,7 +40,8 @@
       "NextAuth"
     ],
     "demoUrl": "https://reso.dianaismail.me/",
-    "githubUrl": "#"
+    "githubUrl": "#",
+    "keyLearnings": "The sessionStorage navigation pattern (passing job UUIDs via sessionStorage rather than URL params) was a deliberate privacy and UX decision that required careful SSR guard handling in Next.js."
   },
   {
     "id": "3",
@@ -60,7 +62,8 @@
       "AI planner"
     ],
     "demoUrl": "https://scheduler.dianaismail.me/",
-    "githubUrl": "#"
+    "githubUrl": "#",
+    "keyLearnings": "Using special AI-emitted markers ([GENERATE_SCHEDULE], schedule_download JSON blocks) to trigger client-side behaviours from within streamed AI responses — a clean way to bridge LLM output and UI state."
   },
   {
     "id": "4",
@@ -85,6 +88,7 @@
       "Railway"
     ],
     "demoUrl": "https://geoaudit.dianaismail.me/",
-    "githubUrl": "#"
+    "githubUrl": "#",
+    "keyLearnings": "Building a credible two-tier (free vs paid) SaaS product with a completely decoupled frontend/backend architecture — VITE_* env vars are baked into the browser bundle at build time, so secrets must never touch the frontend."
   }
 ]

@@ -1,3 +1,12 @@
+## [1.2.0] - 2026-03-24
+
+### Feature
+* add keyLearnings field to Project interface, populate all four projects, and render Key Learnings section in drawer before Technologies
+
+### Chore
+* update framer-motion to 12.38.0, tailwindcss/postcss to 4.2.2, @types/node to 25.5.0
+* tighten engines.node to >=22.14.0 to match semantic-release v25 requirement
+
 ## [1.1.9] - 2026-03-22
 
 ### Chore

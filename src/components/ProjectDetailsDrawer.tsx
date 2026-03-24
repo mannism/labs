@@ -147,6 +147,19 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                 </p>
                             </div>
 
+                            {/* Key Learnings — only rendered when field is present */}
+                            {project.keyLearnings && (
+                                <div
+                                    className="mb-8 rounded-lg p-4"
+                                    style={{ background: "rgba(0, 105, 255, 0.06)", borderLeft: "3px solid var(--accent-blue)" }}
+                                >
+                                    <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Key Learnings</h4>
+                                    <p className="text-sm text-neutral-300 leading-relaxed">
+                                        {project.keyLearnings}
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Tags Grid */}
                             <div className="mb-8">
                                 <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Technologies</h4>
