@@ -1,3 +1,8 @@
+## [1.3.6] - 2026-03-24
+
+### Bugfix
+* raise chat toggle bottom from 56px to 100px and window from 116px to 160px to clear the footer (py-10 ≈ 100px tall)
+
 ## [1.3.5] - 2026-03-24
 
 ### Bugfix
