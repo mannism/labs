@@ -5,10 +5,15 @@
  * process — no connection churn across Route Handler invocations.
  *
  * Design choices:
- *   - enableOfflineQueue: false  → fail fast when Redis is down, matching the
- *     Python backend's redis.ping() guard that aborts on unavailability.
- *   - lazyConnect: false         → connect immediately so errors surface at
- *     startup rather than on the first request.
+ *   - enableOfflineQueue: true (default) — commands queue during the initial async
+ *     connection window and during brief reconnects, rather than throwing.
+ *     `enableOfflineQueue: false` was causing "Stream isn't writeable" errors on
+ *     the first request because ioredis connects asynchronously; the client object
+ *     exists before the TCP handshake completes.
+ *   - maxRetriesPerRequest: 1 — commands retry once on a dropped connection, then
+ *     fail with an error caught by memory.ts's try-catch wrappers.
+ *   - lazyConnect: false — initiates the TCP connection at module load so it is
+ *     ready (or has failed visibly) before the first request arrives.
  */
 
 import Redis from "ioredis";
@@ -19,8 +24,7 @@ let _client: Redis | null = null;
 function createClient(): Redis | null {
     try {
         const client = new Redis(REDIS_URL, {
-            lazyConnect: false,
-            enableOfflineQueue: false,
+            lazyConnect:          false,
             maxRetriesPerRequest: 1,
         });
         client.on("error", (err: Error) => {

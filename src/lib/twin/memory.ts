@@ -7,7 +7,10 @@
  *   - Rate limiting: sliding-window counter stored as a Redis sorted set.
  *   - OTP pairing codes: short-lived keys (TTL 600 s) for linking web ↔ Telegram.
  *
- * Port of telegram-digital-twin/app/core/memory.py (web-relevant functions only).
+ * Every exported async function wraps Redis calls in try-catch so that a transient
+ * connection error never propagates as an unhandled exception into the engine.
+ *
+ * Port of telegram-digital-twin/app/core/memory.py.
  */
 
 import { getRedisClient } from "./redis";
@@ -28,7 +31,7 @@ export interface ChatHistory {
  * Sliding-window rate limit using a Redis sorted set keyed by chatId.
  * Checked before loading chat history (cheaper abort if blocked).
  * Returns true if the request is allowed, false if blocked.
- * Fails closed — Redis down means no messages allowed.
+ * Fails closed — Redis error or unavailability counts as blocked.
  */
 export async function checkRateLimit(chatId: string): Promise<boolean> {
     const client = getRedisClient();
@@ -38,18 +41,23 @@ export async function checkRateLimit(chatId: string): Promise<boolean> {
     const windowStart = now - config.RATE_LIMIT_WINDOW;
     const key         = `rate_limit:${chatId}`;
 
-    const pipe = client.pipeline();
-    pipe.zremrangebyscore(key, "-inf", windowStart.toString());
-    pipe.zcard(key);
-    const results = await pipe.exec();
+    try {
+        const pipe = client.pipeline();
+        pipe.zremrangebyscore(key, "-inf", windowStart.toString());
+        pipe.zcard(key);
+        const results = await pipe.exec();
 
-    const count = (results?.[1]?.[1] as number) ?? 0;
-    if (count >= config.RATE_LIMIT_COUNT) return false;
+        const count = (results?.[1]?.[1] as number) ?? 0;
+        if (count >= config.RATE_LIMIT_COUNT) return false;
 
-    // Allowed — record this request (member = timestamp string, score = timestamp)
-    await client.zadd(key, now, String(now));
-    await client.expire(key, config.RATE_LIMIT_WINDOW);
-    return true;
+        // Allowed — record this request (member = timestamp string, score = timestamp)
+        await client.zadd(key, now, String(now));
+        await client.expire(key, config.RATE_LIMIT_WINDOW);
+        return true;
+    } catch (err) {
+        console.error("[twin/memory] checkRateLimit error:", err);
+        return false; // Fail closed on Redis errors
+    }
 }
 
 // ── OTP rate limiting ─────────────────────────────────────────────────────────
@@ -62,10 +70,15 @@ export async function checkOtpRateLimit(ip: string): Promise<boolean> {
     const client = getRedisClient();
     if (!client) return true; // Fail open — OTP won't work anyway
 
-    const key   = `otp_attempts:${ip}`;
-    const count = await client.incr(key);
-    if (count === 1) await client.expire(key, 600);
-    return count <= 10;
+    try {
+        const key   = `otp_attempts:${ip}`;
+        const count = await client.incr(key);
+        if (count === 1) await client.expire(key, 600);
+        return count <= 10;
+    } catch (err) {
+        console.error("[twin/memory] checkOtpRateLimit error:", err);
+        return true; // Fail open
+    }
 }
 
 // ── OTP pairing ───────────────────────────────────────────────────────────────
@@ -78,13 +91,18 @@ export async function verifyPairingCode(code: string): Promise<string | null> {
     const client = getRedisClient();
     if (!client) return null;
 
-    const key    = `${PAIRING_PREFIX}:${code}`;
-    const chatId = await client.get(key);
-    if (chatId) {
-        await client.del(key);
-        return chatId;
+    try {
+        const key    = `${PAIRING_PREFIX}:${code}`;
+        const chatId = await client.get(key);
+        if (chatId) {
+            await client.del(key);
+            return chatId;
+        }
+        return null;
+    } catch (err) {
+        console.error("[twin/memory] verifyPairingCode error:", err);
+        return null;
     }
-    return null;
 }
 
 // ── OTP pairing code generation ───────────────────────────────────────────────
@@ -92,15 +110,20 @@ export async function verifyPairingCode(code: string): Promise<string | null> {
 /**
  * Generates an 8-digit OTP and stores it in Redis with a 600s TTL.
  * Used by the Telegram /connect command to initiate web ↔ Telegram session linking.
- * Returns "ERROR" if Redis is unavailable (caller should check).
+ * Returns "ERROR" if Redis is unavailable or throws (caller should check).
  */
 export async function generatePairingCode(chatId: string): Promise<string> {
     const client = getRedisClient();
     if (!client) return "ERROR";
 
-    const code = String(Math.floor(10_000_000 + Math.random() * 90_000_000));
-    await client.setex(`${PAIRING_PREFIX}:${code}`, 600, chatId);
-    return code;
+    try {
+        const code = String(Math.floor(10_000_000 + Math.random() * 90_000_000));
+        await client.setex(`${PAIRING_PREFIX}:${code}`, 600, chatId);
+        return code;
+    } catch (err) {
+        console.error("[twin/memory] generatePairingCode error:", err);
+        return "ERROR";
+    }
 }
 
 // ── Session aliasing (Web ↔ Telegram) ─────────────────────────────────────────
@@ -115,7 +138,12 @@ export async function linkTelegramToWeb(
 ): Promise<void> {
     const client = getRedisClient();
     if (!client) return;
-    await client.set(`alias:${telegramChatId}`, webSessionId);
+
+    try {
+        await client.set(`alias:${telegramChatId}`, webSessionId);
+    } catch (err) {
+        console.error("[twin/memory] linkTelegramToWeb error:", err);
+    }
 }
 
 // ── Chat history ──────────────────────────────────────────────────────────────
@@ -124,8 +152,13 @@ export async function linkTelegramToWeb(
 async function getActualChatId(chatId: string): Promise<string> {
     const client = getRedisClient();
     if (!client) return chatId;
-    const alias = await client.get(`alias:${chatId}`);
-    return alias ?? chatId;
+
+    try {
+        const alias = await client.get(`alias:${chatId}`);
+        return alias ?? chatId;
+    } catch {
+        return chatId;
+    }
 }
 
 /**
@@ -137,14 +170,13 @@ export async function getChatHistory(chatId: string): Promise<ChatHistory> {
     const client = getRedisClient();
     if (!client) return empty;
 
-    const actualId = await getActualChatId(chatId);
-    const raw      = await client.get(`${CHAT_PREFIX}:${actualId}`);
-    if (!raw) return empty;
-
     try {
+        const actualId = await getActualChatId(chatId);
+        const raw      = await client.get(`${CHAT_PREFIX}:${actualId}`);
+        if (!raw) return empty;
         return JSON.parse(raw) as ChatHistory;
-    } catch {
-        console.error(`[twin/memory] failed to parse history for ${chatId}`);
+    } catch (err) {
+        console.error(`[twin/memory] getChatHistory error for ${chatId}:`, err);
         return empty;
     }
 }
@@ -156,10 +188,14 @@ export async function saveChatHistory(chatId: string, data: ChatHistory): Promis
     const client = getRedisClient();
     if (!client) return;
 
-    const actualId = await getActualChatId(chatId);
-    const key      = `${CHAT_PREFIX}:${actualId}`;
-    await client.set(key, JSON.stringify(data));
-    await client.expire(key, 30 * 24 * 3600);
+    try {
+        const actualId = await getActualChatId(chatId);
+        const key      = `${CHAT_PREFIX}:${actualId}`;
+        await client.set(key, JSON.stringify(data));
+        await client.expire(key, 30 * 24 * 3600);
+    } catch (err) {
+        console.error(`[twin/memory] saveChatHistory error for ${chatId}:`, err);
+    }
 }
 
 /**
