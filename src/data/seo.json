@@ -22,9 +22,9 @@
   "openGraph": {
     "type": "website",
     "locale": "en_US",
-    "imageUrl": "https://labs.dianaismail.me/favicon-512x512.png",
-    "imageWidth": 512,
-    "imageHeight": 512,
-    "imageAlt": "Labs by Diana — AI & full-stack experiments"
+    "imageUrl": "https://labs.dianaismail.me/opengraph-image",
+    "imageWidth": 1200,
+    "imageHeight": 630,
+    "imageAlt": "Labs by Diana — AI experiments, all live. Built by Diana Ismail."
   }
 }
