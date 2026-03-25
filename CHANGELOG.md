@@ -1,3 +1,10 @@
+## [1.6.0] - 2026-03-25
+
+### Feature
+* update hero headline to "Labs by Diana — Experiments that ship."
+* remove subtitle paragraph
+* reduce hero vertical padding (py-12/md:py-20) to bring project cards higher up the page
+
 ## [1.5.5] - 2026-03-25
 
 ### Bugfix
