@@ -19,6 +19,7 @@ export function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut", delay: 0 }}
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono mb-8"
+                suppressHydrationWarning
                 style={{
                     background: "rgba(255,255,255,0.05)",
                     border: "1px solid rgba(255,255,255,0.08)",
@@ -40,6 +41,7 @@ export function Hero() {
                 transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
                 className="font-display text-4xl md:text-6xl font-bold max-w-3xl leading-tight"
                 style={{ color: "var(--text-primary)" }}
+                suppressHydrationWarning
             >
                 Labs by Diana —{" "}
                 <span style={{ color: "var(--accent-blue)" }}>
