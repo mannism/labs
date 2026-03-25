@@ -56,21 +56,14 @@ export const metadata: Metadata = {
     siteName: seo.siteName,
     title: seo.title,
     description: seo.description,
-    images: [
-      {
-        url: seo.openGraph.imageUrl,
-        width: seo.openGraph.imageWidth,
-        height: seo.openGraph.imageHeight,
-        alt: seo.openGraph.imageAlt,
-      },
-    ],
+    // images omitted — opengraph-image.tsx file convention handles og:image automatically
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: seo.title,
     description: seo.description,
     creator: seo.twitterHandle,
-    images: [seo.openGraph.imageUrl],
+    // images omitted — Next.js picks up opengraph-image.tsx for twitter:image automatically
   },
   robots: {
     index: true,

@@ -1,3 +1,9 @@
+## [1.9.1] - 2026-03-25
+
+### Bugfix
+* remove explicit `openGraph.images` and `twitter.images` from layout.tsx — `opengraph-image.tsx` file convention already injects `og:image` automatically; keeping both caused duplicate meta tags
+* fix Twitter card type from `summary` to `summary_large_image` to display the 1200×630 image as a full-width preview on Twitter/X
+
 ## [1.9.0] - 2026-03-25
 
 ### Feature
