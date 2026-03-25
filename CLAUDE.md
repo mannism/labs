@@ -40,15 +40,25 @@ The app has two layers:
 
 ---
 
+## Error Handling & Observability
+
+- Every call to OpenAI, Redis, or the Telegram Bot API must be wrapped in `try/catch`. Non-critical failures (Telegram delivery, Redis summarization) must log and continue — never crash the request.
+- Log failures with structured metadata: `[service]`, operation/endpoint, and status code or error type. **Never log API keys, session IDs, raw user message content, or any PII.**
+- API routes must return safe, user-friendly error messages (sourced from `messages.ts`). Never return stack traces, raw error objects, server versions, or internal file paths to clients.
+- The chat widget and Telegram bot must always show a graceful error state when the engine fails — never a blank screen or unhandled rejection.
+
+---
+
 ## Security
 
 - Never hardcode API keys or environment-specific URLs in source files. Use `.env.local` (already in `.gitignore`). Only prefix with `NEXT_PUBLIC_` when browser exposure is intentional.
-- All fonts are self-hosted via `next/font/google` — do not add external CDN links.
+- All fonts are self-hosted — do not add external CDN links (runtime font fetches from external CDNs create availability dependencies).
 - Security headers are configured in `next.config.ts`. Do not weaken them (HSTS, X-Frame-Options, CSP, Permissions-Policy).
 - Never use `dangerouslySetInnerHTML` with user-controlled content — React's default escaping is sufficient; don't bypass it.
 - All external links must carry `rel="noopener noreferrer"`.
 - Never expose stack traces, raw error objects, or internal file paths in UI-visible output.
 - API routes validate input length and enforce rate limiting before touching OpenAI or Redis. Maintain these guards on any new routes.
+- Validate all API route payloads with **Zod** before processing — never trust client-supplied field types or shapes. Length checks alone are not sufficient as payloads grow.
 
 ---
 
@@ -58,6 +68,7 @@ The app has two layers:
 - Do not duplicate the `Project` interface — it is exported from `ProjectCard.tsx` and imported wherever needed.
 - Keep components focused. `ProjectGrid` owns filtering state and drawer visibility. Individual cards are stateless display components.
 - Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
+- **Break large tasks into focused subtasks.** Complete and verify each subtask before moving to the next to avoid cascading breakage.
 
 ---
 

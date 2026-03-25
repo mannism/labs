@@ -1,17 +1,15 @@
 import { ImageResponse } from "next/og";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export const alt = "Labs by Diana — AI experiments, all live. Built by Diana Ismail.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OGImage() {
-    const merriweatherBold = await fetch(
-        "https://fonts.gstatic.com/s/merriweather/v30/u-4n0qyriQwlOrhSvowK_l52xwNZWMf6hPvhPQ.woff2"
-    ).then((res) => res.arrayBuffer());
-
-    const openSansRegular = await fetch(
-        "https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4gaVc.woff2"
-    ).then((res) => res.arrayBuffer());
+    // Fonts are bundled locally in public/fonts/ — no CDN dependency at runtime.
+    const merriweatherBold = readFileSync(join(process.cwd(), "public/fonts/Merriweather-Bold.ttf"));
+    const openSansRegular  = readFileSync(join(process.cwd(), "public/fonts/OpenSans-Regular.ttf"));
 
     return new ImageResponse(
         (
