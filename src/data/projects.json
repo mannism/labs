@@ -17,7 +17,7 @@
       "Redis",
       "Telegram Bot"
     ],
-    "demoUrl": "https://twin.dianaismail.me/",
+    "demoUrl": "",
     "githubUrl": "#",
     "keyLearnings": "Tiered context injection (always-on vs on-demand keyword triggers) reduced token usage by ~57% vs injecting everything."
   },
