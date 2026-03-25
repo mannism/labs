@@ -39,7 +39,7 @@ export function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
-                className="font-display text-4xl md:text-6xl font-bold max-w-3xl leading-tight"
+                className="font-display text-4xl md:text-6xl font-bold max-w-3xl leading-tight mb-6"
                 style={{ color: "var(--text-primary)" }}
                 suppressHydrationWarning
             >
@@ -48,6 +48,17 @@ export function Hero() {
                     Experiments that ship.
                 </span>
             </motion.h1>
+
+            <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.3 }}
+                className="max-w-xl text-base md:text-lg leading-relaxed"
+                style={{ color: "var(--text-muted)" }}
+                suppressHydrationWarning
+            >
+                Side projects that got out of hand. AI tools built for problems I kept tripping over — now live, now yours.
+            </motion.p>
 
         </section>
     );
