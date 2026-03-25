@@ -1,3 +1,12 @@
+## [1.8.0] - 2026-03-25
+
+### Feature
+* add subtitle to Hero: "Side projects that got out of hand. AI tools built for problems I kept tripping over — now live, now yours."
+
+### Chore
+* update shortDescription for all four projects in projects.json
+* update SEO meta description in seo.json
+
 ## [1.7.0] - 2026-03-25
 
 ### Feature
