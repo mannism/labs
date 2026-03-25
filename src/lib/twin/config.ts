@@ -12,3 +12,7 @@ export const RATE_LIMIT_COUNT  = parseInt(process.env.RATE_LIMIT_COUNT  ?? "5", 
 export const RATE_LIMIT_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW ?? "60", 10);
 
 export const SUMMARISATION_THRESHOLD = parseInt(process.env.SUMMARISATION_THRESHOLD ?? "30", 10);
+
+export const TELEGRAM_TOKEN          = process.env.TELEGRAM_TOKEN          ?? "";
+export const TELEGRAM_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
+export const LABS_URL                = process.env.LABS_URL                ?? "https://labs.dianaismail.me";

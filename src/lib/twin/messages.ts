@@ -5,6 +5,39 @@
  * Port of telegram-digital-twin/app/core/messages.py (web-relevant strings only).
  */
 
+// ── Media placeholders (Telegram) ────────────────────────────────────────────
+// Sent to the AI when the user sends a non-text message, so it can respond
+// gracefully rather than receiving nothing.
+
+export const MEDIA_PHOTO    = "[User sent a PHOTO]";
+export const MEDIA_VIDEO    = "[User sent a VIDEO]";
+export const MEDIA_AUDIO    = "[User sent AUDIO]";
+export const MEDIA_DOCUMENT = "[User sent a DOCUMENT]";
+
+// ── Telegram command replies ──────────────────────────────────────────────────
+
+export const MSG_WELCOME = (
+    "👋 Hi! I'm AI Diana — an AI that knows her professional background inside out.\n\n" +
+    "Ask me anything about her (my) experience, projects, or skills. You can also:\n" +
+    "• /contact — get my email, LinkedIn, and website\n" +
+    "• /connect — sync this chat with the web version\n\n" +
+    "What would you like to know?"
+);
+
+export const MSG_SYNC_SUCCESS = (
+    "✅ Successfully synced with your Web conversation!\n\n" +
+    "I remember everything we just talked about. We can continue right here."
+);
+
+export const MSG_CONTACT = (
+    "You can always find me here:\n" +
+    "Email: dianaxismail@gmail.com\n" +
+    "LinkedIn: https://www.linkedin.com/in/dee-ismail/\n" +
+    "Website: https://dianaismail.me"
+);
+
+export const MSG_PAIRING_UNAVAILABLE = "Sorry, pairing is currently unavailable.";
+
 // ── Input validation ─────────────────────────────────────────────────────────
 
 export const MSG_TOO_LONG = "Your message is too long. Please keep it under 4,000 characters.";

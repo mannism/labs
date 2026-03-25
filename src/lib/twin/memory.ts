@@ -87,6 +87,37 @@ export async function verifyPairingCode(code: string): Promise<string | null> {
     return null;
 }
 
+// ── OTP pairing code generation ───────────────────────────────────────────────
+
+/**
+ * Generates an 8-digit OTP and stores it in Redis with a 600s TTL.
+ * Used by the Telegram /connect command to initiate web ↔ Telegram session linking.
+ * Returns "ERROR" if Redis is unavailable (caller should check).
+ */
+export async function generatePairingCode(chatId: string): Promise<string> {
+    const client = getRedisClient();
+    if (!client) return "ERROR";
+
+    const code = String(Math.floor(10_000_000 + Math.random() * 90_000_000));
+    await client.setex(`${PAIRING_PREFIX}:${code}`, 600, chatId);
+    return code;
+}
+
+// ── Session aliasing (Web ↔ Telegram) ─────────────────────────────────────────
+
+/**
+ * Creates a permanent alias so the Telegram chat reads/writes the web session's
+ * Redis key, enabling full history sync across both interfaces.
+ */
+export async function linkTelegramToWeb(
+    telegramChatId: string,
+    webSessionId: string
+): Promise<void> {
+    const client = getRedisClient();
+    if (!client) return;
+    await client.set(`alias:${telegramChatId}`, webSessionId);
+}
+
 // ── Chat history ──────────────────────────────────────────────────────────────
 
 /** Resolves an alias if one exists, otherwise returns the original chatId. */

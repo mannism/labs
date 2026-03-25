@@ -121,6 +121,58 @@ async function summarizeMemory(history: memory.ChatHistory): Promise<void> {
 }
 
 /**
+ * Non-streaming variant of the chat engine — returns the full AI response.
+ * Used by the Telegram webhook handler (Telegram can't consume SSE).
+ * Same pre-flight checks (Redis guard, rate limit, history) as the streaming path.
+ */
+export async function processUserMessage(
+    chatId: string,
+    userText: string,
+    iface: string = "telegram"
+): Promise<{ status: "success" | "rate_limited" | "error"; responseText: string }> {
+    // 0. Guard: Redis must be available
+    if (!getRedisClient()) {
+        return { status: "error", responseText: MESSAGES.MSG_STORAGE_OFFLINE };
+    }
+
+    // 1. Rate limit check
+    const allowed = await memory.checkRateLimit(chatId);
+    if (!allowed) {
+        console.warn(`[twin/engine] rate limit exceeded for ${chatId}`);
+        return { status: "rate_limited", responseText: MESSAGES.MSG_RATE_LIMITED };
+    }
+
+    // 2. Retrieve history and append user message
+    const history = await memory.getChatHistory(chatId);
+    memory.appendMessage(history, "user", userText);
+
+    // 3. Build OpenAI message list
+    const apiMessages = buildApiMessages(userText, history, iface);
+
+    // 4. Single (non-streaming) OpenAI call
+    let responseText: string;
+    try {
+        const completion = await openai.chat.completions.create({
+            model:                config.OPENAI_MODEL,
+            messages:             apiMessages,
+            max_completion_tokens: 800,
+            temperature:           0.7,
+        });
+        responseText = completion.choices[0]?.message?.content ?? MESSAGES.MSG_AI_ERROR;
+    } catch (err) {
+        console.error("[twin/engine] OpenAI error:", err);
+        return { status: "error", responseText: MESSAGES.MSG_AI_ERROR };
+    }
+
+    // 5. Append assistant response, summarize if needed, and persist
+    memory.appendMessage(history, "assistant", responseText);
+    await summarizeMemory(history);
+    await memory.saveChatHistory(chatId, history);
+
+    return { status: "success", responseText };
+}
+
+/**
  * Streaming variant of the chat engine — yields SSE-formatted strings.
  *
  * SSE event shapes:
