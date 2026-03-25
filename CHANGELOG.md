@@ -1,3 +1,8 @@
+## [1.5.2] - 2026-03-25
+
+### Bugfix
+* add `suppressHydrationWarning` to the Framer Motion `motion.div` in `ProjectCard` to silence React hydration mismatch caused by Framer Motion injecting inline animation styles (`opacity: 0; transform: translateY(24px)`) on the client before hydration completes
+
 ## [1.5.1] - 2026-03-25
 
 ### Bugfix

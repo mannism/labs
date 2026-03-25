@@ -82,6 +82,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
             viewport={{ once: true }}
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="project-card group relative flex flex-col overflow-hidden min-h-[260px] p-6 cursor-pointer"
+            suppressHydrationWarning
         >
             {/* Blue gradient overlay — fades in via CSS on .project-card:hover */}
             <div className="card-overlay" />
