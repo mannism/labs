@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { flushSync } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, ExternalLink, Link, Send } from "lucide-react";
 
@@ -91,8 +92,6 @@ export function ChatWidget() {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     /** Ref assigned to the latest user message div — scroll target after send. */
     const lastUserMsgRef = useRef<HTMLDivElement>(null);
-    /** Set to true in sendMessage; consumed once by the scroll useEffect. */
-    const shouldScrollRef = useRef(false);
     /** Accumulates SSE text chunks outside React state to avoid closure staleness. */
     const rawTextRef = useRef("");
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -109,29 +108,6 @@ export function ChatWidget() {
         setSessionId(id);
     }, []);
 
-    // ── Scroll latest user message to top of the chat container after send ──
-    // Uses explicit scrollTop math on the container div rather than
-    // scrollIntoView, which would target the page (position:fixed widget is
-    // outside the normal scroll flow and scrollIntoView silently does nothing).
-    // shouldScrollRef gates this so it only fires once per send, not on every
-    // typewriter tick.
-    useEffect(() => {
-        if (!shouldScrollRef.current) return;
-        shouldScrollRef.current = false;
-
-        requestAnimationFrame(() => {
-            const container = messagesContainerRef.current;
-            const userMsg = lastUserMsgRef.current;
-            if (!container || !userMsg) return;
-
-            const containerTop = container.getBoundingClientRect().top;
-            const msgTop = userMsg.getBoundingClientRect().top;
-            container.scrollTo({
-                top: container.scrollTop + (msgTop - containerTop),
-                behavior: "smooth",
-            });
-        });
-    }, [messages]);
 
     // ── Cleanup typewriter interval on unmount ───────────────────────────────
     useEffect(() => {
@@ -139,6 +115,20 @@ export function ChatWidget() {
             if (typewriterIntervalRef.current) clearInterval(typewriterIntervalRef.current);
         };
     }, []);
+
+    // ── Focus input when chat opens ──────────────────────────────────────────
+    useEffect(() => {
+        if (isOpen) {
+            requestAnimationFrame(() => inputRef.current?.focus());
+        }
+    }, [isOpen]);
+
+    // ── Refocus input when response is complete ──────────────────────────────
+    useEffect(() => {
+        if (!isStreaming) {
+            inputRef.current?.focus();
+        }
+    }, [isStreaming]);
 
     // ── Footer-aware bottom offset ────────────────────────────────────────────
     // Normally 30px from viewport bottom. When the footer scrolls into view,
@@ -214,13 +204,25 @@ export function ChatWidget() {
         setInput("");
         if (inputRef.current) inputRef.current.style.height = "auto";
 
-        // Flag scroll before state update so the useEffect catches the next render
-        shouldScrollRef.current = true;
-        setMessages((prev) => [
-            ...prev,
-            { role: "user", text },
-            { role: "assistant", text: "", loading: true },
-        ]);
+        // flushSync forces React to synchronously commit the new messages to the
+        // DOM before continuing, so lastUserMsgRef.current is guaranteed to point
+        // to the new user message bubble by the time we measure and scroll.
+        flushSync(() => {
+            setMessages((prev) => [
+                ...prev,
+                { role: "user", text },
+                { role: "assistant", text: "", loading: true },
+            ]);
+        });
+
+        const container = messagesContainerRef.current;
+        const userMsg = lastUserMsgRef.current;
+        if (container && userMsg) {
+            container.scrollTo({
+                top: container.scrollTop + userMsg.getBoundingClientRect().top - container.getBoundingClientRect().top,
+                behavior: "smooth",
+            });
+        }
 
         setIsStreaming(true);
         rawTextRef.current = "";
