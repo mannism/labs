@@ -22,7 +22,7 @@
   "openGraph": {
     "type": "website",
     "locale": "en_US",
-    "imageUrl": "/favicon-512x512.png",
+    "imageUrl": "https://labs.dianaismail.me/favicon-512x512.png",
     "imageWidth": 512,
     "imageHeight": 512,
     "imageAlt": "Labs by Diana — AI & full-stack experiments"
