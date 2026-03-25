@@ -1,3 +1,9 @@
+## [1.8.1] - 2026-03-25
+
+### Chore
+* upgrade TypeScript ^5 → ^6 (eslint ^10 incompatible with eslint-config-next; lucide-react ^1 dropped Github brand icon — both held at current)
+* fix lint errors surfaced by updated eslint-config-next: eslint-disable comments for valid setState-in-effect patterns; fix JSX comment text node in opengraph-image.tsx
+
 ## [1.8.0] - 2026-03-25
 
 ### Feature
