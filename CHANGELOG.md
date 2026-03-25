@@ -1,3 +1,8 @@
+## [1.5.1] - 2026-03-25
+
+### Bugfix
+* fix chat scroll-to-user: `scrollIntoView` silently no-ops inside a `position:fixed` widget; replace with explicit `container.scrollTo()` using `getBoundingClientRect` delta so the user message correctly lands at the top of the chat container
+
 ## [1.5.0] - 2026-03-25
 
 ### Feature

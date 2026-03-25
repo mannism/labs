@@ -86,6 +86,8 @@ export function ChatWidget() {
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkCode, setLinkCode] = useState("");
 
+    /** Ref on the scrollable messages container — needed for explicit scrollTop math. */
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
     /** Ref assigned to the latest user message div — scroll target after send. */
     const lastUserMsgRef = useRef<HTMLDivElement>(null);
     /** Set to true in sendMessage; consumed once by the scroll useEffect. */
@@ -106,14 +108,28 @@ export function ChatWidget() {
         setSessionId(id);
     }, []);
 
-    // ── Scroll latest user message to top of viewport after send ────────────
+    // ── Scroll latest user message to top of the chat container after send ──
+    // Uses explicit scrollTop math on the container div rather than
+    // scrollIntoView, which would target the page (position:fixed widget is
+    // outside the normal scroll flow and scrollIntoView silently does nothing).
     // shouldScrollRef gates this so it only fires once per send, not on every
-    // state update (e.g. typewriter ticks would otherwise cause jumps).
+    // typewriter tick.
     useEffect(() => {
-        if (shouldScrollRef.current && lastUserMsgRef.current) {
-            lastUserMsgRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-            shouldScrollRef.current = false;
-        }
+        if (!shouldScrollRef.current) return;
+        shouldScrollRef.current = false;
+
+        requestAnimationFrame(() => {
+            const container = messagesContainerRef.current;
+            const userMsg = lastUserMsgRef.current;
+            if (!container || !userMsg) return;
+
+            const containerTop = container.getBoundingClientRect().top;
+            const msgTop = userMsg.getBoundingClientRect().top;
+            container.scrollTo({
+                top: container.scrollTop + (msgTop - containerTop),
+                behavior: "smooth",
+            });
+        });
     }, [messages]);
 
     // ── Cleanup typewriter interval on unmount ───────────────────────────────
@@ -457,6 +473,7 @@ export function ChatWidget() {
 
                         {/* Messages */}
                         <div
+                            ref={messagesContainerRef}
                             className="custom-scrollbar"
                             style={{
                                 flex: 1,
