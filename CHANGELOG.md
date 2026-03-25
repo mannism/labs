@@ -1,3 +1,9 @@
+## [1.7.0] - 2026-03-25
+
+### Feature
+* chat widget lifts above footer when scrolling near bottom of page — scroll/resize listener computes footer visibility and updates `bottom` offset dynamically (default 30px; rises to footerVisiblePx + 12px clearance)
+* chat window on mobile (≤480px) now fills 75svh so it feels native and doesn't leave dead space
+
 ## [1.6.0] - 2026-03-25
 
 ### Feature
