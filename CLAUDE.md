@@ -2,9 +2,11 @@
 
 ## Project
 
-**Diana Ismail Labs** — a static Next.js 16 portfolio (React 19, TypeScript, Tailwind CSS v4, Framer Motion). Single-page, client-side only. No backend, no database, no API routes, no auth.
+**Diana Ismail Labs** — a Next.js 16 portfolio (React 19, TypeScript, Tailwind CSS v4, Framer Motion) with an embedded AI chat engine.
 
-All project data lives in `src/data/projects.json`. The UI reads this file at build time — adding/editing/hiding a project is a JSON-only change.
+The app has two layers:
+- **UI layer:** Single-page client-side React app. Project data lives in `src/data/projects.json` — adding/editing/hiding a project is a JSON-only change.
+- **Chat engine layer:** Three API routes (`/api/chat/stream`, `/api/link`, `/api/telegram`) backed by OpenAI and Redis. Powers the floating ChatWidget and Telegram bot with shared cross-platform conversation history.
 
 ---
 
@@ -21,11 +23,20 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 
 ## Architecture Conventions
 
+### UI layer
 - **Single source of truth:** `src/data/projects.json` drives the grid, category filters, and drawer content. Never hardcode project data in components.
 - **CSS custom properties over Tailwind for design tokens:** Colours, glass effects, and typography variables are defined in `globals.css` (e.g. `var(--accent-blue)`, `var(--bg-glass)`). Use these in components rather than raw hex values.
 - **CSS transitions over JS for micro-interactions:** Filter tabs, links, and hover states use CSS `transition` (see `.filter-tab`, `.card-icon-btn` in `globals.css`). Reserve Framer Motion for component entry/exit and card hover lift.
 - **`statusClass` duplication is intentional:** Both `ProjectCard` and `ProjectDetailsDrawer` define their own `statusClass` helper to keep components self-contained and independently deployable. Do not extract it to a shared util unless a third component needs it.
 - **Internal vs external URLs:** Demo URLs containing `dianaismail.me` open in `_self`; all others use `target="_blank" rel="noopener noreferrer"`. This logic is mirrored in both `ProjectCard` and `ProjectDetailsDrawer` — keep them in sync.
+
+### Chat engine layer (`src/lib/twin/`)
+- **`config.ts` is the single env var entry point.** All modules import from `config.ts` — never call `process.env` directly anywhere else.
+- **`engine.ts` owns the full message flow:** rate limit → history → context injection → OpenAI → summarize → save. Do not scatter these steps across other modules.
+- **Tiered context injection:** Always-on context (7 files) is injected every request. On-demand context (2 files) is injected only when keywords match. Do not promote on-demand files to always-on without considering token cost.
+- **`memory.ts` fails closed for rate limiting, open for OTP.** Rate limit errors block the request (safe default). OTP errors allow through (OTP won't work anyway without Redis). Preserve this asymmetry.
+- **Redis singleton in `redis.ts`:** One ioredis instance per process. `enableOfflineQueue: true` (commands queue during async connection window — do not set to `false`). All Redis calls are wrapped in try-catch in `memory.ts`.
+- **Context markdown files get individual commits.** Changes to `src/data/twin/` (context files, `System-prompt.md`, `summarise-prompt.md`) must be committed separately from code changes, for clear prompt/context history tracking.
 
 ---
 
@@ -37,6 +48,7 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 - Never use `dangerouslySetInnerHTML` with user-controlled content — React's default escaping is sufficient; don't bypass it.
 - All external links must carry `rel="noopener noreferrer"`.
 - Never expose stack traces, raw error objects, or internal file paths in UI-visible output.
+- API routes validate input length and enforce rate limiting before touching OpenAI or Redis. Maintain these guards on any new routes.
 
 ---
 
@@ -45,6 +57,7 @@ All project data lives in `src/data/projects.json`. The UI reads this file at bu
 - Use descriptive names. Add JSDoc comments where the logic isn't obvious from the code.
 - Do not duplicate the `Project` interface — it is exported from `ProjectCard.tsx` and imported wherever needed.
 - Keep components focused. `ProjectGrid` owns filtering state and drawer visibility. Individual cards are stateless display components.
+- Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
 
 ---
 

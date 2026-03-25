@@ -7,9 +7,10 @@
  * Key design decisions (ported from telegram-digital-twin/app/core/engine.py):
  *   - Rate limit is checked before loading history (cheaper abort if blocked).
  *   - Tiered context: always-injected files + on-demand files via keyword matching.
- *   - Interface signal informs the model it is on "web".
+ *   - Interface signal informs the model which surface it is on ("web" or "telegram").
  *   - Conversation state signal prevents re-greeting on follow-up turns.
- *   - Only the streaming path is implemented — the ChatWidget uses /api/chat/stream only.
+ *   - Two paths: streaming (processUserMessageStream) for the ChatWidget via /api/chat/stream,
+ *     and non-streaming (processUserMessage) for the Telegram webhook.
  */
 
 import OpenAI from "openai";
