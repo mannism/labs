@@ -1,3 +1,10 @@
+## [1.5.4] - 2026-03-25
+
+### Chore
+* rewrite README.md to reflect chat engine, API routes, env vars, Telegram bot, and Docker setup
+* update CLAUDE.md: remove stale "no backend/no API routes" claim; add chat engine architecture conventions, env var policy, Redis rules, and context file commit rule
+* fix outdated inline comment in `engine.ts` (was "only streaming path implemented")
+
 ## [1.5.3] - 2026-03-25
 
 ### Chore
