@@ -428,8 +428,8 @@ html.light .chat-msg-assistant {
   text-decoration: underline;
 }
 
-/* Streaming cursor blink */
-.chat-msg-assistant.streaming::after {
+/* Typewriter cursor blink */
+.chat-msg-assistant.typewriter::after {
   content: '▋';
   display: inline-block;
   color: var(--accent-blue);

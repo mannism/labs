@@ -7,11 +7,11 @@ import { MessageCircle, X, ExternalLink, Link, Send } from "lucide-react";
 /** Shape of a single chat bubble in the messages list. */
 interface ChatMessage {
     role: "user" | "assistant";
-    /** Raw accumulated text while streaming; final parsed HTML once done. */
+    /** Partial or final parsed HTML for the assistant; plain text for the user. */
     text: string;
-    /** True while SSE chunks are still arriving — renders blinking cursor. */
-    streaming?: boolean;
-    /** True while waiting for the first chunk — renders bouncing dots. */
+    /** True while the typewriter animation is revealing the assistant response. */
+    typewriter?: boolean;
+    /** True while waiting for the first SSE chunk — renders bouncing dots. */
     loading?: boolean;
 }
 
@@ -69,8 +69,10 @@ function parseMarkdown(text: string, sessionId: string | null): string {
  * FloatingChatWidget — AI Diana
  *
  * A fixed-position chat widget that streams responses from the Digital Twin
- * FastAPI backend via Server-Sent Events. Supports Telegram account linking
- * and auto-pairing from the `?connect=` URL query param.
+ * FastAPI backend via Server-Sent Events. SSE chunks are accumulated silently;
+ * the full response is revealed with a typewriter character-by-character animation
+ * once the complete response arrives. Supports Telegram account linking and
+ * auto-pairing from the `?connect=` URL query param.
  *
  * Styling uses CSS custom properties from globals.css so dark/light mode
  * is handled automatically without any additional state.
@@ -84,10 +86,15 @@ export function ChatWidget() {
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkCode, setLinkCode] = useState("");
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    /** Ref assigned to the latest user message div — scroll target after send. */
+    const lastUserMsgRef = useRef<HTMLDivElement>(null);
+    /** Set to true in sendMessage; consumed once by the scroll useEffect. */
+    const shouldScrollRef = useRef(false);
     /** Accumulates SSE text chunks outside React state to avoid closure staleness. */
     const rawTextRef = useRef("");
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    /** Active typewriter interval handle — cleared on completion or unmount. */
+    const typewriterIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ── Session ID (SSR-safe: runs only on client) ───────────────────────────
     useEffect(() => {
@@ -99,10 +106,22 @@ export function ChatWidget() {
         setSessionId(id);
     }, []);
 
-    // ── Auto-scroll to latest message ────────────────────────────────────────
+    // ── Scroll latest user message to top of viewport after send ────────────
+    // shouldScrollRef gates this so it only fires once per send, not on every
+    // state update (e.g. typewriter ticks would otherwise cause jumps).
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (shouldScrollRef.current && lastUserMsgRef.current) {
+            lastUserMsgRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            shouldScrollRef.current = false;
+        }
     }, [messages]);
+
+    // ── Cleanup typewriter interval on unmount ───────────────────────────────
+    useEffect(() => {
+        return () => {
+            if (typewriterIntervalRef.current) clearInterval(typewriterIntervalRef.current);
+        };
+    }, []);
 
     // ── Telegram link code processing ────────────────────────────────────────
     const processLinkCode = useCallback(async (code: string) => {
@@ -158,6 +177,8 @@ export function ChatWidget() {
         setInput("");
         if (inputRef.current) inputRef.current.style.height = "auto";
 
+        // Flag scroll before state update so the useEffect catches the next render
+        shouldScrollRef.current = true;
         setMessages((prev) => [
             ...prev,
             { role: "user", text },
@@ -166,6 +187,9 @@ export function ChatWidget() {
 
         setIsStreaming(true);
         rawTextRef.current = "";
+        // Tracks whether the typewriter took ownership of cleanup (success path).
+        // If false when finally runs, cleanup is done there instead (error path).
+        let typewriterStarted = false;
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -195,7 +219,6 @@ export function ChatWidget() {
             const reader = response.body!.getReader();
             const decoder = new TextDecoder();
             let buffer = "";
-            let firstChunk = true;
 
             /** Processes one complete `data: {...}` SSE event string. */
             function handleEvent(eventStr: string) {
@@ -209,29 +232,41 @@ export function ChatWidget() {
                 }
 
                 if (payload.type === "chunk" && payload.text) {
-                    if (firstChunk) {
-                        firstChunk = false;
-                        rawTextRef.current = payload.text;
-                    } else {
-                        rawTextRef.current += payload.text;
-                    }
-                    const snap = rawTextRef.current;
-                    setMessages((prev) => {
-                        const updated = [...prev];
-                        updated[updated.length - 1] = {
-                            role: "assistant",
-                            text: snap,
-                            streaming: true,
-                        };
-                        return updated;
-                    });
+                    // Accumulate silently — loading dots remain visible until "done"
+                    rawTextRef.current += payload.text;
+
                 } else if (payload.type === "done") {
-                    const finalHtml = parseMarkdown(rawTextRef.current, sessionId);
-                    setMessages((prev) => {
-                        const updated = [...prev];
-                        updated[updated.length - 1] = { role: "assistant", text: finalHtml };
-                        return updated;
-                    });
+                    const rawText = rawTextRef.current;
+                    // Target ~80 ticks at 16ms ≈ 1.3s for any response length
+                    const charsPerStep = Math.max(1, Math.ceil(rawText.length / 80));
+                    let charIndex = 0;
+                    typewriterStarted = true;
+
+                    typewriterIntervalRef.current = setInterval(() => {
+                        charIndex = Math.min(charIndex + charsPerStep, rawText.length);
+                        // Re-parse on each tick so inline formatting (bold, links, lists)
+                        // is correctly applied to the partial text as it grows.
+                        const partialHtml = parseMarkdown(rawText.slice(0, charIndex), sessionId);
+                        const complete = charIndex >= rawText.length;
+
+                        setMessages((prev) => {
+                            const updated = [...prev];
+                            updated[updated.length - 1] = {
+                                role: "assistant",
+                                text: partialHtml,
+                                ...(complete ? {} : { typewriter: true }),
+                            };
+                            return updated;
+                        });
+
+                        if (complete) {
+                            clearInterval(typewriterIntervalRef.current!);
+                            typewriterIntervalRef.current = null;
+                            setIsStreaming(false);
+                            rawTextRef.current = "";
+                        }
+                    }, 16);
+
                 } else if (payload.type === "error") {
                     showError(payload.text ?? "Error processing request.");
                 }
@@ -257,8 +292,11 @@ export function ChatWidget() {
                     : "Network error. Please try again."
             );
         } finally {
-            setIsStreaming(false);
-            rawTextRef.current = "";
+            // Typewriter owns cleanup on success; only run here on error/abort
+            if (!typewriterStarted) {
+                setIsStreaming(false);
+                rawTextRef.current = "";
+            }
         }
     }, [input, sessionId, isStreaming]);
 
@@ -446,6 +484,7 @@ export function ChatWidget() {
                             )}
 
                             {messages.map((msg, i) => {
+                                // Loading: bouncing dots while SSE accumulates
                                 if (msg.loading) {
                                     return (
                                         <div key={i} className="chat-msg-assistant">
@@ -455,31 +494,28 @@ export function ChatWidget() {
                                         </div>
                                     );
                                 }
+
+                                // User message — ref assigned to all user divs; last one wins,
+                                // naturally pointing to the most recently sent message
                                 if (msg.role === "user") {
                                     return (
-                                        <div key={i} className="chat-msg-user">
+                                        <div key={i} ref={lastUserMsgRef} className="chat-msg-user">
                                             {msg.text}
                                         </div>
                                     );
                                 }
-                                // Assistant — streaming: textContent (safe); done: innerHTML (HTML-escaped + markdown)
-                                if (msg.streaming) {
-                                    return (
-                                        <div key={i} className="chat-msg-assistant streaming">
-                                            {msg.text}
-                                        </div>
-                                    );
-                                }
+
+                                // Assistant — both typewriter (partial) and final HTML are
+                                // pre-escaped by parseMarkdown before any markup is injected.
+                                // The `typewriter` class adds the blinking cursor via CSS ::after.
                                 return (
                                     <div
                                         key={i}
-                                        className="chat-msg-assistant"
+                                        className={`chat-msg-assistant${msg.typewriter ? " typewriter" : ""}`}
                                         dangerouslySetInnerHTML={{ __html: msg.text }}
                                     />
                                 );
                             })}
-
-                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Input */}
@@ -496,7 +532,7 @@ export function ChatWidget() {
                                     value={input}
                                     onChange={handleInputChange}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Ask anything… (Enter to send)"
+                                    placeholder={isStreaming ? "Thinking…" : "Ask anything… (Enter to send)"}
                                     rows={1}
                                     disabled={isStreaming}
                                     style={{

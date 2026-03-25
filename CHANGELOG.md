@@ -1,3 +1,11 @@
+## [1.5.0] - 2026-03-25
+
+### Feature
+* replace mid-stream token display with silent SSE accumulation; loading dots hold for the full response duration
+* reveal completed assistant response using a typewriter character-by-character animation (~1.3s target, preserving markdown formatting throughout)
+* scroll last user message to top of chat viewport on submit; no auto-scroll during or after typewriter animation
+* show "Thinking…" placeholder in input while response is in flight
+
 ## [1.4.0] - 2026-03-24
 
 ### Feature
