@@ -1,3 +1,8 @@
+## [1.5.3] - 2026-03-25
+
+### Chore
+* move favicon and OG image files from `src/app/` to `public/` so they are served as static assets at the `/` path that `metadata` references
+
 ## [1.5.2] - 2026-03-25
 
 ### Bugfix
