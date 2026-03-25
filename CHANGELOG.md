@@ -1,3 +1,8 @@
+## [1.5.5] - 2026-03-25
+
+### Bugfix
+* use absolute URL for `og:image` in `seo.json` — WhatsApp's crawler does not reliably resolve relative paths against `metadataBase`
+
 ## [1.5.4] - 2026-03-25
 
 ### Chore
