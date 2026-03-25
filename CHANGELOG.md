@@ -1,3 +1,12 @@
+## [1.9.0] - 2026-03-25
+
+### Feature
+* chat widget auto-focuses input on open and after each AI response completes
+* use `flushSync` to guarantee DOM is committed before scroll measurement — fixes user message not pinning to top of chat on submit
+
+### Chore
+* update seo.json og:image to dynamic `/opengraph-image` route at 1200×630
+
 ## [1.8.1] - 2026-03-25
 
 ### Chore
