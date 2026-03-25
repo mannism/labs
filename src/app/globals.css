@@ -462,7 +462,7 @@ html.light .chat-msg-assistant {
   40%           { transform: translateY(-6px); }
 }
 
-/* Mobile: stretch chat window to ≥80% viewport width */
+/* Mobile: stretch chat window to full width, 75% viewport height */
 @media (max-width: 480px) {
   .chat-window {
     right: 12px;
@@ -470,6 +470,8 @@ html.light .chat-msg-assistant {
     width: auto;
     max-width: none;
     bottom: 30px;
+    height: 75svh;
+    max-height: 75svh;
   }
   .chat-toggle-btn {
     bottom: 30px;

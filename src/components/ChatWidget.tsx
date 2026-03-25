@@ -85,6 +85,7 @@ export function ChatWidget() {
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkCode, setLinkCode] = useState("");
+    const [bottomOffset, setBottomOffset] = useState(30);
 
     /** Ref on the scrollable messages container — needed for explicit scrollTop math. */
     const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -136,6 +137,26 @@ export function ChatWidget() {
     useEffect(() => {
         return () => {
             if (typewriterIntervalRef.current) clearInterval(typewriterIntervalRef.current);
+        };
+    }, []);
+
+    // ── Footer-aware bottom offset ────────────────────────────────────────────
+    // Normally 30px from viewport bottom. When the footer scrolls into view,
+    // lifts the widget above it (footerVisiblePx + 12px clearance).
+    useEffect(() => {
+        const CLEARANCE = 12;
+        const update = () => {
+            const footer = document.querySelector("footer");
+            if (!footer) return;
+            const footerVisible = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
+            setBottomOffset(footerVisible > 0 ? footerVisible + CLEARANCE : 30);
+        };
+        window.addEventListener("scroll", update, { passive: true });
+        window.addEventListener("resize", update, { passive: true });
+        update();
+        return () => {
+            window.removeEventListener("scroll", update);
+            window.removeEventListener("resize", update);
         };
     }, []);
 
@@ -339,6 +360,7 @@ export function ChatWidget() {
                 {!isOpen && (
                     <motion.button
                         className="chat-toggle-btn"
+                        style={{ bottom: bottomOffset }}
                         onClick={() => setIsOpen(true)}
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -358,6 +380,7 @@ export function ChatWidget() {
                 {isOpen && (
                     <motion.div
                         className="chat-window"
+                        style={{ bottom: bottomOffset }}
                         initial={{ opacity: 0, scale: 0.95, y: 16 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 16 }}
