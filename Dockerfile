@@ -51,6 +51,8 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Twin context files are read at runtime via fs — not traced by Next.js standalone output
+COPY --from=builder --chown=nextjs:nodejs /app/src/data/twin ./src/data/twin
 
 USER nextjs
 
