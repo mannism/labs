@@ -15,7 +15,7 @@ interface ChatMessage {
     loading?: boolean;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_CHAT_API_URL ?? "https://twin.dianaismail.me";
+const API_BASE = process.env.NEXT_PUBLIC_CHAT_API_URL ?? "";
 const TELEGRAM_BOT = "https://t.me/deeismbot";
 
 /**
