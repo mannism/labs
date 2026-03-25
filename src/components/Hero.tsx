@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
  */
 export function Hero() {
     return (
-        <section className="py-20 md:py-32 flex flex-col items-center justify-center text-center px-4">
+        <section className="py-12 md:py-20 flex flex-col items-center justify-center text-center px-4">
 
             {/* Status badge */}
             <motion.div
@@ -38,25 +38,15 @@ export function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
-                className="font-display text-4xl md:text-6xl font-bold mb-6 max-w-3xl leading-tight"
+                className="font-display text-4xl md:text-6xl font-bold max-w-3xl leading-tight"
                 style={{ color: "var(--text-primary)" }}
             >
                 Labs by Diana —{" "}
                 <span style={{ color: "var(--accent-blue)" }}>
-                    Where creativity meets experimental tech.
+                    Experiments that ship.
                 </span>
             </motion.h1>
 
-            {/* Subtitle */}
-            <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut", delay: 0.28 }}
-                className="text-base md:text-lg max-w-2xl"
-                style={{ color: "var(--text-muted)" }}
-            >
-                Just scratching an itch — my random musings and projects.
-            </motion.p>
         </section>
     );
 }
