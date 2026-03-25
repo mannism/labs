@@ -50,6 +50,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
     const [siteUp, setSiteUp] = useState<boolean | null>(null);
     useEffect(() => {
         if (!project.demoUrl || project.demoUrl === "#") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- early exit before async fetch
             setSiteUp(true);
             return;
         }

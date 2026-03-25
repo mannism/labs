@@ -13,8 +13,9 @@ import { Sun, Moon } from "lucide-react";
 export function Navbar() {
     const [isDark, setIsDark] = useState(true);
 
-    // Sync toggle state with whatever the theme-init script already applied
+    // Sync toggle state with whatever the theme-init script already applied.
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- reading external DOM state on mount
         setIsDark(document.documentElement.classList.contains("dark") ||
             document.documentElement.className === "dark");
     }, []);
