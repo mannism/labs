@@ -1,3 +1,8 @@
+## [1.10.1] - 2026-03-26
+
+### Bugfix
+* fix OG image build failure — satori requires `display: flex` on any element with more than one child; headline `<div>` had a text node + `<span>` with no display property; restructured to two `<span>` children inside a flex wrapper
+
 ## [1.10.0] - 2026-03-26
 
 ### Feature
