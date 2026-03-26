@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Merriweather, Open_Sans } from "next/font/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
+import projects from "@/data/projects.json";
 
 // Next.js Font Optimization:
 // These fonts are downloaded at build time and served from the application origin,
@@ -35,6 +36,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -75,6 +77,54 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * JSON-LD structured data for search engines and AI crawlers.
+ * Graph includes: WebSite, Person (Diana Ismail), and ItemList of projects.
+ * Data sourced from seo.json and projects.json — no hardcoded values.
+ */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${seo.siteUrl}/#website`,
+      name: seo.siteName,
+      url: seo.siteUrl,
+      description: seo.description,
+      author: { "@id": `${seo.siteUrl}/#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${seo.siteUrl}/#person`,
+      name: seo.author,
+      url: seo.siteUrl,
+      sameAs: [
+        `https://twitter.com/${seo.twitterHandle.replace("@", "")}`,
+      ],
+    },
+    {
+      "@type": "ItemList",
+      "@id": `${seo.siteUrl}/#projects`,
+      name: "Projects",
+      numberOfItems: projects.filter((p) => p.display).length,
+      itemListElement: projects
+        .filter((p) => p.display)
+        .sort((a, b) => a.order - b.order)
+        .map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SoftwareApplication",
+            name: p.title,
+            description: p.shortDescription,
+            applicationCategory: "WebApplication",
+            url: p.demoUrl || seo.siteUrl,
+          },
+        })),
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -91,6 +141,12 @@ export default function RootLayout({
           <div className="bg-orb bg-orb-blue" />
           <div className="bg-orb bg-orb-purple" />
         </div>
+
+        {/* Structured data for search engines and AI crawlers */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
         {/* Page content layered above orbs */}
         <div style={{ position: "relative", zIndex: 1 }}>

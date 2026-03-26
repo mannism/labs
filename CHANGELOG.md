@@ -1,3 +1,13 @@
+## [1.10.0] - 2026-03-26
+
+### Feature
+* add `robots.ts` — generates `/robots.txt` allowing all crawlers and blocking `/api/`; links to sitemap
+* add `sitemap.ts` — generates `/sitemap.xml` for Google and other search engine discovery
+* add JSON-LD structured data to `layout.tsx` — WebSite, Person, and ItemList/SoftwareApplication schema for AI and search engine parsing
+* add `manifest.ts` — generates `/manifest.json` for PWA signals and browser discoverability
+* add `llms.txt/route.ts` — serves `/llms.txt` for AI crawlers (llmstxt.org standard); content sourced from `seo.json` and `projects.json`
+* fix `seo.json` `twitterHandle` from `@dianaismail` to `@fkzl78`
+
 ## [1.9.1] - 2026-03-25
 
 ### Bugfix
