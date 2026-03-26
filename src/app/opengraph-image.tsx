@@ -85,9 +85,12 @@ export default async function OGImage() {
                     </span>
                 </div>
 
-                {/* Headline */}
+                {/* Headline — display:flex required by satori for multi-child elements */}
                 <div
                     style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "baseline",
                         fontFamily: "Merriweather",
                         fontSize: 80,
                         fontWeight: 700,
@@ -97,7 +100,7 @@ export default async function OGImage() {
                         maxWidth: 900,
                     }}
                 >
-                    Labs by Diana —{" "}
+                    <span>{"Labs by Diana — "}</span>
                     <span style={{ color: "#3B82F6" }}>Experiments that ship.</span>
                 </div>
 
