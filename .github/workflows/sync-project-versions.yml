@@ -37,6 +37,7 @@ jobs:
 
           const REPO_MAP = {
             "Diana's Digital Twin": "mannism/telegram-digital-twin",
+            "CV/JD Matcher & Application Tool": "mannism/FitCheckerApp",
             "AI Chat Scheduler": "mannism/EventChatScheduler",
             "GEO Audit": "mannism/GEOAudit",
             "Slack \u2194 Claude CLI Bridge": "mannism/claudecli-local-mcp",
