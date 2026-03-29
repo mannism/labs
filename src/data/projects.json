@@ -1,5 +1,29 @@
 [
   {
+    "id": "0",
+    "order": 0,
+    "title": "Diana Ismail Labs",
+    "shortDescription": "The experiments showcase itself — a Next.js 16 portfolio with a glassmorphic UI, live project reachability checks, and a nightly GitHub Actions workflow that auto-syncs version numbers and update dates across every listed project. Built with Next.js, TypeScript, and Tailwind CSS.",
+    "detailedDescription": "Labs is the container for the experiments, but it is also an experiment in its own right. The UI is built around a single coherent design language — deep charcoal backgrounds, translucent glassmorphic cards with 16px backdrop blur, Framer Motion scroll-in and hover-lift animations, and a responsive drawer that shifts from a side panel on desktop to a bottom sheet on mobile. Each project card pings its demo URL on mount to surface a live reachability indicator without any server involvement. Project data lives entirely in a static `projects.json` file — no database, no auth — which a nightly GitHub Actions workflow keeps current by calling the GitHub API for each showcased project and auto-committing updated `version` and `lastUpdated` values to main if anything changed. The site also embeds a full AI chat engine (the same Digital Twin that runs at twin.dianaismail.me): SSE-streamed responses, Redis-backed session persistence, and a Telegram bot sharing the same conversation history via a short-lived OTP pairing flow.",
+    "category": "Full-Stack",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Glassmorphism",
+      "GitHub Actions",
+      "OpenAI",
+      "Redis",
+      "Telegram Bot"
+    ],
+    "demoUrl": "https://labs.dianaismail.me",
+    "githubUrl": "#",
+    "keyLearnings": "A nightly GitHub Actions workflow auto-commits `version` and `lastUpdated` back to `main` for every showcased project — which means the labs repo silently self-modifies on a schedule. The workflow uses `[skip ci]` on its own commits to prevent a feedback loop, and the fields are intentionally absent from the schema docs as a reminder not to edit them by hand: the next sync run overwrites manual changes regardless."
+  },
+  {
     "id": "1",
     "order": 1,
     "title": "Diana's Digital Twin",
@@ -105,7 +129,7 @@
     "title": "Slack ↔ Claude CLI Bridge",
     "shortDescription": "An internal Slack bot that routes direct messages and @mentions to Claude — via the local CLI or the Anthropic API — with GPT-powered Gmail digest and team inbox commands. Built with Node.js, Slack Bolt SDK, and the Anthropic, OpenAI, and Gmail APIs.",
     "detailedDescription": "Message Claude directly inside Slack without leaving your workspace: the bot responds to DMs and @mentions, routing each request to Claude in either CLI mode (shelling out to the local `claude` binary, no API key required) or API mode (calling the Anthropic API directly), switchable via a single environment variable. Two slash commands extend it further: `/digest` fetches unread Gmail for up to three configured accounts, classifies messages by priority using GPT-5.2, and returns a formatted summary; `/owner-inbox` scans a designated folder of files your team has shared with you and suggests prioritised actions. Two Slack transport options — Socket Mode for local development without a tunnel, HTTP mode for cloud or ngrok deployments — mean the same codebase runs from a laptop or a Railway instance. Releases are automated via semantic-release; merging to `main` bumps the version and publishes a changelog automatically.",
-    "category": "Agentic-AI",
+    "category": "Full-Stack",
     "status": "Active",
     "display": true,
     "tags": [

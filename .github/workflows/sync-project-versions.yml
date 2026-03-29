@@ -36,6 +36,7 @@ jobs:
           const PROJECTS_PATH = "src/data/projects.json";
 
           const REPO_MAP = {
+            "Diana Ismail Labs": "mannism/labs",
             "Diana's Digital Twin": "mannism/telegram-digital-twin",
             "CV/JD Matcher & Application Tool": "mannism/FitCheckerApp",
             "AI Chat Scheduler": "mannism/EventChatScheduler",
