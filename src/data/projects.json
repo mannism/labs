@@ -21,7 +21,9 @@
     ],
     "demoUrl": "https://labs.dianaismail.me",
     "githubUrl": "#",
-    "keyLearnings": "A nightly GitHub Actions workflow auto-commits `version` and `lastUpdated` back to `main` for every showcased project — which means the labs repo silently self-modifies on a schedule. The workflow uses `[skip ci]` on its own commits to prevent a feedback loop, and the fields are intentionally absent from the schema docs as a reminder not to edit them by hand: the next sync run overwrites manual changes regardless."
+    "keyLearnings": "A nightly GitHub Actions workflow auto-commits `version` and `lastUpdated` back to `main` for every showcased project — which means the labs repo silently self-modifies on a schedule. The workflow uses `[skip ci]` on its own commits to prevent a feedback loop, and the fields are intentionally absent from the schema docs as a reminder not to edit them by hand: the next sync run overwrites manual changes regardless.",
+    "version": "1.14.0",
+    "lastUpdated": "2026-03-29"
   },
   {
     "id": "1",
@@ -68,7 +70,7 @@
     "demoUrl": "https://reso.dianaismail.me/",
     "githubUrl": "#",
     "keyLearnings": "The `sessionStorage` navigation pattern (passing job UUIDs via `sessionStorage` rather than URL params) was a deliberate privacy and UX decision that required careful `SSR` guard handling in Next.js.",
-    "version": "2.6.1",
+    "version": "1.1.4",
     "lastUpdated": "2026-03-22"
   },
   {
