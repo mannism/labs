@@ -152,9 +152,9 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                 <span className={`px-3 py-1 text-xs font-mono rounded-full border ${statusClass(project.status)}`}>
                                     {project.status}
                                 </span>
-                                {(project.version || project.lastUpdated) && (
+                                {project.version && (
                                     <span className="px-3 py-1 text-xs font-mono rounded-full border" style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)", background: "var(--tag-bg)" }}>
-                                        {[project.version && `v${project.version}`, project.lastUpdated && `Updated ${new Date(project.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`].filter(Boolean).join(" · ")}
+                                        v{project.version}
                                     </span>
                                 )}
                             </div>
@@ -190,6 +190,12 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                     ))}
                                 </div>
                             </div>
+
+                            {project.lastUpdated && (
+                                <p className="text-xs font-mono mt-2" style={{ color: "var(--text-muted)" }}>
+                                    Updated {new Date(project.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                </p>
+                            )}
                         </div>
 
                         {/* Sticky Footer: Action Links */}

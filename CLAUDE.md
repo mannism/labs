@@ -25,6 +25,8 @@ The app has two layers:
 
 ### UI layer
 - **Single source of truth:** `src/data/projects.json` drives the grid, category filters, and drawer content. Never hardcode project data in components.
+- **`version` and `lastUpdated` fields in `projects.json`** are populated automatically by the GitHub Actions workflow (see below). Do not edit them by hand — the next sync run will overwrite manual changes. These fields are optional; both the card and drawer render gracefully when absent.
+- **`.github/workflows/sync-project-versions.yml`** — runs daily at 02:00 UTC. For each project listed in `REPO_MAP` it fetches the latest release tag (falling back to the first repo tag) and writes it to `version`, then reads `pushed_at` and writes it to `lastUpdated`. If either value changed, it auto-commits `src/data/projects.json` to `main` with `[skip ci]`. To add a new project: add a `"Exact project title": "owner/repo"` entry to `REPO_MAP` in the workflow file — the title must match the `title` field in `projects.json` exactly.
 - **CSS custom properties over Tailwind for design tokens:** Colours, glass effects, and typography variables are defined in `globals.css` (e.g. `var(--accent-blue)`, `var(--bg-glass)`). Use these in components rather than raw hex values.
 - **CSS transitions over JS for micro-interactions:** Filter tabs, links, and hover states use CSS `transition` (see `.filter-tab`, `.card-icon-btn` in `globals.css`). Reserve Framer Motion for component entry/exit and card hover lift.
 - **`statusClass` duplication is intentional:** Both `ProjectCard` and `ProjectDetailsDrawer` define their own `statusClass` helper to keep components self-contained and independently deployable. Do not extract it to a shared util unless a third component needs it.

@@ -183,6 +183,31 @@ docker run -p 3000:3000 --env-file .env.local labs-app
 
 The Docker build uses a three-stage pipeline (deps → builder → runner) with Next.js standalone output for a minimal production image. Twin context markdown files are explicitly copied into the runner image because they are read at runtime via `fs` and not traced by Next.js's standalone file tracer.
 
+## GitHub Actions: Version Sync
+
+The workflow at `.github/workflows/sync-project-versions.yml` runs **daily at 02:00 UTC** (and can be triggered manually via `workflow_dispatch`). It keeps `version` and `lastUpdated` in `src/data/projects.json` in sync with each project's GitHub repository — no manual updates needed.
+
+### What it does
+
+For each project registered in `REPO_MAP` (inside the workflow), the job:
+1. Fetches the repo's `pushed_at` date from the GitHub API and writes it to `lastUpdated` (ISO date, `YYYY-MM-DD`).
+2. Fetches the latest GitHub Release tag; falls back to the first repo tag if no release exists. Strips the leading `v` and writes the result to `version`.
+3. If either field changed, commits `src/data/projects.json` back to `main` with the message `chore: sync project versions and update dates [skip ci]`.
+
+### Required secret
+
+The workflow uses a fine-grained Personal Access Token stored as the repository secret **`PAT_READ_REPOS`**. The token only needs **read access to repository metadata** (Contents: Read) for each target repo. If the secret is absent the API calls fall back to unauthenticated requests, which are subject to GitHub's lower rate limits.
+
+### Adding a new project to the sync
+
+1. Open `.github/workflows/sync-project-versions.yml`.
+2. Add an entry to the `REPO_MAP` object inside the Node.js script:
+   ```js
+   "Exact project title from projects.json": "github-owner/repo-name",
+   ```
+3. The title must match the `title` field in `src/data/projects.json` exactly (case-sensitive).
+4. Commit the workflow change. The next scheduled run (or a manual `workflow_dispatch`) will pick up the new project automatically.
+
 ## Telegram Webhook Setup
 
 After deploying, register the webhook once:
