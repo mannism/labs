@@ -1,3 +1,8 @@
+## [1.10.2] - 2026-03-29
+
+### Chore
+* clear `demoUrl` for labs project entry in `projects.json`
+
 ## [1.10.1] - 2026-03-26
 
 ### Bugfix
