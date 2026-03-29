@@ -19,7 +19,7 @@
       "Redis",
       "Telegram Bot"
     ],
-    "demoUrl": "https://labs.dianaismail.me",
+    "demoUrl": "",
     "githubUrl": "#",
     "keyLearnings": "A nightly GitHub Actions workflow auto-commits `version` and `lastUpdated` back to `main` for every showcased project — which means the labs repo silently self-modifies on a schedule. The workflow uses `[skip ci]` on its own commits to prevent a feedback loop, and the fields are intentionally absent from the schema docs as a reminder not to edit them by hand: the next sync run overwrites manual changes regardless."
   },
