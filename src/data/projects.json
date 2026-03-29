@@ -28,7 +28,7 @@
     "order": 2,
     "title": "CV/JD Matcher & Application Tool",
     "shortDescription": "An AI tool that scores a CV against a job description,identifies gaps, and generates tailored suggestions. Includes job pipeline tracking and interview prep. Built with Next.js, OpenAI, and PostgreSQL.",
-    "detailedDescription": ""Upload your CV and a job description into Reso, and instantly receive a match score, strengths, gaps, and personalized recommendations—it feels intuitive and actionable from the first use. Key capabilities include conversational analysis powered by AI, tailored CV generation, interview prep packs with custom questions, and a full job tracker for managing applications, logging sessions with AI note summaries, and viewing dashboard insights. Built with Next.js and OpenAI APIs for seamless performance.",
+    "detailedDescription": "Upload your CV and a job description into Reso, and instantly receive a match score, strengths, gaps, and personalized recommendations—it feels intuitive and actionable from the first use. Key capabilities include conversational analysis powered by AI, tailored CV generation, interview prep packs with custom questions, and a full job tracker for managing applications, logging sessions with AI note summaries, and viewing dashboard insights. Built with Next.js and OpenAI APIs for seamless performance.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
