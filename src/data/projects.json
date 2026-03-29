@@ -90,5 +90,28 @@
     "demoUrl": "https://geoaudit.dianaismail.me/",
     "githubUrl": "#",
     "keyLearnings": "Building a credible two-tier (free vs paid) SaaS product with a completely decoupled frontend/backend architecture — `VITE_*` env vars are baked into the browser bundle at build time, so secrets must never touch the frontend."
+  },
+  {
+    "id": "5",
+    "order": 5,
+    "title": "Slack ↔ Claude CLI Bridge",
+    "shortDescription": "An internal Slack bot that routes direct messages and @mentions to Claude — via the local CLI or the Anthropic API — with GPT-powered Gmail digest and team inbox commands. Built with Node.js, Slack Bolt SDK, and the Anthropic, OpenAI, and Gmail APIs.",
+    "detailedDescription": "Message Claude directly inside Slack without leaving your workspace: the bot responds to DMs and @mentions, routing each request to Claude in either CLI mode (shelling out to the local `claude` binary, no API key required) or API mode (calling the Anthropic API directly), switchable via a single environment variable. Two slash commands extend it further: `/digest` fetches unread Gmail for up to three configured accounts, classifies messages by priority using GPT-5.2, and returns a formatted summary; `/owner-inbox` scans a designated folder of files your team has shared with you and suggests prioritised actions. Two Slack transport options — Socket Mode for local development without a tunnel, HTTP mode for cloud or ngrok deployments — mean the same codebase runs from a laptop or a Railway instance. Releases are automated via semantic-release; merging to `main` bumps the version and publishes a changelog automatically.",
+    "category": "Agentic-AI",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "Agentic AI",
+      "Slack Bot",
+      "Claude CLI",
+      "Anthropic API",
+      "OpenAI",
+      "Gmail API",
+      "Node.js",
+      "Slack Bolt"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "keyLearnings": "Supporting two Claude backends (CLI subprocess vs. direct API call) behind a single env-var switch exposed a hard constraint: CLI mode works only when the `claude` binary is authenticated on the local machine, so cloud deployment silently requires `USE_CLI=false` — a dependency that must be documented, not assumed."
   }
 ]
