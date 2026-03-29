@@ -19,14 +19,16 @@
     ],
     "demoUrl": "",
     "githubUrl": "#",
-    "keyLearnings": "Tiered context injection (always-on vs on-demand keyword triggers) reduced token usage by ~57% vs injecting everything."
+    "keyLearnings": "Tiered context injection (always-on vs on-demand keyword triggers) reduced token usage by ~57% vs injecting everything.",
+    "version": "2.2.5",
+    "lastUpdated": "2026-03-25"
   },
   {
     "id": "2",
     "order": 2,
     "title": "CV/JD Matcher & Application Tool",
     "shortDescription": "An AI tool that scores a CV against a job description,identifies gaps, and generates tailored suggestions. Includes job pipeline tracking and interview prep. Built with Next.js, OpenAI, and PostgreSQL.",
-    "detailedDescription": "“Upload your CV and a job description into Reso, and instantly receive a match score, strengths, gaps, and personalized recommendations—it feels intuitive and actionable from the first use. Key capabilities include conversational analysis powered by AI, tailored CV generation, interview prep packs with custom questions, and a full job tracker for managing applications, logging sessions with AI note summaries, and viewing dashboard insights. Built with Next.js and OpenAI APIs for seamless performance.",
+    "detailedDescription": ""Upload your CV and a job description into Reso, and instantly receive a match score, strengths, gaps, and personalized recommendations—it feels intuitive and actionable from the first use. Key capabilities include conversational analysis powered by AI, tailored CV generation, interview prep packs with custom questions, and a full job tracker for managing applications, logging sessions with AI note summaries, and viewing dashboard insights. Built with Next.js and OpenAI APIs for seamless performance.",
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
@@ -63,7 +65,9 @@
     ],
     "demoUrl": "https://scheduler.dianaismail.me/",
     "githubUrl": "#",
-    "keyLearnings": "Using special AI-emitted markers (`[GENERATE_SCHEDULE]`, `schedule_download` JSON blocks) to trigger client-side behaviours from within streamed AI responses — a clean way to bridge LLM output and UI state."
+    "keyLearnings": "Using special AI-emitted markers (`[GENERATE_SCHEDULE]`, `schedule_download` JSON blocks) to trigger client-side behaviours from within streamed AI responses — a clean way to bridge LLM output and UI state.",
+    "version": "2.3.4",
+    "lastUpdated": "2026-03-22"
   },
   {
     "id": "4",
@@ -89,7 +93,9 @@
     ],
     "demoUrl": "https://geoaudit.dianaismail.me/",
     "githubUrl": "#",
-    "keyLearnings": "Building a credible two-tier (free vs paid) SaaS product with a completely decoupled frontend/backend architecture — `VITE_*` env vars are baked into the browser bundle at build time, so secrets must never touch the frontend."
+    "keyLearnings": "Building a credible two-tier (free vs paid) SaaS product with a completely decoupled frontend/backend architecture — `VITE_*` env vars are baked into the browser bundle at build time, so secrets must never touch the frontend.",
+    "version": "1.3.0",
+    "lastUpdated": "2026-03-22"
   },
   {
     "id": "5",
@@ -112,6 +118,8 @@
     ],
     "demoUrl": "",
     "githubUrl": "#",
-    "keyLearnings": "Supporting two Claude backends (CLI subprocess vs. direct API call) behind a single env-var switch exposed a hard constraint: CLI mode works only when the `claude` binary is authenticated on the local machine, so cloud deployment silently requires `USE_CLI=false` — a dependency that must be documented, not assumed."
+    "keyLearnings": "Supporting two Claude backends (CLI subprocess vs. direct API call) behind a single env-var switch exposed a hard constraint: CLI mode works only when the `claude` binary is authenticated on the local machine, so cloud deployment silently requires `USE_CLI=false` — a dependency that must be documented, not assumed.",
+    "version": "1.0.0",
+    "lastUpdated": "2026-03-29"
   }
 ]

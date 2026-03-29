@@ -1,0 +1,153 @@
+name: Sync Project Versions
+
+on:
+  schedule:
+    # Runs daily at 02:00 UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync-versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Sync versions from GitHub API
+        env:
+          PAT_READ_REPOS: ${{ secrets.PAT_READ_REPOS }}
+        run: |
+          node - <<'EOF'
+          const fs = require("fs");
+          const https = require("https");
+
+          const PROJECTS_PATH = "src/data/projects.json";
+
+          const REPO_MAP = {
+            "Diana's Digital Twin": "mannism/telegram-digital-twin",
+            "AI Chat Scheduler": "mannism/EventChatScheduler",
+            "GEO Audit": "mannism/GEOAudit",
+            "Slack \u2194 Claude CLI Bridge": "mannism/claudecli-local-mcp",
+          };
+
+          const TOKEN = process.env.PAT_READ_REPOS;
+
+          function githubGet(path) {
+            return new Promise((resolve, reject) => {
+              const options = {
+                hostname: "api.github.com",
+                path,
+                method: "GET",
+                headers: {
+                  "User-Agent": "labs-sync-versions",
+                  "Accept": "application/vnd.github+json",
+                  ...(TOKEN ? { "Authorization": `Bearer ${TOKEN}` } : {}),
+                },
+              };
+              const req = https.request(options, (res) => {
+                let data = "";
+                res.on("data", (chunk) => (data += chunk));
+                res.on("end", () => {
+                  try {
+                    resolve({ status: res.statusCode, body: JSON.parse(data) });
+                  } catch {
+                    resolve({ status: res.statusCode, body: null });
+                  }
+                });
+              });
+              req.on("error", reject);
+              req.end();
+            });
+          }
+
+          async function getRepoInfo(ownerRepo) {
+            const [owner, repo] = ownerRepo.split("/");
+
+            // Fetch pushed_at from repo info
+            const repoRes = await githubGet(`/repos/${owner}/${repo}`);
+            const pushedAt = repoRes.body?.pushed_at ?? null;
+            const lastUpdated = pushedAt ? pushedAt.slice(0, 10) : null;
+
+            // Try latest release first
+            let version = null;
+            const releaseRes = await githubGet(`/repos/${owner}/${repo}/releases/latest`);
+            if (releaseRes.status === 200 && releaseRes.body?.tag_name) {
+              version = releaseRes.body.tag_name.replace(/^v/, "");
+            } else {
+              // Fall back to first tag
+              const tagsRes = await githubGet(`/repos/${owner}/${repo}/tags`);
+              if (tagsRes.status === 200 && Array.isArray(tagsRes.body) && tagsRes.body.length > 0) {
+                version = tagsRes.body[0].name.replace(/^v/, "");
+              }
+            }
+
+            return { version, lastUpdated };
+          }
+
+          async function main() {
+            const projects = JSON.parse(fs.readFileSync(PROJECTS_PATH, "utf8"));
+            const changes = [];
+
+            for (const project of projects) {
+              const ownerRepo = REPO_MAP[project.title];
+              if (!ownerRepo) continue;
+
+              console.log(`Fetching ${ownerRepo} for "${project.title}"...`);
+              try {
+                const { version, lastUpdated } = await getRepoInfo(ownerRepo);
+                let changed = false;
+
+                if (version && version !== project.version) {
+                  changes.push(`  ${project.title}: version ${project.version ?? "(none)"} → ${version}`);
+                  project.version = version;
+                  changed = true;
+                }
+                if (lastUpdated && lastUpdated !== project.lastUpdated) {
+                  changes.push(`  ${project.title}: lastUpdated ${project.lastUpdated ?? "(none)"} → ${lastUpdated}`);
+                  project.lastUpdated = lastUpdated;
+                  changed = true;
+                }
+                if (!changed) {
+                  console.log(`  No changes for "${project.title}".`);
+                }
+              } catch (err) {
+                console.error(`  ERROR fetching ${ownerRepo}: ${err.message}`);
+              }
+            }
+
+            fs.writeFileSync(PROJECTS_PATH, JSON.stringify(projects, null, 2) + "\n");
+
+            if (changes.length > 0) {
+              console.log("\nChanges applied:");
+              changes.forEach((c) => console.log(c));
+            } else {
+              console.log("\nAll project versions are already up to date.");
+            }
+          }
+
+          main().catch((err) => { console.error(err); process.exit(1); });
+          EOF
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/projects.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: sync project versions and update dates [skip ci]"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
