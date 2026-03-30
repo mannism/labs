@@ -1,27 +1,65 @@
 DIANA ISMAIL — Profile Summary
 
-Title: Project Director - Innovation | Creative Tech | AI | Operations | Project Management
+Headline: Experiential Director | Agentic AI Builder | I make sure what launches is what was intended
 Email: dianaxismail@gmail.com
 
-A highly adaptable and results-oriented technology leader with a 20+ year journey from hands-on Engineer to strategic Program Director. With deep-seated passions for human-centered design and the intersection of technology and creativity, I specialize in steering complex, innovative programs from strategy and ideation to execution. I have a proven track record of pioneering emerging technology solutions—including AI, Augmented Reality, and interactive installations—for global brands like SK-II, Heineken, Visa, and ExxonMobil, transforming ambitious creative visions into tangible, award-winning experiences.
+---
 
-Core Expertise:
-  - Technology & Innovation Strategy: Innovation & POC Development, AI & Mixed-Reality Integration, Experiential Technology, Digital & Experiential Transformation, Vendor & Technology Evaluation.
-  - Program & Project Management: Advanced Project Management, Full SDLC & Agile Methodologies, Policy Development & Strategic Roadmapping, Process Improvement, Risk Mitigation & Governance.
-  - Leadership & Operations: Cross-functional Stakeholder Management, Team Leadership & Mentorship, Vendor & Contract Negotiation, Budget Management & Financial Oversight, Business Development Support.
-  - Technical Foundation: Full Stack Development (Legacy & Modern), Systems Architecture & Design, Requirements Engineering, UX/IA Oversight.
+WHAT I DO
 
-Key Achievements:
-  - Pioneered multiple first-of-their-kind AI-powered retail and event experiences, including "Project Luna" (Agentic-AI retail assistant) and the "Heineken Ghosted-Bar" (AI-driven consumer activation).
-  - Led the "Future of Retail" initiative for SK-II, implementing groundbreaking POC experiences in pop-up and flagship stores, featuring AI-based diagnostics, eye-tracking sensors, and interactive digital storytelling.
-  - Directed the technical delivery of a US$15M+ Mixed-Reality (Hololens) experience for the P&G Tokyo 2020 Olympic Showpavilion, managing the full development and integration pipeline with partners like Microsoft.
-  - Managed regional digital transformation for ExxonMobil, overseeing the audit and migration of website content in 5 languages across 10 markets onto the SiteCore platform.
-  - Architected and executed a 40-screen takeover in New York's Times Square for a P&G campaign, deploying content across a multi-vendor digital ecosystem under a tight deadline.
+I am brought in by global Brands — at the start, before the architecture is set — when a high-stakes experiential or retail build needs someone who can hold the creative vision, the technical scope, and the brand's operating reality in the same hand. The work is making sure that what opens on the day is what was intended.
 
-Education:
-  - Diploma in Computer Information Systems | Japan S'pore Institute of Software Technology (J.S.I.S.T / Singapore Polytechnic).
+---
 
-Languages:
-  - Fluent spoken & written - English
-  - Fluent spoken & written - Bahasa (Malay/Bahasa Malaysia).
+CORE POSITIONING
 
+The problem I solve:
+On complex builds, creative teams, technical teams, and brand requirements eventually stop speaking the same language. When that gap closes on its own, it closes badly. I am appointed before that happens — when the brief is still shapeable, vendor selections are not locked, and there is still room to get the system pointed in the right direction.
+
+Launch integrity:
+A Brand's public moment is not a testing environment. There is no rollback, no quiet patch, no second impression. The experience that launches is the experience that exists. Version 1.0 — a complete experience that can be extended — is the minimum. Beta 0.8 in a room full of people is a brand event in its own right. This is the standard I build to.
+
+Scope fluency:
+The capacity to hold creative intent, technical requirement, production reality, and audience experience simultaneously — and see what is missing from the whole before it becomes a gap in the finished work. This is what distinguishes the role from general project management.
+
+Agentic AI — same standard:
+A live brand environment is not a demo. I have built and shipped an agentic AI retail assistant to a live environment. The standard I applied is the same: version 1.0, not beta 0.8.
+
+---
+
+TRACK RECORD
+
+- P&G Olympic Pavilion, SK-II, Tokyo (2020–2021)
+  US$15M mixed-reality installation for the Tokyo Olympics, built on HoloLens 2. Held creative vision, technical build, and brand requirements across all disciplines through to opening day.
+
+- SK-II Boutiques, Hainan and Kuala Lumpur (2024)
+  Launched two flagship boutiques (US$1.2M+) — immersive retail experiences with commissioned art sculptures. Managed vendors across China and Malaysia.
+
+- Project Luna, WeAreSocial (2024–2025)
+  Built and shipped an agentic AI retail assistant using visual analysis and conversational AI to deliver personalised recommendations in-store and via Messenger. Deployed to a live retail environment.
+
+- SK-II VS Series, New York Times Square (2019)
+  40-screen digital takeover featuring Simone Biles. Brief to live in six weeks.
+
+- Heineken Ghosted Bar, Singapore (2023)
+  AI-driven fog-wall projection activation. Led from global client brief through vendor delivery.
+
+- SK-II World Pitera Day, Tokyo (2022)
+  Large-scale physical and digital brand experience.
+
+- Future X / Retail X, Singapore and Japan (2018–2021)
+  Multiple proof-of-concept retail experiences deployed across pop-up stores and permanent locations — eye-tracking, motion sensors, AI-based diagnostics, interactive installations.
+
+---
+
+EDUCATION
+
+Diploma in Computer Information Systems
+Japan S'pore Institute of Software Technology (J.S.I.S.T / Singapore Polytechnic)
+
+---
+
+LANGUAGES
+
+English — fluent spoken and written
+Bahasa (Malay / Bahasa Malaysia) — fluent spoken and written
