@@ -132,28 +132,14 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                 {project.title}
             </h3>
 
-            {/* Short Description */}
+            {/* Short Description — inline arrow signals clickability without a separate CTA element */}
             <p className="text-base mb-6 flex-grow relative z-10 font-normal leading-[1.625]" style={{ color: "var(--text-muted)" }}>
-                {project.shortDescription}
+                {project.shortDescription}{" "}
+                <span className="font-mono transition-opacity group-hover:opacity-60" style={{ color: "var(--accent-blue)" }}>→</span>
             </p>
 
-            {/* View Details — filled pill CTA */}
-            <div className="mb-6 relative z-10">
-                <button
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-mono font-semibold transition-opacity hover:opacity-85 group/btn"
-                    style={{ background: "var(--accent-blue)", color: "#fff" }}
-                    onClick={(e) => {
-                        e.stopPropagation(); // Prevents double firing if clicking button inside card
-                        onClick?.();
-                    }}
-                >
-                    View Details
-                    <span className="transform transition-transform group-hover/btn:translate-x-1">→</span>
-                </button>
-            </div>
-
             {/* Tags — bordered chips */}
-            <div className="flex flex-wrap gap-2 relative z-10 mt-auto">
+            <div className="flex flex-wrap gap-2 relative z-10">
                 {project.tags.map(tag => (
                     <span
                         key={tag}
