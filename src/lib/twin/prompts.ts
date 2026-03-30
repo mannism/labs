@@ -2,7 +2,7 @@
  * System prompt assembly with tiered context injection for the Digital Twin.
  *
  * Context tiers:
- *   - Always-injected (7 files): included in every API call via template placeholders.
+ *   - Always-injected (8 files): included in every API call via template placeholders.
  *   - On-demand (2 files): injected only when the user's message matches keyword lists.
  *
  * mtime-based caching: files are re-read from disk only when their modification
@@ -29,6 +29,7 @@ const ALWAYS_FILES = [
     "personal.md",
     "tools.md",
     "links.md",
+    "positioning.md",
 ] as const;
 
 const ON_DEMAND_FILES: Record<string, string> = {
@@ -105,6 +106,7 @@ export function getSystemPrompt(): string {
             prompt = prompt.replace("{PERSONAL}",           readFile(join(CONTEXT_ROOT, "personal.md")));
             prompt = prompt.replace("{TOOLS}",              readFile(join(CONTEXT_ROOT, "tools.md")));
             prompt = prompt.replace("{LINKS}",              readFile(join(CONTEXT_ROOT, "links.md")));
+            prompt = prompt.replace("{POSITIONING}",        readFile(join(CONTEXT_ROOT, "positioning.md")));
             systemCache = { content: prompt, mtime: currentMtime };
             console.log("[twin/prompts] system prompt reloaded from disk");
         } catch (err) {
