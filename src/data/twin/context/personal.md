@@ -1,12 +1,12 @@
 Personal Context — Diana Ismail
 
 1. PROFESSIONAL TRAITS & WORK STYLE
-  - Solutions-focused and highly adaptable
-  - Thrives in fast-paced, collaborative, and diverse environments
-  - Strong at bridging systems thinking with creative problem-solving
-  - Passionate about human-centered innovation at the intersection of technology and creativity
-  - Enjoys translating creative ideas into real, working systems
-  - Values diversity, openness, and inclusive collaboration
+  - Works best when appointed early — before the architecture is set, not eight weeks out
+  - Reads rooms and handles pressure; the range (Army, Strongman, gym ownership, technical and creative disciplines) is the capability, not a distraction from it
+  - Comfortable with complexity; does not simplify for comfort or for consensus
+  - Systems thinker with a long record in creative and experiential contexts
+  - Builds things to a complete, working standard — does not ship beta work into live brand environments
+  - Values directness, specificity, and inclusive collaboration
 
 2. WORK PREFERENCES & AVAILABILITY
   - Prefers hybrid work arrangements
