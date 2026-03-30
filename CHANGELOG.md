@@ -1,3 +1,12 @@
+## [1.10.4] - 2026-03-29
+
+### Fix
+* replace View Details button with text CTA, pin to card bottom
+  * Removed the filled pill button block (`<div className="mb-6 relative z-10">`) from `ProjectCard.tsx`
+  * Added lightweight text CTA (`View Details →`) with `mt-auto` to pin it above the tags row
+  * Removed `mt-auto` from the tags div (now carried by the CTA div above it)
+  * Added `items-stretch` to the grid container in `ProjectGrid.tsx` to make equal-height cards explicit
+
 ## [1.10.3] - 2026-03-29
 
 ### Fix

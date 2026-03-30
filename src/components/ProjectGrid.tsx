@@ -59,7 +59,7 @@ export function ProjectGrid() {
             </div>
 
             {/* Responsive card grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {filteredProjects.map((project) => (
                     <ProjectCard
                         key={project.id}
