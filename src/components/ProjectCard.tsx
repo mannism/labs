@@ -132,20 +132,11 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                 {project.title}
             </h3>
 
-            {/* Short Description */}
+            {/* Short Description — inline arrow signals clickability without a separate CTA element */}
             <p className="text-base mb-6 flex-grow relative z-10 font-normal leading-[1.625]" style={{ color: "var(--text-muted)" }}>
-                {project.shortDescription}
+                {project.shortDescription}{" "}
+                <span className="font-mono transition-opacity group-hover:opacity-60" style={{ color: "var(--accent-blue)" }}>→</span>
             </p>
-
-            {/* View Details — lightweight text CTA pinned above tags */}
-            <div className="mt-auto mb-3 relative z-10">
-                <span
-                    className="text-sm font-mono font-semibold transition-colors group-hover:opacity-80"
-                    style={{ color: "var(--accent-blue)" }}
-                >
-                    View Details →
-                </span>
-            </div>
 
             {/* Tags — bordered chips */}
             <div className="flex flex-wrap gap-2 relative z-10">
