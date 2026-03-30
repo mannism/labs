@@ -1,3 +1,14 @@
+## [1.10.3] - 2026-03-29
+
+### Fix
+* redesign drawer interior layout per Maya UX audit (2026-03-29)
+  * Fix 1 — reading order: `detailedDescription` moved immediately below title; meta badges (category + status) moved below description
+  * Fix 2 — drag handle removed: visual-only indicator was a false affordance with no gesture backing; removed rather than half-implementing
+  * Fix 3 — version + date merged: version badge removed from meta row; standalone updated line removed; both consolidated into a single monospaced muted line (`v2.2.5 · Updated 25 Mar 2026`)
+  * Fix 4 — empty footer suppressed: sticky footer only renders when at least one of `demoUrl` or `githubUrl` is a real URL
+  * Fix 5 — Key Learnings heading: colour changed from `var(--text-muted)` to `var(--accent-blue)` to match the left-border callout and distinguish from Technologies heading
+  * Fix 6 — scrollbar layout shift: scroll lock now compensates `padding-right` with measured scrollbar width before setting `overflow: hidden`; both reset on close
+
 ## [1.10.2] - 2026-03-29
 
 ### Chore

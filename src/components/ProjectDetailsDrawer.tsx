@@ -38,6 +38,16 @@ function renderWithCode(text: string) {
  * ProjectDetailsDrawer Component
  * A responsive slide-out drawer (bottom-sheet on mobile, side-panel on desktop).
  * Utilizes Framer Motion for exit/enter animations and glassmorphism styling.
+ *
+ * Interior layout (Maya UX audit, 2026-03-29):
+ *   1. Detailed description — primary content, immediately after title
+ *   2. Meta badges (category + status) — confirmatory metadata below description
+ *   3. Version + date — single monospaced muted line, merged metadata
+ *   4. Key Learnings — qualitative insight block
+ *   5. Technologies — tag chips
+ *   Sticky footer — only rendered when at least one action link is present
+ *
+ * Fix 6: Body scroll lock compensates for scrollbar width to prevent layout shift.
  */
 export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetailsDrawerProps) {
     const drawerRef = useRef<HTMLDivElement>(null);
@@ -54,15 +64,19 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
         return () => mq.removeEventListener("change", handler);
     }, []);
 
-    // Lock body scroll when drawer is open
+    // Fix 6: Lock body scroll with scrollbar-width compensation to prevent layout shift.
     useEffect(() => {
         if (isOpen) {
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         }
         return () => {
             document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
         };
     }, [isOpen]);
 
@@ -87,6 +101,11 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
     if (!project) return null;
 
     const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
+
+    // Fix 4: Only render the footer when at least one real action link exists.
+    const hasDemo = Boolean(project.demoUrl && project.demoUrl !== "#");
+    const hasGithub = Boolean(project.githubUrl && project.githubUrl !== "#");
+    const hasFooter = hasDemo || hasGithub;
 
     /** Slide axis swaps between mobile (y) and desktop (x) based on hydrated isDesktop. */
     const drawerVariants = {
@@ -122,10 +141,9 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                         className="w-full sm:w-[500px] md:w-[600px] backdrop-blur-2xl border-t sm:border-t-0 sm:border-l h-[85vh] sm:h-full rounded-t-3xl sm:rounded-none relative flex flex-col shadow-2xl overflow-hidden z-10"
                         style={{ background: "var(--bg-glass)", borderColor: "var(--border-subtle)" }}
                     >
-                        {/* Mobile Drag Indicator (Visual Only) */}
-                        <div className="w-full h-1.5 flex justify-center pt-4 sm:hidden">
-                            <div className="w-12 h-1.5 rounded-full dark:bg-white/20 bg-black/20" />
-                        </div>
+                        {/* Fix 2: Drag handle removed — gesture was not implemented and the visual-only
+                            indicator created a false affordance. Framer Motion spring animation on the
+                            drawer itself provides sufficient motion context on mobile. */}
 
                         {/* Sticky Header */}
                         <div className="flex justify-between items-center p-6 border-b" style={{ borderColor: "var(--border-subtle)" }}>
@@ -143,36 +161,43 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
 
                         {/* Scrollable Content Body */}
                         <div className="p-6 overflow-y-auto flex-grow custom-scrollbar">
-                            
-                            {/* Meta Badges */}
-                            <div className="flex items-center gap-2 mb-6 flex-wrap">
+
+                            {/* Fix 1: Detailed description moves to top — primary content reads first. */}
+                            <div className="prose prose-neutral max-w-none">
+                                <p className="text-base leading-relaxed mb-6" style={{ color: "var(--text-primary)" }}>
+                                    {project.detailedDescription}
+                                </p>
+                            </div>
+
+                            {/* Fix 1: Meta badges row (category + status) — moved below description.
+                                Fix 3: Version badge removed from this row; merged into the metadata line below. */}
+                            <div className="flex items-center gap-2 mb-4 flex-wrap">
                                 <span className="badge-category">
                                     {project.category}
                                 </span>
                                 <span className={`px-3 py-1 text-xs font-mono rounded-full border ${statusClass(project.status)}`}>
                                     {project.status}
                                 </span>
-                                {project.version && (
-                                    <span className="px-3 py-1 text-xs font-mono rounded-full border" style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)", background: "var(--tag-bg)" }}>
-                                        v{project.version}
-                                    </span>
-                                )}
                             </div>
 
-                            {/* Detailed Description */}
-                            <div className="prose prose-neutral max-w-none">
-                                <p className="text-base leading-relaxed mb-8" style={{ color: "var(--text-primary)" }}>
-                                    {project.detailedDescription}
+                            {/* Fix 3: Version and date unified into a single monospaced muted line. */}
+                            {(project.version || project.lastUpdated) && (
+                                <p className="text-xs font-mono -mt-1 mb-6" style={{ color: "var(--text-muted)" }}>
+                                    {[
+                                        project.version && `v${project.version}`,
+                                        project.lastUpdated && `Updated ${new Date(project.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                                    ].filter(Boolean).join(" · ")}
                                 </p>
-                            </div>
+                            )}
 
-                            {/* Key Learnings — only rendered when field is present */}
+                            {/* Fix 5: Key Learnings heading uses accent-blue to match the left-border callout
+                                and distinguish it from the Technologies section heading (which stays as-is). */}
                             {project.keyLearnings && (
                                 <div
                                     className="mb-8 rounded-lg p-4"
                                     style={{ background: "rgba(0, 105, 255, 0.06)", borderLeft: "3px solid var(--accent-blue)" }}
                                 >
-                                    <h4 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Key Learnings</h4>
+                                    <h4 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--accent-blue)" }}>Key Learnings</h4>
                                     <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
                                         {renderWithCode(project.keyLearnings)}
                                     </p>
@@ -191,37 +216,36 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                 </div>
                             </div>
 
-                            {project.lastUpdated && (
-                                <p className="text-xs font-mono mt-2" style={{ color: "var(--text-muted)" }}>
-                                    Updated {new Date(project.lastUpdated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                                </p>
-                            )}
+                            {/* Fix 3: Standalone "Updated" line removed — date is now in the unified metadata line above. */}
+
                         </div>
 
-                        {/* Sticky Footer: Action Links */}
-                        <div className="p-6 border-t flex gap-4 backdrop-blur-md" style={{ background: "var(--bg-glass)", borderColor: "var(--border-subtle)" }}>
-                            {project.demoUrl && project.demoUrl !== "#" && (
-                                <a
-                                    href={project.demoUrl}
-                                    target={isInternalDemo ? "_self" : "_blank"}
-                                    rel={isInternalDemo ? undefined : "noopener noreferrer"}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold drawer-btn-primary"
-                                >
-                                    Launch Demo <ArrowUpRight className="w-4 h-4" />
-                                </a>
-                            )}
-                            
-                            {project.githubUrl && project.githubUrl !== "#" && (
-                                <a
-                                    href={project.githubUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl drawer-btn-secondary ${!project.demoUrl || project.demoUrl === "#" ? "flex-1" : ""}`}
-                                >
-                                    <Github className="w-5 h-5" /> Source
-                                </a>
-                            )}
-                        </div>
+                        {/* Fix 4: Sticky footer only renders when at least one action link is present. */}
+                        {hasFooter && (
+                            <div className="p-6 border-t flex gap-4 backdrop-blur-md" style={{ background: "var(--bg-glass)", borderColor: "var(--border-subtle)" }}>
+                                {hasDemo && (
+                                    <a
+                                        href={project.demoUrl}
+                                        target={isInternalDemo ? "_self" : "_blank"}
+                                        rel={isInternalDemo ? undefined : "noopener noreferrer"}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold drawer-btn-primary"
+                                    >
+                                        Launch Demo <ArrowUpRight className="w-4 h-4" />
+                                    </a>
+                                )}
+
+                                {hasGithub && (
+                                    <a
+                                        href={project.githubUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl drawer-btn-secondary ${!hasDemo ? "flex-1" : ""}`}
+                                    >
+                                        <Github className="w-5 h-5" /> Source
+                                    </a>
+                                )}
+                            </div>
+                        )}
 
                     </motion.div>
                 </div>
