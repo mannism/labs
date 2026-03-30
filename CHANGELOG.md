@@ -1,3 +1,8 @@
+## [1.10.5] - 2026-03-30
+
+### Chore
+* update twin context — rewrite `profile-summary.md` with new positioning, track record, and headline; update `personal.md` professional traits
+
 ## [1.10.4] - 2026-03-29
 
 ### Fix
