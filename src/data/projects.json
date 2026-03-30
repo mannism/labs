@@ -2,8 +2,8 @@
   {
     "id": "0",
     "order": 0,
-    "title": "Diana Ismail Labs",
-    "shortDescription": "A portfolio of experiments that runs on itself — live reachability checks on every demo URL, and a nightly GitHub Actions workflow that auto-commits updated version numbers and dates to the repo. Built with Next.js, TypeScript, and Tailwind CSS.",
+    "title": "Labs",
+    "shortDescription": "The site itself is a self-maintaining showcase — live URL checks on every demo, a nightly GitHub Actions workflow that auto-commits version data back to the repo, and an embedded AI twin running on the same conversation engine as the standalone Digital Twin.",
     "detailedDescription": "Labs is the container for the experiments, but it is also an experiment in its own right. The UI is built around a single coherent design language — deep charcoal backgrounds, translucent glassmorphic cards with 16px backdrop blur, Framer Motion scroll-in and hover-lift animations, and a responsive drawer that shifts from a side panel on desktop to a bottom sheet on mobile. Each project card pings its demo URL on mount to surface a live reachability indicator without any server involvement. Project data lives entirely in a static `projects.json` file — no database, no auth — which a nightly GitHub Actions workflow keeps current by calling the GitHub API for each showcased project and auto-committing updated `version` and `lastUpdated` values to main if anything changed. The site also embeds a full AI chat engine (the same Digital Twin that runs at twin.dianaismail.me): SSE-streamed responses, Redis-backed session persistence, and a Telegram bot sharing the same conversation history via a short-lived OTP pairing flow.",
     "category": "Full-Stack",
     "status": "Active",
