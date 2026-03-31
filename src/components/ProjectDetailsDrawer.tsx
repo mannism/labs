@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowUpRight, Github } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Project } from "./ProjectCard";
+import { trackEvent } from "@/lib/analytics";
 
 interface ProjectDetailsDrawerProps {
     project: Project | null;
@@ -229,6 +230,7 @@ export function ProjectDetailsDrawer({ project, isOpen, onClose }: ProjectDetail
                                         target={isInternalDemo ? "_self" : "_blank"}
                                         rel={isInternalDemo ? undefined : "noopener noreferrer"}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold drawer-btn-primary"
+                                        onClick={() => trackEvent("demo_launch", { project_title: project.title, demo_url: project.demoUrl })}
                                     >
                                         Launch Demo <ArrowUpRight className="w-4 h-4" />
                                     </a>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, ExternalLink, Link, Send } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 /** Shape of a single chat bubble in the messages list. */
 interface ChatMessage {
@@ -363,7 +364,7 @@ export function ChatWidget() {
                     <motion.button
                         className="chat-toggle-btn"
                         style={{ bottom: bottomOffset }}
-                        onClick={() => setIsOpen(true)}
+                        onClick={() => { trackEvent("chat_open", {}); setIsOpen(true); }}
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}

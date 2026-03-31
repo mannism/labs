@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ProjectCard, Project } from "./ProjectCard";
 import { ProjectDetailsDrawer } from "./ProjectDetailsDrawer";
+import { trackEvent } from "@/lib/analytics";
 import projectsData from "../data/projects.json";
 
 /**
@@ -64,7 +65,10 @@ export function ProjectGrid() {
                     <ProjectCard
                         key={project.id}
                         project={project as Project}
-                        onClick={() => setSelectedProject(project as Project)}
+                        onClick={() => {
+                            trackEvent("card_click", { project_title: project.title, project_category: project.category });
+                            setSelectedProject(project as Project);
+                        }}
                     />
                 ))}
             </div>

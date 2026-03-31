@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 /** Schema for a single project entry in src/data/projects.json. */
 export interface Project {
@@ -119,7 +120,10 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                             target={isInternalDemo ? "_self" : "_blank"}
                             rel={isInternalDemo ? undefined : "noopener noreferrer"}
                             className="card-icon-btn demo"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                trackEvent("demo_launch", { project_title: project.title, demo_url: project.demoUrl });
+                            }}
                         >
                             <ArrowUpRight className="w-4 h-4" />
                         </a>

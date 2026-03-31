@@ -1,6 +1,6 @@
 {
   "name": "labs",
-  "version": "1.10.5",
+  "version": "1.11.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,7 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "ioredis": "^5.10.1",

@@ -1,3 +1,14 @@
+## [1.11.0] - 2026-03-31
+
+### Feature
+* add Google Analytics with custom event tracking
+  * Integrate `@next/third-parties` `<GoogleAnalytics>` component in root layout, conditionally loaded from `NEXT_PUBLIC_GA_ID` env var
+  * Update CSP in `next.config.ts` to allow Google Analytics and Tag Manager domains
+  * Add `src/lib/analytics.ts` — lightweight `trackEvent` wrapper around `window.gtag()`
+  * Track `card_click` event with project title and category (ProjectGrid)
+  * Track `demo_launch` event with project title and URL (ProjectCard + ProjectDetailsDrawer)
+  * Track `chat_open` event when chat widget is toggled open (ChatWidget)
+
 ## [1.10.5] - 2026-03-30
 
 ### Chore

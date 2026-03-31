@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Merriweather, Open_Sans } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
 import projects from "@/data/projects.json";
+
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 // Next.js Font Optimization:
 // These fonts are downloaded at build time and served from the application origin,
@@ -152,6 +155,9 @@ export default function RootLayout({
         <div style={{ position: "relative", zIndex: 1 }}>
           {children}
         </div>
+
+        {/* Google Analytics — only loads when NEXT_PUBLIC_GA_ID is set */}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );
