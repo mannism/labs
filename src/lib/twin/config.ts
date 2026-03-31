@@ -4,8 +4,9 @@
  * Every other module imports from here — never use process.env directly elsewhere.
  */
 
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "";
-export const OPENAI_MODEL   = process.env.OPENAI_MODEL   ?? "gpt-4o-mini";
+export const OPENAI_API_KEY       = process.env.OPENAI_API_KEY       ?? "";
+export const OPENAI_MODEL         = process.env.OPENAI_MODEL         ?? "gpt-5.4";
+export const OPENAI_MODEL_SUMMARY = process.env.OPENAI_MODEL_SUMMARY ?? "gpt-5.4-nano";
 
 export const REDIS_URL         = process.env.REDIS_URL ?? "redis://localhost:6379";
 export const RATE_LIMIT_COUNT  = parseInt(process.env.RATE_LIMIT_COUNT  ?? "5",  10);

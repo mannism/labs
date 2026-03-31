@@ -105,7 +105,7 @@ async function summarizeMemory(history: memory.ChatHistory): Promise<void> {
 
     try {
         const completion = await openai.chat.completions.create({
-            model:                config.OPENAI_MODEL,
+            model:                config.OPENAI_MODEL_SUMMARY,
             messages:             [
                 { role: "system", content: prompts.getSummarisePrompt() },
                 { role: "user",   content: text },
