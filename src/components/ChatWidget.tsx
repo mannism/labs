@@ -57,12 +57,33 @@ function parseMarkdown(text: string, sessionId: string | null): string {
     html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     html = html.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, "<em>$1</em>");
 
-    // 5. Bullet lists
-    html = html.replace(/^\s*[-•]\s(.*)$/gm, "<li>$1</li>");
-    html = html.replace(/(<li>[\s\S]*?<\/li>)+/g, "<ul>$&</ul>");
+    // 5. List handling — extract full list blocks, parse as a unit
+    const listBlockRe =
+        /((?:^[ \t]*(?:[-\u2022*]|\d+\.)\s+.*(?:\n(?![ \t]*(?:[-\u2022*]|\d+\.)\s)(?!\n).*)*\n?)+)/gm;
 
-    // 6. Newlines → <br>
+    html = html.replace(listBlockRe, (block) => {
+        const items = block
+            .split(/(?=^[ \t]*(?:[-\u2022*]|\d+\.)\s)/m)
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        const lis = items
+            .map((item) => {
+                const content = item.replace(/^[ \t]*(?:[-\u2022*]|\d+\.)\s+/, "").replace(/\n/g, " ").trim();
+                return `<li style="margin:0;padding:0">${content}</li>`;
+            })
+            .join("");
+
+        return `<ul style="margin:0.4rem 0;padding-left:1.25rem;list-style:disc;display:flex;flex-direction:column;gap:0.2rem">${lis}</ul>`;
+    });
+
+    // 6. Paragraphs — double newlines become paragraph breaks, single newlines become <br>
+    html = html.replace(/\n{2,}/g, '</p><p style="margin-top:0.4rem">');
     html = html.replace(/\n/g, "<br>");
+    html = '<p style="margin:0">' + html + "</p>";
+
+    // Clean up empty paragraphs
+    html = html.replace(/<p[^>]*>\s*<\/p>/g, "");
 
     return html;
 }
