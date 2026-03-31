@@ -6,7 +6,6 @@ These are personal coding experiments and side projects I've built independently
 
 1. Diana's Digital Twin — v2.2
    Status: Live & actively maintained
-   URL: https://twin.dianaismail.me
    Repo: telegram-digital-twin
 
    An AI-powered digital twin of myself — an experiment in building a persistent, multi-interface AI persona. Users can chat with an AI that knows my professional background, projects, and personality.
