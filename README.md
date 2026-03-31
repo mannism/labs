@@ -1,6 +1,6 @@
 # Diana Ismail Labs
 
-**Version:** 1.15.0
+**Version:** 1.16.0
 
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine that powers a floating digital twin chat widget and a Telegram bot.
 
