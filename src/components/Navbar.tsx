@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
+import { VersionToggle } from "./VersionToggle";
 
 /**
  * Navbar Component
@@ -22,7 +23,9 @@ export function Navbar() {
 
     const toggle = () => {
         const next = isDark ? "light" : "dark";
-        document.documentElement.className = next;
+        /* Preserve other classes (e.g. font variables) — only swap dark/light */
+        document.documentElement.classList.remove("dark", "light");
+        document.documentElement.classList.add(next);
         localStorage.setItem("theme", next);
         setIsDark(!isDark);
     };
@@ -53,7 +56,9 @@ export function Navbar() {
                     </a>
                 </div>
 
-                {/* Theme toggle */}
+                {/* Version toggle + Theme toggle */}
+                <div className="flex items-center gap-2">
+                <VersionToggle />
                 <motion.button
                     onClick={toggle}
                     whileTap={{ scale: 0.94 }}
@@ -70,6 +75,7 @@ export function Navbar() {
                         : <><Moon className="w-3.5 h-3.5" /> Dark</>
                     }
                 </motion.button>
+                </div>
             </div>
         </nav>
     );
