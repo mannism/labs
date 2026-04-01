@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
 import projects from "@/data/projects.json";
+import { ClientProviders } from "@/components/ClientProviders";
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -159,10 +160,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Page content layered above orbs */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          {children}
-        </div>
+        {/* Page content layered above orbs — wrapped in client providers for version toggle */}
+        <ClientProviders>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {children}
+          </div>
+        </ClientProviders>
 
         {/* Google Analytics — only loads when NEXT_PUBLIC_GA_ID is set */}
         {gaId && <GoogleAnalytics gaId={gaId} />}
