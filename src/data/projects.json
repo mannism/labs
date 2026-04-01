@@ -172,7 +172,7 @@
     "demoUrl": "https://dianaismail.me",
     "githubUrl": "#",
     "keyLearnings": "Turbopack on Railway cannot reach Google Fonts during production builds — switching to local woff2 files via `next/font/local` eliminated the network dependency entirely. Also: the parent nav's `backdrop-blur` creates a CSS stacking context that traps `position: fixed` children — a portal to `document.body` was the clean escape.",
-    "version": "0.0.0",
+    "version": "2.0.0",
     "lastUpdated": "2026-04-01"
   }
 ]
