@@ -24,6 +24,16 @@ const openai = new OpenAI({ apiKey: config.OPENAI_API_KEY });
 
 type OAIMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 
+/** Sanitize user input before sending to LLM — strips injection patterns */
+function sanitizeInput(text: string): string {
+    return text
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
+        .replace(/\b(system|assistant|SYSTEM|ASSISTANT)\s*:/gi, "")
+        .replace(/^#{1,3}\s*(system|instruction|prompt)/gim, "")
+        .replace(/<\/?(?:system|prompt|instruction|context|role)[^>]*>/gi, "")
+        .trim();
+}
+
 /** Formats a dict payload as an SSE data line. */
 function sse(payload: Record<string, unknown>): string {
     return `data: ${JSON.stringify(payload)}\n\n`;
@@ -128,9 +138,11 @@ async function summarizeMemory(history: memory.ChatHistory): Promise<void> {
  */
 export async function processUserMessage(
     chatId: string,
-    userText: string,
+    rawText: string,
     iface: string = "telegram"
 ): Promise<{ status: "success" | "rate_limited" | "error"; responseText: string }> {
+    const userText = sanitizeInput(rawText);
+
     // 0. Guard: Redis must be available
     if (!getRedisClient()) {
         return { status: "error", responseText: MESSAGES.MSG_STORAGE_OFFLINE };
@@ -183,9 +195,11 @@ export async function processUserMessage(
  */
 export async function* processUserMessageStream(
     chatId: string,
-    userText: string,
+    rawText: string,
     iface: string = "web"
 ): AsyncGenerator<string> {
+    const userText = sanitizeInput(rawText);
+
     // 0. Guard: Redis must be available (rate limiting requires it)
     if (!getRedisClient()) {
         yield sse({ type: "error", text: MESSAGES.MSG_STORAGE_OFFLINE });

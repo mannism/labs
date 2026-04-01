@@ -13,7 +13,7 @@ import { processUserMessageStream }             from "@/lib/twin/engine";
 import { MSG_TOO_LONG }                         from "@/lib/twin/messages";
 import { corsHeaders, corsPreflightResponse }   from "@/app/api/cors";
 
-const MAX_MESSAGE_LENGTH = 4000;
+const MAX_MESSAGE_LENGTH = parseInt(process.env.MAX_MESSAGE_LENGTH || "4000", 10);
 
 export function OPTIONS(req: NextRequest): Response {
     return corsPreflightResponse(req.headers.get("origin"));

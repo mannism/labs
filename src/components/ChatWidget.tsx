@@ -597,6 +597,7 @@ export function ChatWidget() {
                                     onChange={handleInputChange}
                                     onKeyDown={handleKeyDown}
                                     placeholder={isStreaming ? "Thinking…" : "Ask anything… (Enter to send)"}
+                                    maxLength={600}
                                     rows={1}
                                     disabled={isStreaming}
                                     style={{
