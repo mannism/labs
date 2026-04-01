@@ -1,22 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { ProjectCardV2 } from "./ProjectCardV2";
 import { Project } from "../ProjectCard";
+import { useReducedMotion } from "./useReducedMotion";
 import projectsData from "../../data/projects.json";
 
 /**
- * ProjectGridV2 — Speculative Interface project grid.
+ * ProjectGridV2 — Speculative Interface project grid with stagger entrance.
  * Maps project data to ProjectCardV2 components with category filtering.
  * Category tabs use an underline-active style rather than v1's pill/glow.
  * Responsive grid: 1 col mobile, 2 col tablet, 3 col desktop.
+ * Cards animate in with a stagger-fade on first page load.
  */
+
+/** Parent stagger container variants for card entrance */
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+
 export function ProjectGridV2({
   onSelectProject,
 }: {
   onSelectProject: (project: Project) => void;
 }) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const prefersReduced = useReducedMotion();
 
   /* Sort by order field, filter hidden projects — same logic as v1 ProjectGrid */
   const visibleProjects = (projectsData as Project[])
@@ -79,8 +94,14 @@ export function ProjectGridV2({
         {filteredProjects.length} module{filteredProjects.length !== 1 ? "s" : ""} loaded
       </p>
 
-      {/* Responsive card grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Responsive card grid with stagger entrance */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        variants={prefersReduced ? undefined : containerVariants}
+        initial={prefersReduced ? undefined : "hidden"}
+        animate={prefersReduced ? undefined : "visible"}
+        key={activeCategory} /* Re-trigger stagger on category change */
+      >
         {filteredProjects.map((project, idx) => (
           <ProjectCardV2
             key={project.id}
@@ -89,7 +110,7 @@ export function ProjectGridV2({
             onClick={() => onSelectProject(project)}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

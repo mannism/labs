@@ -1,8 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 import { Project } from "../ProjectCard";
 import { trackEvent } from "@/lib/analytics";
+import { useReducedMotion } from "./useReducedMotion";
 
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.
@@ -10,6 +12,7 @@ import { trackEvent } from "@/lib/analytics";
  * Left: version, date, stability status, tech stack.
  * Right: title, full description, key learnings callout (chartreuse left border).
  * Action buttons (Demo, GitHub) shown only when URLs exist.
+ * Motion: fade+slide on mount/unmount (respects prefers-reduced-motion).
  */
 export function ProjectDetailV2({
   project,
@@ -21,9 +24,15 @@ export function ProjectDetailV2({
   const hasDemo = Boolean(project.demoUrl && project.demoUrl !== "#");
   const hasGithub = Boolean(project.githubUrl && project.githubUrl !== "#");
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
+  const prefersReduced = useReducedMotion();
 
   return (
-    <div>
+    <motion.div
+      initial={prefersReduced ? undefined : { opacity: 0, y: 12 }}
+      animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
+      exit={prefersReduced ? undefined : { opacity: 0, y: -12 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
       {/* Back navigation */}
       <button
         onClick={onBack}
@@ -281,7 +290,7 @@ export function ProjectDetailV2({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
