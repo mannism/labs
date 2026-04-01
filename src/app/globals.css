@@ -20,6 +20,7 @@
   --font-mono: var(--font-geist-mono);
   --font-sans: var(--font-open-sans);
   --font-serif: var(--font-merriweather);
+  --font-display: var(--font-space-grotesk);
 }
 
 /* ─── Design Tokens: Dark mode (default) ────────────────────── */
@@ -102,6 +103,48 @@ html.light {
 
   --background: var(--bg-primary);
   --foreground: var(--text-primary);
+}
+
+/* === V2: Speculative Interface Design System === */
+/* Pale blue-grey base with chartreuse (#C8FF00) accent.
+   Light mode only. Scoped under html.v2 so v1 tokens remain intact. */
+html.v2 {
+  /* Colors */
+  --v2-bg-primary: #F0F2F5;
+  --v2-bg-secondary: #E8EAEF;
+  --v2-bg-surface: #FFFFFF;
+  --v2-accent: #C8FF00;
+  --v2-accent-muted: rgba(200, 255, 0, 0.15);
+  --v2-text-primary: #1A1D23;
+  --v2-text-secondary: #6B7280;
+  --v2-text-tertiary: #9CA3AF;
+  --v2-border: rgba(0, 0, 0, 0.08);
+  --v2-border-hover: rgba(0, 0, 0, 0.15);
+  --v2-border-accent: #C8FF00;
+  --v2-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --v2-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Typography */
+  --v2-font-display: var(--font-space-grotesk);
+  --v2-font-body: var(--font-space-grotesk);
+  --v2-font-mono: var(--font-geist-mono);
+  --v2-font-size-xs: 0.6875rem;
+  --v2-font-size-sm: 0.8125rem;
+  --v2-font-size-base: 0.9375rem;
+  --v2-font-size-lg: 1.125rem;
+  --v2-font-size-xl: 1.5rem;
+  --v2-font-size-2xl: 2rem;
+  --v2-letter-spacing-wide: 0.2em;
+  --v2-letter-spacing-tight: -0.02em;
+
+  /* Spacing */
+  --v2-space-xs: 0.25rem;
+  --v2-space-sm: 0.5rem;
+  --v2-space-md: 1rem;
+  --v2-space-lg: 1.5rem;
+  --v2-space-xl: 2rem;
+  --v2-space-2xl: 3rem;
+  --v2-space-3xl: 4rem;
 }
 
 /* ─── Base reset ─────────────────────────────────────────────── */

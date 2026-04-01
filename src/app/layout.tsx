@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Merriweather, Open_Sans } from "next/font/google";
+import { Geist_Mono, Merriweather, Open_Sans, Space_Grotesk } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
@@ -27,6 +27,14 @@ const openSans = Open_Sans({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+/* V2 geometric sans-serif for Speculative Interface direction */
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -136,7 +144,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} antialiased font-sans`}
+        className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased font-sans`}
         style={{ position: "relative" }}
       >
         {/* Fixed decorative background orbs */}
