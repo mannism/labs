@@ -2,16 +2,18 @@
 
 /**
  * HeroV2 — display header for the Speculative Interface (v2).
- * Renders a system-label breadcrumb, large display headline (Space Grotesk),
- * and a short subtitle. Clinical aesthetic — no decorative effects.
- * All sizing and color via v2 design tokens.
+ * Renders a system-label breadcrumb, dramatically large display headline
+ * (Space Grotesk, uppercase), and a compact subtitle.
+ * Typography hierarchy matches Stitch: breadcrumb is tiny monospace,
+ * headline is 3.25rem+ bold, subtitle is body-sized muted text.
+ * Clinical aesthetic — no decorative effects.
  */
 export function HeroV2() {
   return (
     <section
       className="max-w-7xl mx-auto w-full px-6"
       style={{
-        paddingTop: "var(--v2-space-3xl)",
+        paddingTop: "var(--v2-space-4xl)",
         paddingBottom: "var(--v2-space-3xl)",
       }}
     >
@@ -23,27 +25,29 @@ export function HeroV2() {
           color: "var(--v2-text-tertiary)",
           letterSpacing: "var(--v2-letter-spacing-wide)",
           margin: 0,
-          marginBottom: "var(--v2-space-lg)",
+          marginBottom: "var(--v2-space-xl)",
+          textTransform: "uppercase",
         }}
       >
         CORE DIRECTORY // SYSTEM.USER.DIANA_ISMAIL
       </p>
 
-      {/* Display headline — large, bold, tight tracking */}
+      {/* Display headline — large, bold, tight tracking, uppercase */}
       <h1
         style={{
           fontFamily: "var(--v2-font-display)",
-          fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+          fontSize: "clamp(var(--v2-font-size-3xl), 5vw, var(--v2-font-size-4xl))",
           fontWeight: 700,
-          lineHeight: 1.1,
-          letterSpacing: "var(--v2-letter-spacing-tight)",
+          lineHeight: 1.05,
+          letterSpacing: "var(--v2-letter-spacing-tighter)",
           color: "var(--v2-text-primary)",
           margin: 0,
-          marginBottom: "var(--v2-space-md)",
+          marginBottom: "var(--v2-space-lg)",
+          textTransform: "uppercase",
         }}
       >
         Labs by Diana —{" "}
-        <span style={{ color: "var(--v2-text-secondary)" }}>
+        <span style={{ color: "var(--v2-text-secondary)", fontWeight: 400 }}>
           Experiments that ship.
         </span>
       </h1>
@@ -52,10 +56,10 @@ export function HeroV2() {
       <p
         style={{
           fontFamily: "var(--v2-font-body)",
-          fontSize: "var(--v2-font-size-lg)",
+          fontSize: "var(--v2-font-size-base)",
           lineHeight: 1.6,
           color: "var(--v2-text-secondary)",
-          maxWidth: "600px",
+          maxWidth: "540px",
           margin: 0,
         }}
       >

@@ -134,8 +134,16 @@ html.v2 {
   --v2-font-size-lg: 1.125rem;
   --v2-font-size-xl: 1.5rem;
   --v2-font-size-2xl: 2rem;
+  --v2-font-size-3xl: 2.5rem;
+  --v2-font-size-4xl: 3.25rem;
   --v2-letter-spacing-wide: 0.2em;
   --v2-letter-spacing-tight: -0.02em;
+  --v2-letter-spacing-tighter: -0.03em;
+
+  /* Badge / tag treatment — outlined chips matching Stitch */
+  --v2-tag-bg: rgba(0, 0, 0, 0.04);
+  --v2-tag-border: rgba(0, 0, 0, 0.12);
+  --v2-tag-color: var(--v2-text-primary);
 
   /* Spacing */
   --v2-space-xs: 0.25rem;
@@ -145,6 +153,7 @@ html.v2 {
   --v2-space-xl: 2rem;
   --v2-space-2xl: 3rem;
   --v2-space-3xl: 4rem;
+  --v2-space-4xl: 6rem;
 }
 
 /* ─── Base reset ─────────────────────────────────────────────── */
@@ -188,8 +197,21 @@ html.v2 body {
   color: var(--v2-text-primary);
   font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-attachment: fixed;
+}
+
+/* V2 reduced-motion: disable all CSS animations */
+@media (prefers-reduced-motion: reduce) {
+  html.v2 *,
+  html.v2 *::before,
+  html.v2 *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* V2 mode: hide v1 decorative background orbs */
@@ -251,13 +273,13 @@ html.light .bg-orb-purple { opacity: 0.12; }
   }
 
   50% {
-    opacity: 0.5;
-    transform: scale(1.4);
+    opacity: 0.6;
+    transform: scale(1.2);
   }
 }
 
 .animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
+  animation: pulse-dot 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* ─── Navbar ─────────────────────────────────────────────────── */

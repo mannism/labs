@@ -10,17 +10,18 @@ import projectsData from "../../data/projects.json";
 /**
  * ProjectGridV2 — Speculative Interface project grid with stagger entrance.
  * Maps project data to ProjectCardV2 components with category filtering.
- * Category tabs use an underline-active style rather than v1's pill/glow.
- * Responsive grid: 1 col mobile, 2 col tablet, 3 col desktop.
- * Cards animate in with a stagger-fade on first page load.
+ * Category tabs use an underline-active style with monospace labels.
+ * Responsive grid: 1 col mobile, 2 col tablet, asymmetric bento desktop.
+ * Cards animate in with a stagger-fade simulating a system boot sequence.
  */
 
-/** Parent stagger container variants for card entrance */
+/** Parent stagger container — sequential boot-up timing */
 const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.07,
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
     },
   },
 };
@@ -49,7 +50,7 @@ export function ProjectGridV2({
     <div>
       {/* Category filter tabs — minimal underline-active style */}
       <div
-        className="flex flex-wrap gap-4"
+        className="flex flex-wrap gap-6"
         style={{
           marginBottom: "var(--v2-space-2xl)",
           borderBottom: "1px solid var(--v2-border)",
@@ -57,7 +58,7 @@ export function ProjectGridV2({
         }}
       >
         {categories.map((category) => {
-          const isActive = activeCategory === category;
+          const isTabActive = activeCategory === category;
           return (
             <button
               key={category}
@@ -65,15 +66,21 @@ export function ProjectGridV2({
               style={{
                 fontFamily: "var(--v2-font-mono)",
                 fontSize: "var(--v2-font-size-xs)",
-                color: isActive ? "var(--v2-text-primary)" : "var(--v2-text-tertiary)",
+                color: isTabActive ? "var(--v2-text-primary)" : "var(--v2-text-tertiary)",
                 background: "none",
                 border: "none",
-                borderBottom: isActive ? "2px solid var(--v2-text-primary)" : "2px solid transparent",
-                padding: "var(--v2-space-xs) 0",
+                borderBottom: isTabActive ? "2px solid var(--v2-text-primary)" : "2px solid transparent",
+                padding: "var(--v2-space-sm) 0",
                 cursor: "pointer",
                 transition: "color 0.2s ease, border-color 0.2s ease",
-                letterSpacing: "0.05em",
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
+              }}
+              onMouseEnter={(e) => {
+                if (!isTabActive) e.currentTarget.style.color = "var(--v2-text-secondary)";
+              }}
+              onMouseLeave={(e) => {
+                if (!isTabActive) e.currentTarget.style.color = "var(--v2-text-tertiary)";
               }}
             >
               {category}
@@ -89,6 +96,7 @@ export function ProjectGridV2({
           fontSize: "var(--v2-font-size-xs)",
           color: "var(--v2-text-tertiary)",
           marginBottom: "var(--v2-space-lg)",
+          letterSpacing: "0.04em",
         }}
       >
         {filteredProjects.length} module{filteredProjects.length !== 1 ? "s" : ""} loaded
@@ -99,7 +107,7 @@ export function ProjectGridV2({
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(6, 1fr)",
-          gap: "var(--v2-space-md)",
+          gap: "var(--v2-space-lg)",
         }}
         className="bento-grid"
         variants={prefersReduced ? undefined : containerVariants}

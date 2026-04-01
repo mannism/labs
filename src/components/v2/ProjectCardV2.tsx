@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Project } from "../ProjectCard";
 import { useReducedMotion } from "./useReducedMotion";
@@ -9,15 +9,15 @@ import { useReducedMotion } from "./useReducedMotion";
  * ProjectCardV2 — Speculative Interface project card with selective motion.
  * Displays a module number (MODULE_001), title in Space Grotesk,
  * truncated description, status label (ACTIVE/ARCHIVED),
- * tech tags as dark filled chips, and version/date metadata.
- * Hover: subtle lift + chartreuse left accent border.
+ * tech tags as outlined chips (matching Stitch designs), and version/date metadata.
+ * Hover: subtle lift + chartreuse left accent via inset box-shadow (no layout shift).
  *
- * Supports a `size` prop for bento layout: "large" cards get bigger
- * typography, more padding, and 3-line descriptions.
+ * Supports a `size` prop for bento layout: "large" cards get dramatically
+ * larger typography, more padding, and 3-line descriptions.
  *
  * Motion features (disabled when prefers-reduced-motion is set):
- * - Module number counter: counts up from 000 to actual number on scroll-in
- * - Status pulse: slow chartreuse brightness oscillation on active dots
+ * - Module number counter: eased count-up from 000 to actual number on scroll-in
+ * - Status pulse: slow organic breathing on active dots
  * - Card entrance: stagger-fade with upward drift (controlled by parent variants)
  */
 export function ProjectCardV2({
@@ -36,6 +36,22 @@ export function ProjectCardV2({
   const isLarge = size === "large";
   const prefersReduced = useReducedMotion();
 
+  /** Handle hover in — inset box-shadow instead of borderLeftWidth to avoid layout shift */
+  const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = "translateY(-2px)";
+    el.style.boxShadow = "inset 3px 0 0 0 var(--v2-accent), var(--v2-shadow-hover)";
+    el.style.borderColor = "var(--v2-border-hover)";
+  }, []);
+
+  /** Handle hover out — restore default state */
+  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = "translateY(0)";
+    el.style.boxShadow = "var(--v2-shadow)";
+    el.style.borderColor = "var(--v2-border)";
+  }, []);
+
   return (
     <motion.div
       role="button"
@@ -52,39 +68,30 @@ export function ProjectCardV2({
         prefersReduced
           ? undefined
           : {
-              hidden: { opacity: 0, y: 16 },
+              hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 },
             }
       }
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
       style={{
         background: "var(--v2-bg-surface)",
         border: "1px solid var(--v2-border)",
         borderRadius: "0.5rem",
-        padding: isLarge ? "var(--v2-space-xl)" : "var(--v2-space-lg)",
+        padding: isLarge ? "var(--v2-space-2xl)" : "var(--v2-space-xl)",
         cursor: "pointer",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+        transition: "transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), border-color 0.25s ease",
         position: "relative",
         height: "100%",
         boxSizing: "border-box",
+        boxShadow: "var(--v2-shadow)",
+        display: "flex",
+        flexDirection: "column",
       }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = "translateY(-2px)";
-        el.style.boxShadow = "var(--v2-shadow-hover)";
-        el.style.borderLeftColor = "var(--v2-accent)";
-        el.style.borderLeftWidth = "3px";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = "translateY(0)";
-        el.style.boxShadow = "none";
-        el.style.borderLeftColor = "var(--v2-border)";
-        el.style.borderLeftWidth = "1px";
-      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Module number (animated counter) + status label */}
-      <div className="flex items-center justify-between" style={{ marginBottom: "var(--v2-space-sm)" }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: isLarge ? "var(--v2-space-lg)" : "var(--v2-space-md)" }}>
         <span
           style={{
             fontFamily: "var(--v2-font-mono)",
@@ -95,7 +102,7 @@ export function ProjectCardV2({
         >
           MODULE_<ModuleCounter target={moduleNumber} disabled={prefersReduced} />
         </span>
-        {/* Status label: dot/square + ACTIVE/ARCHIVED text */}
+        {/* Status label: dot + ACTIVE/ARCHIVED text */}
         <span
           style={{
             display: "inline-flex",
@@ -105,40 +112,43 @@ export function ProjectCardV2({
             fontSize: "var(--v2-font-size-xs)",
             textTransform: "uppercase",
             letterSpacing: "0.08em",
-            color: isActive ? "var(--v2-accent)" : "var(--v2-text-tertiary)",
+            color: isActive ? "var(--v2-text-primary)" : "var(--v2-text-tertiary)",
           }}
         >
           <motion.span
             animate={
               isActive && !prefersReduced
-                ? { opacity: [1, 0.5, 1] }
+                ? { opacity: [1, 0.3, 1] }
                 : undefined
             }
             transition={
               isActive && !prefersReduced
-                ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+                ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
                 : undefined
             }
             style={{
-              fontSize: "10px",
-              lineHeight: 1,
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              background: isActive ? "var(--v2-accent)" : "var(--v2-text-tertiary)",
+              display: "inline-block",
             }}
-          >
-            {isActive ? "●" : "■"}
-          </motion.span>
+          />
           {isActive ? "ACTIVE" : "ARCHIVED"}
         </span>
       </div>
 
-      {/* Title — Space Grotesk, larger for featured cards */}
+      {/* Title — Space Grotesk, dramatically larger for featured cards */}
       <h3
         style={{
           fontFamily: "var(--v2-font-display)",
-          fontSize: isLarge ? "var(--v2-font-size-2xl)" : "var(--v2-font-size-lg)",
-          fontWeight: isLarge ? 700 : 600,
+          fontSize: isLarge ? "var(--v2-font-size-3xl)" : "var(--v2-font-size-xl)",
+          fontWeight: 700,
           color: "var(--v2-text-primary)",
-          margin: `0 0 ${isLarge ? "var(--v2-space-md)" : "var(--v2-space-sm)"} 0`,
-          letterSpacing: "var(--v2-letter-spacing-tight)",
+          margin: `0 0 ${isLarge ? "var(--v2-space-lg)" : "var(--v2-space-sm)"} 0`,
+          letterSpacing: isLarge ? "var(--v2-letter-spacing-tighter)" : "var(--v2-letter-spacing-tight)",
+          lineHeight: 1.1,
+          textTransform: "uppercase",
         }}
       >
         {project.title}
@@ -150,27 +160,29 @@ export function ProjectCardV2({
           fontFamily: "var(--v2-font-body)",
           fontSize: "var(--v2-font-size-sm)",
           color: "var(--v2-text-secondary)",
-          lineHeight: 1.6,
-          margin: "0 0 var(--v2-space-md) 0",
+          lineHeight: 1.65,
+          margin: "0 0 var(--v2-space-lg) 0",
           display: "-webkit-box",
           WebkitLineClamp: isLarge ? 3 : 2,
           WebkitBoxOrient: "vertical",
           overflow: "hidden",
+          flex: 1,
         }}
       >
         {project.shortDescription}
       </p>
 
-      {/* Tech tags — dark filled chips */}
+      {/* Tech tags — outlined chips matching Stitch treatment */}
       <div className="flex flex-wrap gap-1.5" style={{ marginBottom: "var(--v2-space-md)" }}>
-        {project.tags.slice(0, 4).map((tag) => (
+        {project.tags.slice(0, isLarge ? 4 : 3).map((tag) => (
           <span
             key={tag}
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-bg-primary)",
-              background: "var(--v2-text-primary)",
+              color: "var(--v2-tag-color)",
+              background: "var(--v2-tag-bg)",
+              border: "1px solid var(--v2-tag-border)",
               borderRadius: "4px",
               padding: "3px 10px",
               textTransform: "uppercase",
@@ -180,15 +192,16 @@ export function ProjectCardV2({
             {tag}
           </span>
         ))}
-        {project.tags.length > 4 && (
+        {project.tags.length > (isLarge ? 4 : 3) && (
           <span
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",
               color: "var(--v2-text-tertiary)",
+              padding: "3px 4px",
             }}
           >
-            +{project.tags.length - 4}
+            +{project.tags.length - (isLarge ? 4 : 3)}
           </span>
         )}
       </div>
@@ -199,15 +212,16 @@ export function ProjectCardV2({
           fontFamily: "var(--v2-font-mono)",
           fontSize: "var(--v2-font-size-xs)",
           color: "var(--v2-text-tertiary)",
+          letterSpacing: "0.02em",
         }}
       >
         {[
           project.version && `v${project.version}`,
           project.lastUpdated &&
             new Date(project.lastUpdated).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
               year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
             }),
         ]
           .filter(Boolean)
@@ -219,6 +233,7 @@ export function ProjectCardV2({
 
 /**
  * ModuleCounter — animates a 3-digit number counting up from "000" to the target.
+ * Uses eased interpolation (cubic ease-out) for smooth, non-jerky counting.
  * Fires once when the element scrolls into view via IntersectionObserver.
  */
 function ModuleCounter({ target, disabled }: { target: string; disabled: boolean }) {
@@ -234,17 +249,25 @@ function ModuleCounter({ target, disabled }: { target: string; disabled: boolean
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
           const targetNum = parseInt(target, 10);
-          const duration = 600; // ms
-          const steps = 20;
-          const interval = duration / steps;
-          let step = 0;
+          const duration = 800;
+          const startTime = performance.now();
 
-          const timer = setInterval(() => {
-            step++;
-            const current = Math.round((step / steps) * targetNum);
+          /** Cubic ease-out for smooth deceleration */
+          const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3);
+
+          const animate = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easedProgress = easeOut(progress);
+            const current = Math.round(easedProgress * targetNum);
             setDisplay(String(current).padStart(3, "0"));
-            if (step >= steps) clearInterval(timer);
-          }, interval);
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            }
+          };
+
+          requestAnimationFrame(animate);
         }
       },
       { threshold: 0.3 }

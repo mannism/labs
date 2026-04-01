@@ -9,9 +9,10 @@ import { useReducedMotion } from "./useReducedMotion";
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.
  * Layout: left metadata sidebar + right content area.
- * Left: version, date, stability status, tech stack.
- * Right: title, full description, key learnings callout (chartreuse left border).
- * Action buttons (Demo, GitHub) shown only when URLs exist.
+ * Left: version, date, stability status, tech stack tags.
+ * Right: large uppercase title, module ID, full description,
+ *   key learnings callout (chartreuse left border).
+ * CTA buttons: chartreuse-filled "LAUNCH DEMO", outlined "VIEW SOURCE".
  * Motion: fade+slide on mount/unmount (respects prefers-reduced-motion).
  */
 export function ProjectDetailV2({
@@ -28,10 +29,10 @@ export function ProjectDetailV2({
 
   return (
     <motion.div
-      initial={prefersReduced ? undefined : { opacity: 0, y: 12 }}
+      initial={prefersReduced ? undefined : { opacity: 0, y: 16 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
       exit={prefersReduced ? undefined : { opacity: 0, y: -12 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {/* Back navigation */}
       <button
@@ -54,19 +55,83 @@ export function ProjectDetailV2({
         &larr; BACK TO MODULES
       </button>
 
+      {/* Category + status badges inline */}
+      <div
+        className="flex flex-wrap gap-2"
+        style={{ marginBottom: "var(--v2-space-lg)" }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-primary)",
+            background: "var(--v2-accent-muted)",
+            border: "1px solid var(--v2-accent)",
+            borderRadius: "9999px",
+            padding: "3px 12px",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          {project.category}
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-secondary)",
+            border: "1px solid var(--v2-border)",
+            borderRadius: "9999px",
+            padding: "3px 12px",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          {project.status}
+        </span>
+      </div>
+
+      {/* Title — dramatically large, uppercase, Space Grotesk */}
+      <h1
+        style={{
+          fontFamily: "var(--v2-font-display)",
+          fontSize: "clamp(var(--v2-font-size-3xl), 4vw, var(--v2-font-size-4xl))",
+          fontWeight: 700,
+          color: "var(--v2-text-primary)",
+          letterSpacing: "var(--v2-letter-spacing-tighter)",
+          lineHeight: 1.05,
+          margin: "0 0 var(--v2-space-xs) 0",
+          textTransform: "uppercase",
+        }}
+      >
+        {project.title}
+      </h1>
+
+      {/* Module ID below title */}
+      <p
+        style={{
+          fontFamily: "var(--v2-font-mono)",
+          fontSize: "var(--v2-font-size-xs)",
+          color: "var(--v2-text-tertiary)",
+          letterSpacing: "var(--v2-letter-spacing-wide)",
+          margin: "0 0 var(--v2-space-3xl) 0",
+          textTransform: "uppercase",
+        }}
+      >
+        MODULE_{String(1).padStart(3, "0")}
+      </p>
+
       {/* Two-column layout: metadata sidebar + content */}
       <div
-        className="flex flex-col md:flex-row gap-8"
+        className="flex flex-col md:flex-row gap-12"
         style={{ alignItems: "flex-start" }}
       >
         {/* Left sidebar — metadata */}
         <aside
           style={{
             width: "100%",
-            maxWidth: "240px",
+            maxWidth: "220px",
             flexShrink: 0,
-            borderRight: "1px solid var(--v2-border)",
-            paddingRight: "var(--v2-space-xl)",
           }}
           className="hidden md:block"
         >
@@ -81,20 +146,17 @@ export function ProjectDetailV2({
               label="DEPLOYED"
               value={new Date(project.lastUpdated).toLocaleDateString("en-GB", {
                 day: "numeric",
-                month: "short",
+                month: "long",
                 year: "numeric",
-              })}
+              }).toUpperCase()}
             />
           )}
 
           {/* Status */}
-          <MetaBlock label="STATUS" value={project.status} />
+          <MetaBlock label="STABILITY" value={project.status.toUpperCase()} />
 
-          {/* Category */}
-          <MetaBlock label="CATEGORY" value={project.category} />
-
-          {/* Tech stack */}
-          <div style={{ marginBottom: "var(--v2-space-lg)" }}>
+          {/* Tech stack — outlined pill tags */}
+          <div style={{ marginBottom: "var(--v2-space-xl)" }}>
             <p
               style={{
                 fontFamily: "var(--v2-font-mono)",
@@ -102,10 +164,10 @@ export function ProjectDetailV2({
                 color: "var(--v2-text-tertiary)",
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                margin: "0 0 var(--v2-space-xs) 0",
+                margin: "0 0 var(--v2-space-sm) 0",
               }}
             >
-              TECH STACK
+              ARCHITECTURE_STACK
             </p>
             <div className="flex flex-wrap gap-1.5">
               {project.tags.map((tag) => (
@@ -114,11 +176,14 @@ export function ProjectDetailV2({
                   style={{
                     fontFamily: "var(--v2-font-mono)",
                     fontSize: "var(--v2-font-size-xs)",
-                    color: "var(--v2-text-secondary)",
-                    border: "1px solid var(--v2-border)",
-                    borderRadius: "9999px",
-                    padding: "2px 8px",
+                    color: "var(--v2-tag-color)",
+                    border: "1px solid var(--v2-tag-border)",
+                    background: "var(--v2-tag-bg)",
+                    borderRadius: "4px",
+                    padding: "3px 10px",
                     display: "inline-block",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
                   }}
                 >
                   {tag}
@@ -130,19 +195,21 @@ export function ProjectDetailV2({
 
         {/* Right content area */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Title */}
-          <h1
+          {/* Section label */}
+          <p
             style={{
-              fontFamily: "var(--v2-font-display)",
-              fontSize: "var(--v2-font-size-2xl)",
-              fontWeight: 700,
-              color: "var(--v2-text-primary)",
-              letterSpacing: "var(--v2-letter-spacing-tight)",
-              margin: "0 0 var(--v2-space-lg) 0",
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              margin: "0 0 var(--v2-space-md) 0",
+              borderBottom: "1px solid var(--v2-border)",
+              paddingBottom: "var(--v2-space-sm)",
             }}
           >
-            {project.title}
-          </h1>
+            TECHNICAL_OVERVIEW
+          </p>
 
           {/* Mobile-only metadata (shown inline on small screens) */}
           <div
@@ -165,19 +232,21 @@ export function ProjectDetailV2({
               fontFamily: "var(--v2-font-body)",
               fontSize: "var(--v2-font-size-base)",
               color: "var(--v2-text-secondary)",
-              lineHeight: 1.7,
+              lineHeight: 1.75,
               margin: "0 0 var(--v2-space-2xl) 0",
             }}
           >
             {project.detailedDescription}
           </p>
 
-          {/* Key learnings callout — chartreuse left border */}
+          {/* Key learnings callout — bordered card with chartreuse left accent */}
           {project.keyLearnings && (
             <div
               style={{
                 borderLeft: "3px solid var(--v2-accent)",
-                paddingLeft: "var(--v2-space-lg)",
+                background: "var(--v2-tag-bg)",
+                borderRadius: "0 0.5rem 0.5rem 0",
+                padding: "var(--v2-space-xl)",
                 marginBottom: "var(--v2-space-2xl)",
               }}
             >
@@ -191,14 +260,14 @@ export function ProjectDetailV2({
                   margin: "0 0 var(--v2-space-sm) 0",
                 }}
               >
-                KEY LEARNINGS
+                KEY_LEARNINGS
               </p>
               <p
                 style={{
                   fontFamily: "var(--v2-font-body)",
                   fontSize: "var(--v2-font-size-sm)",
                   color: "var(--v2-text-secondary)",
-                  lineHeight: 1.6,
+                  lineHeight: 1.7,
                   margin: 0,
                 }}
               >
@@ -218,10 +287,12 @@ export function ProjectDetailV2({
                 style={{
                   fontFamily: "var(--v2-font-mono)",
                   fontSize: "var(--v2-font-size-xs)",
-                  color: "var(--v2-text-tertiary)",
-                  border: "1px solid var(--v2-border)",
-                  borderRadius: "9999px",
-                  padding: "2px 8px",
+                  color: "var(--v2-tag-color)",
+                  border: "1px solid var(--v2-tag-border)",
+                  background: "var(--v2-tag-bg)",
+                  borderRadius: "4px",
+                  padding: "3px 10px",
+                  textTransform: "uppercase",
                 }}
               >
                 {tag}
@@ -229,9 +300,9 @@ export function ProjectDetailV2({
             ))}
           </div>
 
-          {/* Action buttons — only shown when URLs exist */}
+          {/* Action buttons — chartreuse primary, outlined secondary */}
           {(hasDemo || hasGithub) && (
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               {hasDemo && (
                 <a
                   href={project.demoUrl}
@@ -247,19 +318,29 @@ export function ProjectDetailV2({
                     fontFamily: "var(--v2-font-mono)",
                     fontSize: "var(--v2-font-size-xs)",
                     color: "var(--v2-text-primary)",
-                    border: "1px solid var(--v2-border)",
+                    background: "var(--v2-accent)",
+                    border: "none",
                     borderRadius: "0.25rem",
-                    padding: "var(--v2-space-sm) var(--v2-space-md)",
+                    padding: "var(--v2-space-sm) var(--v2-space-lg)",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "var(--v2-space-xs)",
-                    transition: "border-color 0.2s ease",
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    transition: "opacity 0.2s ease, transform 0.2s ease",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--v2-accent)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--v2-border)")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "0.88";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
                 >
-                  Launch Demo <ArrowUpRight className="w-3.5 h-3.5" />
+                  LAUNCH DEMO <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
               )}
               {hasGithub && (
@@ -271,19 +352,29 @@ export function ProjectDetailV2({
                     fontFamily: "var(--v2-font-mono)",
                     fontSize: "var(--v2-font-size-xs)",
                     color: "var(--v2-text-primary)",
+                    background: "none",
                     border: "1px solid var(--v2-border)",
                     borderRadius: "0.25rem",
-                    padding: "var(--v2-space-sm) var(--v2-space-md)",
+                    padding: "var(--v2-space-sm) var(--v2-space-lg)",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "var(--v2-space-xs)",
-                    transition: "border-color 0.2s ease",
+                    fontWeight: 500,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    transition: "border-color 0.2s ease, transform 0.2s ease",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--v2-accent)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--v2-border)")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--v2-text-primary)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--v2-border)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
                 >
-                  <Github className="w-3.5 h-3.5" /> Source
+                  <Github className="w-3.5 h-3.5" /> VIEW SOURCE
                 </a>
               )}
             </div>
@@ -296,7 +387,7 @@ export function ProjectDetailV2({
 
 /**
  * MetaBlock — renders a label/value pair in the metadata sidebar.
- * Reusable within ProjectDetailV2 to reduce repetition.
+ * Label: tiny uppercase monospace. Value: slightly larger monospace.
  */
 function MetaBlock({ label, value }: { label: string; value: string }) {
   return (
@@ -319,6 +410,7 @@ function MetaBlock({ label, value }: { label: string; value: string }) {
           fontSize: "var(--v2-font-size-sm)",
           color: "var(--v2-text-primary)",
           margin: 0,
+          fontWeight: 500,
         }}
       >
         {value}
