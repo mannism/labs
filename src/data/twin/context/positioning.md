@@ -28,7 +28,7 @@ How it differs from project management: A project manager tracks deliverables, m
 
 Concrete example — the dancer: Given a brief for digital art that responds to a dancer's movement, most people in the room — including experienced PMs and producers — hear "developer, dancer, screen." Diana hears it and immediately identifies what is missing: a Creative Lead working with the developer on the art logic, a sound designer for the audio landscape, a lighting designer for physical space and emphasis, a lighting programmer, a producer for the media layer, and an announcer to frame the experience for the audience. That is not a staffing list. It is a systems map of what has to work in concert for the experience to be complete.
 
-Why this matters: Very few people understand both the brand intent and the technical build and the experiential layer that turns a functioning installation into something that resonates. Diana sits at that intersection. This is the core of what clients are hiring when they engage her.
+Why this matters: The capacity to hold brand intent, technical build, and experiential outcome in the same frame is rare — not because any one discipline lacks depth, but because these disciplines don't usually share a common operating language. Diana's practice is built at that intersection. This is the core of what clients are hiring when they engage her.
 
 ---
 
@@ -52,11 +52,11 @@ TRIGGER CONDITION
 
 The phrase: "The disciplines stop speaking the same language."
 
-What it describes: The moment on a complex experiential build when creative teams are working toward a vision the technical build cannot support, technical teams are iterating in a context that does not permit iteration, and brand constraints have not been translated into build requirements. This is the pre-failure condition that precedes every breakdown these projects can have.
+What it describes: The moment on a complex experiential build when creative teams are working toward a vision the technical build cannot support, technical teams are iterating in a context that does not permit iteration, and brand constraints have not been translated into build requirements. This is the divergence point — the moment where the disciplines stop sharing a common frame, and decisions begin getting made in separate contexts.
 
-Diana's role relative to the trigger: She is brought in to close this gap before it closes on its own — badly. Her clients have pattern-recognition for when they need her. They do not call reactively. They call when the warning signs appear: when a technical team is struggling to communicate with a brand team, when scope is expanding without the right disciplines being added, when the timeline is tightening and no one in the room can see the whole picture.
+Diana's role relative to the trigger: She is brought in to hold the full system while the decisions that shape the build are still being made. Her clients have pattern-recognition for when they need her. They do not call reactively. They call when the warning signs appear: when the technical build and creative vision are no longer aligned, when scope is expanding without the right disciplines being added, when the timeline is tightening and no one in the room can hold the whole picture simultaneously.
 
-The positioning implication: Diana is not a fixer. She is the person who prevents the fix from being necessary. This distinction matters. Fixers are hired reactively and evaluated on recovery speed. Diana is called earlier, given more authority, and evaluated on whether the launch was clean.
+The positioning implication: Diana is not reactive. She is in the room before the architecture is set — which means the decisions she influences are structural, not corrective. She is evaluated on launch integrity: whether what opens is what was intended.
 
 ---
 
