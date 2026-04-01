@@ -8,9 +8,12 @@ import { useReducedMotion } from "./useReducedMotion";
 /**
  * ProjectCardV2 — Speculative Interface project card with selective motion.
  * Displays a module number (MODULE_001), title in Space Grotesk,
- * truncated description, status dot (chartreuse=active, grey=other),
- * tech tags as minimal bordered pills, and version/date metadata.
+ * truncated description, status label (ACTIVE/ARCHIVED),
+ * tech tags as dark filled chips, and version/date metadata.
  * Hover: subtle lift + chartreuse left accent border.
+ *
+ * Supports a `size` prop for bento layout: "large" cards get bigger
+ * typography, more padding, and 3-line descriptions.
  *
  * Motion features (disabled when prefers-reduced-motion is set):
  * - Module number counter: counts up from 000 to actual number on scroll-in
@@ -20,14 +23,17 @@ import { useReducedMotion } from "./useReducedMotion";
 export function ProjectCardV2({
   project,
   index,
+  size = "default",
   onClick,
 }: {
   project: Project;
   index: number;
+  size?: "large" | "default";
   onClick?: () => void;
 }) {
   const moduleNumber = String(index + 1).padStart(3, "0");
   const isActive = project.status.toLowerCase() === "active";
+  const isLarge = size === "large";
   const prefersReduced = useReducedMotion();
 
   return (
@@ -55,10 +61,12 @@ export function ProjectCardV2({
         background: "var(--v2-bg-surface)",
         border: "1px solid var(--v2-border)",
         borderRadius: "0.5rem",
-        padding: "var(--v2-space-lg)",
+        padding: isLarge ? "var(--v2-space-xl)" : "var(--v2-space-lg)",
         cursor: "pointer",
         transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
         position: "relative",
+        height: "100%",
+        boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget;
@@ -75,7 +83,7 @@ export function ProjectCardV2({
         el.style.borderLeftWidth = "1px";
       }}
     >
-      {/* Module number (animated counter) + status dot */}
+      {/* Module number (animated counter) + status label */}
       <div className="flex items-center justify-between" style={{ marginBottom: "var(--v2-space-sm)" }}>
         <span
           style={{
@@ -87,45 +95,56 @@ export function ProjectCardV2({
         >
           MODULE_<ModuleCounter target={moduleNumber} disabled={prefersReduced} />
         </span>
-        {/* Status dot: chartreuse for active, grey for others; pulse on active */}
-        <motion.span
-          animate={
-            isActive && !prefersReduced
-              ? { opacity: [1, 0.5, 1] }
-              : undefined
-          }
-          transition={
-            isActive && !prefersReduced
-              ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
-              : undefined
-          }
+        {/* Status label: dot/square + ACTIVE/ARCHIVED text */}
+        <span
           style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            background: isActive ? "var(--v2-accent)" : "var(--v2-text-tertiary)",
-            display: "inline-block",
-            flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: isActive ? "var(--v2-accent)" : "var(--v2-text-tertiary)",
           }}
-          title={project.status}
-        />
+        >
+          <motion.span
+            animate={
+              isActive && !prefersReduced
+                ? { opacity: [1, 0.5, 1] }
+                : undefined
+            }
+            transition={
+              isActive && !prefersReduced
+                ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+                : undefined
+            }
+            style={{
+              fontSize: "10px",
+              lineHeight: 1,
+            }}
+          >
+            {isActive ? "●" : "■"}
+          </motion.span>
+          {isActive ? "ACTIVE" : "ARCHIVED"}
+        </span>
       </div>
 
-      {/* Title — Space Grotesk */}
+      {/* Title — Space Grotesk, larger for featured cards */}
       <h3
         style={{
           fontFamily: "var(--v2-font-display)",
-          fontSize: "var(--v2-font-size-lg)",
-          fontWeight: 600,
+          fontSize: isLarge ? "var(--v2-font-size-2xl)" : "var(--v2-font-size-lg)",
+          fontWeight: isLarge ? 700 : 600,
           color: "var(--v2-text-primary)",
-          margin: "0 0 var(--v2-space-sm) 0",
+          margin: `0 0 ${isLarge ? "var(--v2-space-md)" : "var(--v2-space-sm)"} 0`,
           letterSpacing: "var(--v2-letter-spacing-tight)",
         }}
       >
         {project.title}
       </h3>
 
-      {/* Description — truncated to ~2 lines */}
+      {/* Description — truncated to 3 lines for large, 2 for default */}
       <p
         style={{
           fontFamily: "var(--v2-font-body)",
@@ -134,7 +153,7 @@ export function ProjectCardV2({
           lineHeight: 1.6,
           margin: "0 0 var(--v2-space-md) 0",
           display: "-webkit-box",
-          WebkitLineClamp: 2,
+          WebkitLineClamp: isLarge ? 3 : 2,
           WebkitBoxOrient: "vertical",
           overflow: "hidden",
         }}
@@ -142,7 +161,7 @@ export function ProjectCardV2({
         {project.shortDescription}
       </p>
 
-      {/* Tech tags — minimal bordered pills */}
+      {/* Tech tags — dark filled chips */}
       <div className="flex flex-wrap gap-1.5" style={{ marginBottom: "var(--v2-space-md)" }}>
         {project.tags.slice(0, 4).map((tag) => (
           <span
@@ -150,10 +169,12 @@ export function ProjectCardV2({
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-              border: "1px solid var(--v2-border)",
-              borderRadius: "9999px",
-              padding: "2px 8px",
+              color: "var(--v2-bg-primary)",
+              background: "var(--v2-text-primary)",
+              borderRadius: "4px",
+              padding: "3px 10px",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
             }}
           >
             {tag}

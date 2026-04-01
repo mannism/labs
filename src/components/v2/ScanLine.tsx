@@ -22,16 +22,17 @@ export function ScanLine() {
         position: "fixed",
         left: 0,
         right: 0,
-        height: "1px",
-        background: "rgba(200, 255, 0, 0.10)",
+        height: "2px",
+        background: "rgba(200, 255, 0, 0.25)",
+        boxShadow: "0 0 8px rgba(200, 255, 0, 0.15)",
         pointerEvents: "none",
         zIndex: 1,
       }}
       animate={{
-        top: ["-1px", "100vh"],
+        top: ["-2px", "100vh"],
       }}
       transition={{
-        duration: 12,
+        duration: 15,
         repeat: Infinity,
         ease: "linear",
       }}

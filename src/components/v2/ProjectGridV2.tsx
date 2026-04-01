@@ -94,23 +94,58 @@ export function ProjectGridV2({
         {filteredProjects.length} module{filteredProjects.length !== 1 ? "s" : ""} loaded
       </p>
 
-      {/* Responsive card grid with stagger entrance */}
+      {/* Asymmetric bento grid with stagger entrance */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 1fr)",
+          gap: "var(--v2-space-md)",
+        }}
+        className="bento-grid"
         variants={prefersReduced ? undefined : containerVariants}
         initial={prefersReduced ? undefined : "hidden"}
         animate={prefersReduced ? undefined : "visible"}
         key={activeCategory} /* Re-trigger stagger on category change */
       >
-        {filteredProjects.map((project, idx) => (
-          <ProjectCardV2
-            key={project.id}
-            project={project}
-            index={idx}
-            onClick={() => onSelectProject(project)}
-          />
-        ))}
+        {filteredProjects.map((project, idx) => {
+          /**
+           * Bento pattern repeats every 5 items:
+           * 0: span 4 (large) | 1: span 2 (small)
+           * 2,3,4: span 2 each (row of 3 equal)
+           * Then repeats: 5: span 4, 6: span 2, 7,8,9: span 2 each...
+           */
+          const posInCycle = idx % 5;
+          const isLarge = posInCycle === 0;
+          const colSpan = isLarge ? 4 : 2;
+
+          return (
+            <div
+              key={project.id}
+              style={{ gridColumn: `span ${colSpan}` }}
+              className="bento-cell"
+            >
+              <ProjectCardV2
+                project={project}
+                index={idx}
+                size={isLarge ? "large" : "default"}
+                onClick={() => onSelectProject(project)}
+              />
+            </div>
+          );
+        })}
       </motion.div>
+
+      {/* Responsive overrides: mobile full-width, tablet 2-col equal */}
+      <style>{`
+        @media (max-width: 767px) {
+          .bento-grid { grid-template-columns: 1fr !important; }
+          .bento-cell { grid-column: span 1 !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .bento-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .bento-cell { grid-column: span 1 !important; }
+        }
+      `}</style>
     </div>
   );
 }
