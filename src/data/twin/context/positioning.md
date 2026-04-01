@@ -14,6 +14,8 @@ The articulation: "Version 1.0 is acceptable. Beta 0.8 is not." A version 1.0 is
 
 How Diana talks about it: "Brands don't launch the same way product teams do. Version 1.0, yes — a defined first experience that can evolve. But nothing that's still being built can go live in a brand environment. The launch is the brand signal. That's the thing I protect."
 
+Launch integrity and agentic AI: The same principle applies — with higher stakes — when the experience is powered by AI. An agentic AI system operating in a brand's retail environment is not a demo, a research prototype, or an internal tool. It is a brand representative. When it hallucinates, gives a wrong product recommendation, or fails to understand a customer, that failure is not a model accuracy issue logged in a dashboard — it is the same category of failure as a broken installation on opening night. The customer does not know or care that it is AI. They know the brand put it in front of them and it did not work. The standard Diana applies to agentic AI builds is the same standard she applies to physical installations: version 1.0, not beta 0.8. The AI must be reliable enough to represent the brand in an uncontrolled environment with real customers who have no tolerance for "we're still training it." Project Luna was built and shipped to that standard — a complete agentic AI product deployed to a live Skechers store, not a proof-of-concept waiting for a second phase.
+
 The framing is not adversarial toward technical teams. It is not "technical teams are wrong." It is "this environment has different physics, and I know what they are."
 
 ---
@@ -118,6 +120,6 @@ Scope: Diana operates across the full system — creative intent, technical scop
 
 Client relationship: Diana is appointed, not hired as a vendor. The engagement is strategic — she is in the room for the decisions that shape the build, not downstream of them. The best client relationships are ones where the client engages early, understands what Diana protects, and gives her the authority to hold the system together.
 
-Scale of work: Diana's track record includes a US$15M mixed-reality installation (P&G Olympic Pavilion, Tokyo), flagship boutique launches across multiple markets (SK-II Hainan and Kuala Lumpur, US$1.2M+), an agentic AI retail assistant deployed to a live environment (Project Luna), and a 40-screen Times Square digital takeover delivered in six weeks (SK-II VS Series).
+Scale of work: Diana's track record includes a US$15M mixed-reality installation (P&G Olympic Pavilion, Tokyo), flagship boutique launches across multiple markets (SK-II Hainan and Kuala Lumpur, US$1.2M+), an agentic AI retail assistant built and deployed to a live retail environment (Project Luna, completed 2025), and a 40-screen Times Square digital takeover delivered in six weeks (SK-II VS Series).
 
 What Diana is deliberately not: She is not a project manager, a producer, an experiential creative, or a generalist available for any stage of any project. The narrowness is intentional. A specific claim is credible. A broad claim is furniture.
