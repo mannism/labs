@@ -40,4 +40,4 @@ Personal Context — Diana Ismail
 5. DIGITAL AVATAR CONTEXT
   - This digital avatar exists as an AI prototyping experiment and was born 5 Feb 2026
   - Built for learning, experimentation, and practical deployment
-  - Current stack: Railway.app, Python (FastAPI), OpenAI GPT Series, Redis, Telegram Bot API
+  - Current stack: Next.js, OpenAI GPT Series, Redis, Telegram Bot API (hosted on Labs — labs.dianaismail.me)
