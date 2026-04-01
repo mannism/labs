@@ -148,5 +148,31 @@
     "keyLearnings": "Supporting two Claude backends (CLI subprocess vs. direct API call) behind a single env-var switch exposed a hard constraint: CLI mode works only when the `claude` binary is authenticated on the local machine, so cloud deployment silently requires `USE_CLI=false` — a dependency that must be documented, not assumed.",
     "version": "1.0.0",
     "lastUpdated": "2026-03-29"
+  },
+  {
+    "id": "6",
+    "order": 6,
+    "title": "Diana Ismail — Portfolio",
+    "shortDescription": "A portfolio site built to the same launch integrity standard Diana applies to client work — Next.js 16, Sanity CMS, an AI Context Panel that summarises each project via OpenAI, and the Digital Twin chat engine embedded as a cross-platform widget.",
+    "detailedDescription": "The portfolio is a ground-up migration from WordPress to a modern Next.js 16 stack with Sanity CMS, designed and built by Diana's AI team. Every project page includes an AI Context Panel — an OpenAI-powered collapsible sidebar (desktop) or inline accordion (mobile) that streams a concise, neutral summary of the page content on demand. The Labs Digital Twin is embedded as a floating chat widget across the site and as the primary interface on the Ask Diana page, with shared conversation history via Redis so users can start on one and continue on the other. The site uses local woff2 fonts to avoid build-time network dependencies, a proxy file for pathname detection (Next.js 16 convention), and WordPress URL redirects to preserve old bookmarks. Theming is light-mode default with a dark mode toggle, all WCAG AA compliant. Content is managed entirely through Sanity Studio — no code changes needed for content updates. Deployed on Railway with semantic-release for automated versioning.",
+    "category": "Full-Stack",
+    "status": "Active",
+    "display": true,
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Sanity CMS",
+      "OpenAI",
+      "AI Context Panel",
+      "Digital Twin",
+      "WCAG AA",
+      "Railway"
+    ],
+    "demoUrl": "https://dianaismail.me",
+    "githubUrl": "#",
+    "keyLearnings": "Turbopack on Railway cannot reach Google Fonts during production builds — switching to local woff2 files via `next/font/local` eliminated the network dependency entirely. Also: the parent nav's `backdrop-blur` creates a CSS stacking context that traps `position: fixed` children — a portal to `document.body` was the clean escape.",
+    "version": "0.0.0",
+    "lastUpdated": "2026-04-01"
   }
 ]
