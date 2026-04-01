@@ -16,7 +16,7 @@ These are personal coding experiments and side projects I've built independently
    - Cross-platform: users can start on web and seamlessly continue on Telegram (and vice versa), with shared memory via an OTP deep-link pairing system
    - Persists conversation history in Redis with 30-day rolling TTL and automatic summarisation
 
-   Built with: Python, FastAPI, OpenAI GPT, Redis, Railway, Telegram Bot API
+   Built with: Next.js, OpenAI GPT, Redis, Telegram Bot API (now hosted on Labs — labs.dianaismail.me)
    Key learning: Tiered context injection (always-on vs on-demand keyword triggers) reduced token usage by ~57% vs injecting everything.
 
 ---
