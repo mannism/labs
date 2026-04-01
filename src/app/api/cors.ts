@@ -10,7 +10,7 @@
  * point its NEXT_PUBLIC_CHAT_API_URL at the Labs server.
  */
 
-const ALLOWED_ORIGIN_RE = /^https?:\/\/(localhost:\d+|.*\.dianaismail\.me)$/;
+const ALLOWED_ORIGIN_RE = /^https?:\/\/(localhost:\d+|(.*\.)?dianaismail\.me)$/;
 
 /**
  * Returns CORS headers for the given request Origin.
