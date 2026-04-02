@@ -1,6 +1,8 @@
 /** Schema for a single project entry in src/data/projects.json. */
 export interface Project {
   id: string;
+  /** URL-safe slug used for dynamic routing, e.g. "geo-audit". */
+  slug: string;
   /** Controls display order in the grid — lower numbers appear first. */
   order?: number;
   title: string;

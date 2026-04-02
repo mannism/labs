@@ -1,6 +1,7 @@
 [
   {
     "id": "10",
+    "slug": "labs",
     "order": 0,
     "title": "Labs",
     "shortDescription": "Diana's project showcase — a hand-coded creative layer where the interface itself is the portfolio piece. Every transition, hover state, and idle animation is built from scratch.",
@@ -30,6 +31,7 @@
   },
   {
     "id": "11",
+    "slug": "digital-twin",
     "order": 1,
     "title": "Diana's Digital Twin",
     "shortDescription": "A conversational agent that answers questions about Diana's work, background, and approach — in her voice, across web and Telegram, drawing from tiered context rather than fine-tuning. Built with FastAPI, OpenAI, and Redis.",
@@ -55,6 +57,7 @@
   },
   {
     "id": "12",
+    "slug": "reso",
     "order": 2,
     "title": "CV/JD Matcher & Application Tool",
     "shortDescription": "Reso scores a CV against a job description, surfaces gaps with specific improvement suggestions, and tracks the full application pipeline — matching analysis, interview prep packs, and logged sessions with AI-generated notes. Built with Next.js, OpenAI, and PostgreSQL.",
@@ -80,6 +83,7 @@
   },
   {
     "id": "13",
+    "slug": "chat-scheduler",
     "order": 3,
     "title": "AI Chat Scheduler",
     "shortDescription": "A conversational AI assistant that helps event attendees discover sessions and build conflict-free personal schedules for multi-day events. Built with the Vercel AI SDK and OpenAI.",
@@ -104,6 +108,7 @@
   },
   {
     "id": "14",
+    "slug": "geo-audit",
     "order": 4,
     "title": "GEO Audit",
     "shortDescription": "A tool that tests any webpage's visibility to AI search engines — Perplexity, Gemini, ChatGPT. Returns a scored report with specific, actionable improvements. Built with React 19, Express.js, Gemini, and OpenAI.",
@@ -133,6 +138,7 @@
   },
   {
     "id": "15",
+    "slug": "slack-bridge",
     "order": 5,
     "title": "Slack ↔ Claude CLI Bridge",
     "shortDescription": "An internal Slack bot that routes direct messages and @mentions to Claude — via the local CLI or the Anthropic API — with GPT-powered Gmail digest and team inbox commands. Built with Node.js, Slack Bolt SDK, and the Anthropic, OpenAI, and Gmail APIs.",
@@ -159,6 +165,7 @@
   },
   {
     "id": "16",
+    "slug": "portfolio",
     "order": 6,
     "title": "Diana Ismail — Portfolio",
     "shortDescription": "Diana's portfolio — built from scratch to the same standard she applies to client work. AI-powered project summaries, an embedded digital twin, and a CMS the Owner can update without touching code. Not a template. Not outsourced. Built.",
