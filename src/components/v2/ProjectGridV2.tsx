@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ProjectCardV2 } from "./ProjectCardV2";
 import { FillerCard } from "./FillerCard";
 import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
+import { useProximityField, CardProximityData } from "./useProximityField";
 import projectsData from "../../data/projects.json";
 
 /**
@@ -34,15 +35,20 @@ const containerVariants = {
  * - Highlighted (span-2) cards always fit without leaving gaps
  * - Incomplete rows before a highlight get padded with filler cards
  * - Adjacent highlights get separated by a filler card
+ *
+ * Accepts per-cell proximity data for the Proximity Pulse magnetic field effect.
+ * Returns both the rendered items and the total cell count (for hook sizing).
  */
 function buildGridItems(
   projects: Project[],
-  onSelect: (p: Project) => void
-): React.ReactNode[] {
+  onSelect: (p: Project) => void,
+  proximityData: CardProximityData[]
+): { items: React.ReactNode[]; cellCount: number } {
   const items: React.ReactNode[] = [];
   const COLS = 3;
   let col = 0; // current column position (0-indexed)
   let fillerCount = 0;
+  let cellIndex = 0;
 
   projects.forEach((project, idx) => {
     const isHighlighted = project.highlight === true;
@@ -60,10 +66,13 @@ function buildGridItems(
             <FillerCard />
           </div>
         );
+        cellIndex++;
         col++;
       }
       col = 0;
     }
+
+    const prox = proximityData[cellIndex] ?? undefined;
 
     items.push(
       <div
@@ -76,10 +85,12 @@ function buildGridItems(
           index={idx}
           size={isHighlighted ? "large" : "default"}
           onClick={() => onSelect(project)}
+          proximity={prox}
         />
       </div>
     );
 
+    cellIndex++;
     col += span;
     if (col >= COLS) col = 0;
   });
@@ -96,11 +107,12 @@ function buildGridItems(
           <FillerCard />
         </div>
       );
+      cellIndex++;
       col++;
     }
   }
 
-  return items;
+  return { items, cellCount: cellIndex };
 }
 
 export function ProjectGridV2({
@@ -110,6 +122,15 @@ export function ProjectGridV2({
 }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const prefersReduced = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  /** Detect mobile — disable proximity field on small viewports */
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   /* Sort by order field (ascending), filter hidden projects */
   const visibleProjects = useMemo(
@@ -130,7 +151,36 @@ export function ProjectGridV2({
       ? visibleProjects
       : visibleProjects.filter((p) => p.category === activeCategory);
 
-  const gridItems = buildGridItems(filteredProjects, onSelectProject);
+  /** Estimate cell count for the proximity hook (projects + potential fillers) */
+  const estimatedCellCount = useMemo(() => {
+    let count = 0;
+    let col = 0;
+    const COLS = 3;
+    filteredProjects.forEach((p) => {
+      const span = p.highlight ? 2 : 1;
+      if (col + span > COLS) {
+        count += COLS - col;
+        col = 0;
+      }
+      count++;
+      col += span;
+      if (col >= COLS) col = 0;
+    });
+    if (col > 0) count += COLS - col;
+    return count;
+  }, [filteredProjects]);
+
+  /** Proximity Pulse hook — disabled on mobile and reduced motion */
+  const { gridRef, cardData } = useProximityField({
+    cardCount: estimatedCellCount,
+    disabled: isMobile || prefersReduced,
+  });
+
+  const { items: gridItems } = buildGridItems(
+    filteredProjects,
+    onSelectProject,
+    cardData
+  );
 
   return (
     <div>
@@ -193,12 +243,14 @@ export function ProjectGridV2({
         {filteredProjects.length} module{filteredProjects.length !== 1 ? "s" : ""} loaded
       </p>
 
-      {/* 3-column highlight-aware bento grid with stagger entrance */}
+      {/* 3-column highlight-aware bento grid with stagger entrance + proximity field */}
       <motion.div
+        ref={gridRef}
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: "var(--v2-space-lg)",
+          perspective: "800px",
         }}
         className="bento-grid"
         variants={prefersReduced ? undefined : containerVariants}
