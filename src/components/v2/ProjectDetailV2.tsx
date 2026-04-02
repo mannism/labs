@@ -5,6 +5,7 @@ import { ArrowUpRight, Github } from "lucide-react";
 import { Project } from "../ProjectCard";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
+import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.
@@ -144,11 +145,13 @@ export function ProjectDetailV2({
           {project.lastUpdated && (
             <MetaBlock
               label="DEPLOYED"
-              value={new Date(project.lastUpdated).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              }).toUpperCase()}
+              value={(() => {
+                const d = new Date(project.lastUpdated);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, "0");
+                const dd = String(d.getDate()).padStart(2, "0");
+                return `${yyyy}.${mm}.${dd}`;
+              })()}
             />
           )}
 
@@ -236,7 +239,7 @@ export function ProjectDetailV2({
               margin: "0 0 var(--v2-space-2xl) 0",
             }}
           >
-            {project.detailedDescription}
+            {renderWithCodeHighlights(project.detailedDescription)}
           </p>
 
           {/* Key learnings callout — bordered card with chartreuse left accent */}
@@ -271,7 +274,7 @@ export function ProjectDetailV2({
                   margin: 0,
                 }}
               >
-                {project.keyLearnings}
+                {renderWithCodeHighlights(project.keyLearnings!)}
               </p>
             </div>
           )}

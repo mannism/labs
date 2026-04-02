@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Project } from "../ProjectCard";
 import { useReducedMotion } from "./useReducedMotion";
+import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 
 /**
  * ProjectCardV2 — Speculative Interface project card with selective motion.
@@ -154,7 +155,7 @@ export function ProjectCardV2({
         {project.title}
       </h3>
 
-      {/* Description — truncated to 3 lines for large, 2 for default */}
+      {/* Description — full text, no truncation */}
       <p
         style={{
           fontFamily: "var(--v2-font-body)",
@@ -162,19 +163,15 @@ export function ProjectCardV2({
           color: "var(--v2-text-secondary)",
           lineHeight: 1.65,
           margin: "0 0 var(--v2-space-lg) 0",
-          display: "-webkit-box",
-          WebkitLineClamp: isLarge ? 3 : 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
           flex: 1,
         }}
       >
-        {project.shortDescription}
+        {renderWithCodeHighlights(project.shortDescription)}
       </p>
 
-      {/* Tech tags — outlined chips matching Stitch treatment */}
+      {/* Tech tags — all tags shown, outlined chips matching Stitch treatment */}
       <div className="flex flex-wrap gap-1.5" style={{ marginBottom: "var(--v2-space-md)" }}>
-        {project.tags.slice(0, isLarge ? 4 : 3).map((tag) => (
+        {project.tags.map((tag) => (
           <span
             key={tag}
             style={{
@@ -192,18 +189,6 @@ export function ProjectCardV2({
             {tag}
           </span>
         ))}
-        {project.tags.length > (isLarge ? 4 : 3) && (
-          <span
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-              padding: "3px 4px",
-            }}
-          >
-            +{project.tags.length - (isLarge ? 4 : 3)}
-          </span>
-        )}
       </div>
 
       {/* Version + date metadata line */}
@@ -218,11 +203,13 @@ export function ProjectCardV2({
         {[
           project.version && `v${project.version}`,
           project.lastUpdated &&
-            new Date(project.lastUpdated).toLocaleDateString("en-GB", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }),
+            (() => {
+              const d = new Date(project.lastUpdated);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return `${yyyy}.${mm}.${dd}`;
+            })(),
         ]
           .filter(Boolean)
           .join(" // ")}

@@ -26,6 +26,8 @@ export interface Project {
     version?: string;
     /** ISO date string of the last push to the GitHub repo, e.g. "2026-03-25". */
     lastUpdated?: string;
+    /** When true, spans 2 columns in the v2 bento grid for emphasis. */
+    highlight?: boolean;
 }
 
 /**

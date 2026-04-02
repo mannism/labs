@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ProjectCardV2 } from "./ProjectCardV2";
+import { FillerCard } from "./FillerCard";
 import { Project } from "../ProjectCard";
 import { useReducedMotion } from "./useReducedMotion";
 import projectsData from "../../data/projects.json";
@@ -11,7 +12,8 @@ import projectsData from "../../data/projects.json";
  * ProjectGridV2 — Speculative Interface project grid with stagger entrance.
  * Maps project data to ProjectCardV2 components with category filtering.
  * Category tabs use an underline-active style with monospace labels.
- * Responsive grid: 1 col mobile, 2 col tablet, asymmetric bento desktop.
+ * 3-column desktop grid with highlight support: highlighted projects span 2 cols.
+ * Filler cards are inserted between adjacent highlighted projects.
  * Cards animate in with a stagger-fade simulating a system boot sequence.
  */
 
@@ -26,6 +28,56 @@ const containerVariants = {
   },
 };
 
+/**
+ * buildGridItems — produces an array of grid items with filler cards inserted
+ * between adjacent highlighted projects to prevent layout collisions.
+ */
+function buildGridItems(
+  projects: Project[],
+  onSelect: (p: Project) => void
+): React.ReactNode[] {
+  const items: React.ReactNode[] = [];
+  let prevWasHighlighted = false;
+
+  projects.forEach((project, idx) => {
+    const isHighlighted = project.highlight === true;
+
+    /* Insert filler card when two highlighted projects are adjacent */
+    if (isHighlighted && prevWasHighlighted) {
+      items.push(
+        <div
+          key={`filler-${project.id}`}
+          style={{ gridColumn: "span 1" }}
+          className="bento-cell"
+        >
+          <FillerCard />
+        </div>
+      );
+    }
+
+    const colSpan = isHighlighted ? 2 : 1;
+
+    items.push(
+      <div
+        key={project.id}
+        style={{ gridColumn: `span ${colSpan}` }}
+        className="bento-cell"
+      >
+        <ProjectCardV2
+          project={project}
+          index={idx}
+          size={isHighlighted ? "large" : "default"}
+          onClick={() => onSelect(project)}
+        />
+      </div>
+    );
+
+    prevWasHighlighted = isHighlighted;
+  });
+
+  return items;
+}
+
 export function ProjectGridV2({
   onSelectProject,
 }: {
@@ -34,17 +86,26 @@ export function ProjectGridV2({
   const [activeCategory, setActiveCategory] = useState("All");
   const prefersReduced = useReducedMotion();
 
-  /* Sort by order field, filter hidden projects — same logic as v1 ProjectGrid */
-  const visibleProjects = (projectsData as Project[])
-    .filter((p) => p.display !== false)
-    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+  /* Sort by order field (ascending), filter hidden projects */
+  const visibleProjects = useMemo(
+    () =>
+      (projectsData as Project[])
+        .filter((p) => p.display !== false)
+        .sort((a, b) => (a.order ?? 999) - (b.order ?? 999)),
+    []
+  );
 
-  const categories = ["All", ...Array.from(new Set(visibleProjects.map((p) => p.category)))];
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(visibleProjects.map((p) => p.category)))],
+    [visibleProjects]
+  );
 
   const filteredProjects =
     activeCategory === "All"
       ? visibleProjects
       : visibleProjects.filter((p) => p.category === activeCategory);
+
+  const gridItems = buildGridItems(filteredProjects, onSelectProject);
 
   return (
     <div>
@@ -102,11 +163,11 @@ export function ProjectGridV2({
         {filteredProjects.length} module{filteredProjects.length !== 1 ? "s" : ""} loaded
       </p>
 
-      {/* Asymmetric bento grid with stagger entrance */}
+      {/* 3-column highlight-aware bento grid with stagger entrance */}
       <motion.div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "var(--v2-space-lg)",
         }}
         className="bento-grid"
@@ -115,32 +176,7 @@ export function ProjectGridV2({
         animate={prefersReduced ? undefined : "visible"}
         key={activeCategory} /* Re-trigger stagger on category change */
       >
-        {filteredProjects.map((project, idx) => {
-          /**
-           * Bento pattern repeats every 5 items:
-           * 0: span 4 (large) | 1: span 2 (small)
-           * 2,3,4: span 2 each (row of 3 equal)
-           * Then repeats: 5: span 4, 6: span 2, 7,8,9: span 2 each...
-           */
-          const posInCycle = idx % 5;
-          const isLarge = posInCycle === 0;
-          const colSpan = isLarge ? 4 : 2;
-
-          return (
-            <div
-              key={project.id}
-              style={{ gridColumn: `span ${colSpan}` }}
-              className="bento-cell"
-            >
-              <ProjectCardV2
-                project={project}
-                index={idx}
-                size={isLarge ? "large" : "default"}
-                onClick={() => onSelectProject(project)}
-              />
-            </div>
-          );
-        })}
+        {gridItems}
       </motion.div>
 
       {/* Responsive overrides: mobile full-width, tablet 2-col equal */}
