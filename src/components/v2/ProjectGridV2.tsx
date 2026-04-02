@@ -30,37 +30,45 @@ const containerVariants = {
 
 /**
  * buildGridItems — produces an array of grid items with filler cards inserted
- * between adjacent highlighted projects to prevent layout collisions.
+ * to fill gaps in the 3-column grid. Tracks column position to ensure:
+ * - Highlighted (span-2) cards always fit without leaving gaps
+ * - Incomplete rows before a highlight get padded with filler cards
+ * - Adjacent highlights get separated by a filler card
  */
 function buildGridItems(
   projects: Project[],
   onSelect: (p: Project) => void
 ): React.ReactNode[] {
   const items: React.ReactNode[] = [];
-  let prevWasHighlighted = false;
+  const COLS = 3;
+  let col = 0; // current column position (0-indexed)
+  let fillerCount = 0;
 
   projects.forEach((project, idx) => {
     const isHighlighted = project.highlight === true;
+    const span = isHighlighted ? 2 : 1;
 
-    /* Insert filler card when two highlighted projects are adjacent */
-    if (isHighlighted && prevWasHighlighted) {
-      items.push(
-        <div
-          key={`filler-${project.id}`}
-          style={{ gridColumn: "span 1" }}
-          className="bento-cell"
-        >
-          <FillerCard />
-        </div>
-      );
+    /* If this card won't fit in the remaining columns, pad with fillers */
+    if (col + span > COLS) {
+      while (col < COLS) {
+        items.push(
+          <div
+            key={`filler-pad-${fillerCount++}`}
+            style={{ gridColumn: "span 1" }}
+            className="bento-cell"
+          >
+            <FillerCard />
+          </div>
+        );
+        col++;
+      }
+      col = 0;
     }
-
-    const colSpan = isHighlighted ? 2 : 1;
 
     items.push(
       <div
         key={project.id}
-        style={{ gridColumn: `span ${colSpan}` }}
+        style={{ gridColumn: `span ${span}` }}
         className="bento-cell"
       >
         <ProjectCardV2
@@ -72,8 +80,25 @@ function buildGridItems(
       </div>
     );
 
-    prevWasHighlighted = isHighlighted;
+    col += span;
+    if (col >= COLS) col = 0;
   });
+
+  /* Pad the final row if incomplete */
+  if (col > 0) {
+    while (col < COLS) {
+      items.push(
+        <div
+          key={`filler-end-${fillerCount++}`}
+          style={{ gridColumn: "span 1" }}
+          className="bento-cell"
+        >
+          <FillerCard />
+        </div>
+      );
+      col++;
+    }
+  }
 
   return items;
 }
