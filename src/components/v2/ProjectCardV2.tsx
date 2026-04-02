@@ -129,7 +129,7 @@ export function ProjectCardV2({
             inset: 0,
             borderRadius: "inherit",
             pointerEvents: "none",
-            background: `radial-gradient(circle 80px at ${(proximity.glowX * 100).toFixed(0)}% ${(proximity.glowY * 100).toFixed(0)}%, rgba(200, 255, 0, 0.15), transparent)`,
+            background: `radial-gradient(circle 120px at ${(proximity.glowX * 100).toFixed(0)}% ${(proximity.glowY * 100).toFixed(0)}%, rgba(200, 255, 0, 0.25), transparent)`,
             zIndex: 0,
             transition: "background 0.15s ease",
           }}

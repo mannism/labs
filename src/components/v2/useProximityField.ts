@@ -37,13 +37,13 @@ const DEFAULT_DATA: CardProximityData = {
 };
 
 /** Maximum tilt angle in degrees */
-const MAX_TILT = 3;
+const MAX_TILT = 5;
 /** Radius within which cards are affected by the cursor */
-const EFFECT_RADIUS = 200;
+const EFFECT_RADIUS = 250;
 /** Depth lift for the nearest card */
-const LIFT_Z = 8;
+const LIFT_Z = 12;
 /** Depth compression for adjacent cards */
-const COMPRESS_Z = -2;
+const COMPRESS_Z = -3;
 
 interface UseProximityFieldOptions {
   /** Number of cards in the grid */

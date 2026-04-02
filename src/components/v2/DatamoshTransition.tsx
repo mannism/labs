@@ -30,7 +30,7 @@ interface DatamoshTransitionProps {
 /** Duration in seconds for each mode */
 const DURATIONS = {
   full: 0.35,
-  mild: 0.2,
+  mild: 0.3,
 } as const;
 
 export function DatamoshTransition({
