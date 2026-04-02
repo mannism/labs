@@ -118,16 +118,16 @@ export function FooterV2() {
             background: "none",
             border: "none",
             cursor: "pointer",
-            opacity: 0.4,
+            opacity: 0.6,
             transition: "opacity 0.2s ease",
             letterSpacing: "0.06em",
             padding: "var(--v2-space-xs)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "0.8";
+            e.currentTarget.style.opacity = "1";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.4";
+            e.currentTarget.style.opacity = "0.6";
           }}
         >
           REPLAY_BOOT_SEQUENCE

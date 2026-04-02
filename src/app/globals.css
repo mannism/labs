@@ -117,8 +117,8 @@ html.v2 {
   --v2-accent: #C8FF00;
   --v2-accent-muted: rgba(200, 255, 0, 0.15);
   --v2-text-primary: #1A1D23;
-  --v2-text-secondary: #6B7280;
-  --v2-text-tertiary: #9CA3AF;
+  --v2-text-secondary: #5C6370;
+  --v2-text-tertiary: #717985;
   --v2-border: rgba(0, 0, 0, 0.08);
   --v2-border-hover: rgba(0, 0, 0, 0.15);
   --v2-border-accent: #C8FF00;
@@ -216,12 +216,14 @@ html.v2 body {
   }
 }
 
-/* V2 mode: keyboard focus indicator for interactive cards and buttons */
+/* V2 mode: keyboard focus indicator for interactive cards and buttons.
+   Dark inner ring provides 3:1+ contrast; outer chartreuse glow preserves brand identity. */
 html.v2 [role="button"]:focus-visible,
-html.v2 button:focus-visible,
-html.v2 a:focus-visible {
-  outline: 2px solid var(--v2-accent);
+html.v2 a:focus-visible,
+html.v2 button:focus-visible {
+  outline: 2px solid #1A1D23;
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px #C8FF00;
   border-radius: 0.25rem;
 }
 

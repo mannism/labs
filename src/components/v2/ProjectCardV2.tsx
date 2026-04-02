@@ -161,7 +161,9 @@ export function ProjectCardV2({
             color: isActive ? "var(--v2-text-primary)" : "var(--v2-text-tertiary)",
           }}
         >
+          {/* WCAG: decorative indicator — status communicated via adjacent text label. aria-hidden applied. */}
           <motion.span
+            aria-hidden="true"
             animate={
               isActive && !prefersReduced
                 ? { opacity: [1, 0.3, 1] }

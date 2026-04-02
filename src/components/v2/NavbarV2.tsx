@@ -12,6 +12,7 @@ export function NavbarV2() {
   return (
     <nav
       style={{
+        /* WCAG: purely decorative accent line — no information conveyed. Exempt per 1.4.11. */
         borderTop: "2px solid var(--v2-accent)",
         borderBottom: "1px solid var(--v2-border)",
         background: "var(--v2-bg-surface)",

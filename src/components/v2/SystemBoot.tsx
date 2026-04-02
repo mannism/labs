@@ -306,7 +306,7 @@ export function SystemBoot({ onComplete }: { onComplete?: () => void } = {}) {
 function BootLogLine({ text }: { text: string }) {
   /* Split the line to colorize brackets and status results */
   const statusWords = ["OK", "CONNECTED", "READY"];
-  const parts: { text: string; color: string }[] = [];
+  const parts: { text: string; color: string; isStatusPill?: boolean }[] = [];
 
   /* Extract bracket prefix if present */
   const bracketMatch = text.match(/^(\[[A-Z]+\])(.*)/);
@@ -326,7 +326,8 @@ function BootLogLine({ text }: { text: string }) {
       });
       parts.push({
         text: statusMatch,
-        color: "var(--v2-accent)",
+        color: "var(--v2-text-primary)",
+        isStatusPill: true,
       });
     } else {
       parts.push({
@@ -341,7 +342,20 @@ function BootLogLine({ text }: { text: string }) {
   return (
     <div style={{ whiteSpace: "pre" }}>
       {parts.map((part, i) => (
-        <span key={i} style={{ color: part.color }}>
+        <span
+          key={i}
+          style={{
+            color: part.color,
+            ...(part.isStatusPill
+              ? {
+                  background: "var(--v2-accent)",
+                  padding: "1px 6px",
+                  borderRadius: "2px",
+                  fontWeight: 600,
+                }
+              : {}),
+          }}
+        >
           {part.text}
         </span>
       ))}
