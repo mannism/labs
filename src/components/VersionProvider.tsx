@@ -40,13 +40,11 @@ export function VersionProvider({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  /* Apply html classes whenever version changes (only after mount) */
-  useEffect(() => {
-    if (!mounted) return;
-
+  /** Apply the correct html classes for the given version */
+  const applyVersionClasses = (v: Version) => {
     const root = document.documentElement;
 
-    if (version === "v2") {
+    if (v === "v2") {
       /* v2 is light-only — remove dark/light classes, add v2 */
       root.classList.remove("dark", "light");
       root.classList.add("v2");
@@ -57,7 +55,25 @@ export function VersionProvider({ children }: { children: ReactNode }) {
       root.classList.remove("dark", "light");
       root.classList.add(savedTheme);
     }
+  };
+
+  /* Apply html classes whenever version changes (only after mount) */
+  useEffect(() => {
+    if (!mounted) return;
+    applyVersionClasses(version);
   }, [version, mounted]);
+
+  /* Re-apply classes when page is restored from bfcache (back/forward nav) */
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        applyVersionClasses(version);
+      }
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, [version]);
 
   /** Persist version choice and update state */
   const setVersion = (v: Version) => {

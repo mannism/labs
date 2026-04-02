@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useVersion } from "./VersionProvider";
 import { VersionToggle } from "./VersionToggle";
 import { ChatWidget } from "./ChatWidget";
 import { Project } from "./ProjectCard";
+import projectsData from "../data/projects.json";
 
 /* v1 components */
 import { Navbar } from "./Navbar";
@@ -31,6 +32,49 @@ import { ScanLine } from "./v2/ScanLine";
 export function AppShell() {
   const { version } = useVersion();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  /** Find a project by its ID from the static dataset */
+  const findProjectById = useCallback((id: string): Project | null => {
+    return (projectsData as Project[]).find((p) => p.id === id) ?? null;
+  }, []);
+
+  /** Open detail view and push a history entry */
+  const selectProject = useCallback(
+    (project: Project) => {
+      setSelectedProject(project);
+      window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
+    },
+    []
+  );
+
+  /** Close detail view via browser back */
+  const goBackToGrid = useCallback(() => {
+    window.history.back();
+  }, []);
+
+  /* Handle popstate (browser back/forward) and initial URL param */
+  useEffect(() => {
+    /* On mount, check for ?project= in the URL (handles refresh & forward nav) */
+    const params = new URLSearchParams(window.location.search);
+    const projectParam = params.get("project");
+    if (projectParam) {
+      const found = findProjectById(projectParam);
+      if (found) setSelectedProject(found);
+    }
+
+    /** Popstate handler — sync selectedProject with browser history state */
+    const onPopState = (event: PopStateEvent) => {
+      if (event.state?.projectId) {
+        const found = findProjectById(event.state.projectId);
+        setSelectedProject(found);
+      } else {
+        setSelectedProject(null);
+      }
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [findProjectById]);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -62,12 +106,12 @@ export function AppShell() {
                 <ProjectDetailV2
                   key="detail"
                   project={selectedProject}
-                  onBack={() => setSelectedProject(null)}
+                  onBack={goBackToGrid}
                 />
               ) : (
                 <ProjectGridV2
                   key="grid"
-                  onSelectProject={setSelectedProject}
+                  onSelectProject={selectProject}
                 />
               )}
             </AnimatePresence>
