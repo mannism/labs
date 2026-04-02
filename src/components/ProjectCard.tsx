@@ -5,28 +5,9 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
-/** Schema for a single project entry in src/data/projects.json. */
-export interface Project {
-    id: string;
-    /** Controls display order in the grid — lower numbers appear first. */
-    order?: number;
-    title: string;
-    shortDescription: string;
-    detailedDescription: string;
-    category: string;
-    status: string;
-    /** Set to false to hide from the grid without deleting the entry. */
-    display: boolean;
-    tags: string[];
-    demoUrl: string;
-    githubUrl: string;
-    /** A single key insight or engineering decision highlighted in the drawer. */
-    keyLearnings?: string;
-    /** Semver string sourced from the latest GitHub release/tag, e.g. "2.2.5". */
-    version?: string;
-    /** ISO date string of the last push to the GitHub repo, e.g. "2026-03-25". */
-    lastUpdated?: string;
-}
+/* Re-export Project type from canonical location for backward compatibility */
+import type { Project } from "@/types/project";
+export type { Project } from "@/types/project";
 
 /**
  * Badge classes for the active/up state (green).
