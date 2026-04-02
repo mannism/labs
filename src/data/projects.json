@@ -8,6 +8,7 @@
     "category": "Full-Stack",
     "status": "Active",
     "display": true,
+    "highlight": false,
     "tags": [
       "Next.js",
       "TypeScript",
@@ -34,6 +35,7 @@
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
+    "highlight": true,
     "tags": [
       "Agentic AI",
       "Digital Twin",
@@ -58,6 +60,7 @@
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
+    "highlight": false,
     "tags": [
       "Job Search",
       "CV Analysis",
@@ -82,6 +85,7 @@
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
+    "highlight": false,
     "tags": [
       "Agentic AI",
       "Conversational UI",
@@ -105,6 +109,7 @@
     "category": "Agentic-AI",
     "status": "Active",
     "display": true,
+    "highlight": true,
     "tags": [
       "GEO",
       "AI Search Optimization",
@@ -133,6 +138,7 @@
     "category": "Full-Stack",
     "status": "Active",
     "display": true,
+    "highlight": false,
     "tags": [
       "Agentic AI",
       "Slack Bot",
@@ -158,6 +164,7 @@
     "category": "Full-Stack",
     "status": "Active",
     "display": true,
+    "highlight": true,
     "tags": [
       "Next.js",
       "TypeScript",
