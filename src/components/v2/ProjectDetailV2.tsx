@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 import { Project } from "@/types/project";
@@ -30,9 +30,13 @@ export function ProjectDetailV2({
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
   const prefersReduced = useReducedMotion();
 
-  /* Ensure detail view starts at the top on mount */
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  /* Scroll to the back button / start of detail content on mount */
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    if (detailRef.current) {
+      detailRef.current.scrollIntoView({ behavior: "instant", block: "start" });
+    }
   }, [project.id]);
 
   /** Derive the display index from the sorted visible projects list */
@@ -46,6 +50,7 @@ export function ProjectDetailV2({
 
   return (
     <motion.div
+      ref={detailRef}
       initial={prefersReduced ? undefined : { opacity: 0, y: 16 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
       exit={prefersReduced ? undefined : { opacity: 0, y: -12 }}

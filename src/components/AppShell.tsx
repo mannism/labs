@@ -34,8 +34,7 @@ export function AppShell() {
       savedScrollY.current = window.scrollY;
       setSelectedProject(project);
       window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
-      /* Scroll to top after React renders the detail view */
-      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 50);
+      /* Detail view's own useEffect handles scrolling to the back button */
     },
     []
   );
@@ -60,7 +59,7 @@ export function AppShell() {
       if (event.state?.projectId) {
         const found = findProjectById(event.state.projectId);
         setSelectedProject(found);
-        setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 50);
+        /* Detail view's own useEffect handles scrolling to the back button */
       } else {
         /* Returning to grid — restore saved scroll position */
         setSelectedProject(null);
