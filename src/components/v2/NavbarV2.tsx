@@ -18,8 +18,8 @@ export function NavbarV2() {
       }}
     >
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-        {/* Logo — letterspaced "LABS" with subtle weight */}
-        <div className="flex items-center gap-3">
+        {/* Left: logo + version + breadcrumb */}
+        <div className="flex items-center gap-2">
           <span
             style={{
               fontFamily: "var(--v2-font-display)",
@@ -32,7 +32,19 @@ export function NavbarV2() {
           >
             L A B S
           </span>
-          {/* Breadcrumb-style subtitle — hidden on mobile (redundant with HeroV2) */}
+          {/* Version — part of the identity block, hidden on small mobile */}
+          <span
+            className="hidden sm:inline"
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            v{packageJson.version}
+          </span>
+          {/* Breadcrumb — hidden on mobile (redundant with HeroV2) */}
           <span
             className="hidden md:inline"
             style={{
@@ -46,41 +58,26 @@ export function NavbarV2() {
           </span>
         </div>
 
-        {/* Right side: portfolio link, version display */}
-        <div className="flex items-center gap-3 md:gap-5">
-          <a
-            href="https://dianaismail.me"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              fontWeight: 500,
-              color: "var(--v2-text-secondary)",
-              textDecoration: "none",
-              transition: "color 0.2s ease",
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--v2-text-primary)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--v2-text-secondary)")}
-          >
-            PORTFOLIO &rarr;
-          </a>
-
-          {/* Package version — hidden on mobile to save space */}
-          <span
-            className="hidden sm:inline"
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            v{packageJson.version}
-          </span>
-        </div>
+        {/* Right: portfolio link only */}
+        <a
+          href="https://dianaismail.me"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            fontWeight: 500,
+            color: "var(--v2-text-secondary)",
+            textDecoration: "none",
+            transition: "color 0.2s ease",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--v2-text-primary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--v2-text-secondary)")}
+        >
+          PORTFOLIO &rarr;
+        </a>
       </div>
     </nav>
   );
