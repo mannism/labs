@@ -384,6 +384,9 @@ export function ProjectDetailV2({
           )}
         </div>
       </div>
+
+      {/* Bottom spacing to separate CTAs from footer */}
+      <div style={{ height: "var(--v2-space-3xl)" }} />
     </motion.div>
   );
 }
