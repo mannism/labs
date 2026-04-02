@@ -3,7 +3,7 @@
  *
  * Context tiers:
  *   - Always-injected (9 files): included in every API call via template placeholders.
- *   - On-demand (2 files): injected only when the user's message matches keyword lists.
+ *   - On-demand (4 files): injected only when the user's message matches keyword lists.
  *
  * mtime-based caching: files are re-read from disk only when their modification
  * time changes, so edits take effect without a server restart.
@@ -21,8 +21,10 @@ const CONTEXT_ROOT = join(DATA_ROOT, "context");
 
 // ── Tiered context file lists ─────────────────────────────────────────────────
 
+/** Always-injected files, ordered for optimal model attention. */
 const ALWAYS_FILES = [
     "profile-summary.md",
+    "positioning.md",
     "recent-experience.md",
     "projects.md",
     "experiments.md",
@@ -30,12 +32,14 @@ const ALWAYS_FILES = [
     "personal.md",
     "tools.md",
     "links.md",
-    "positioning.md",
 ] as const;
 
+/** On-demand files, injected only when keyword triggers match. */
 const ON_DEMAND_FILES: Record<string, string> = {
-    early_career:  "early-career.md",
-    tools_legacy:  "tools-legacy.md",
+    early_career:    "early-career.md",
+    tools_legacy:    "tools-legacy.md",
+    ai_team:         "ai-team.md",
+    creative_coding: "creative-coding.md",
 };
 
 // ── Keyword trigger lists (port of prompts.py constants) ──────────────────────
@@ -54,6 +58,22 @@ const LEGACY_TOOLS_KEYWORDS = [
     "asp.net", "vb.net", "vbscript", "c#", "assembly",
     "com/dcom", ".net framework", "sql server", "t-sql", "oracle",
     "legacy", "older tech", "early tech",
+];
+
+/** Keywords that trigger injection of the full AI team roster. */
+const AI_TEAM_KEYWORDS = [
+    "team", "sheena", "nix", "sable", "reid", "vera", "cleo",
+    "maya", "tom", "jo", "oren", "lena", "quinn",
+    "who works", "how many people", "delegation", "ai team",
+    "agents", "who is on your team",
+];
+
+/** Keywords that trigger injection of the creative coding / Labs v2 animations context. */
+const CREATIVE_CODING_KEYWORDS = [
+    "animation", "creative coding", "boot sequence", "glitch",
+    "canvas", "signal field", "ghost type", "datamosh",
+    "proximity pulse", "system boot", "speculative interface",
+    "labs v2", "chartreuse", "particle",
 ];
 
 // ── Cache types ───────────────────────────────────────────────────────────────
@@ -89,6 +109,8 @@ function maxMtime(paths: string[]): number {
 
 /**
  * Builds the assembled system prompt from the template + always-injected context.
+ * On-demand placeholders ({AI_TEAM}, {CREATIVE_CODING}) are cleared to empty
+ * strings here — their content is injected per-turn via getOnDemandContext().
  * Uses mtime caching — reloads only when any source file has changed on disk.
  */
 export function getSystemPrompt(): string {
@@ -101,6 +123,7 @@ export function getSystemPrompt(): string {
         try {
             let prompt = readFile(templatePath);
             prompt = prompt.replace("{PROFILE_SUMMARY}",    readFile(join(CONTEXT_ROOT, "profile-summary.md")));
+            prompt = prompt.replace("{POSITIONING}",        readFile(join(CONTEXT_ROOT, "positioning.md")));
             prompt = prompt.replace("{RECENT_EXPERIENCE}",  readFile(join(CONTEXT_ROOT, "recent-experience.md")));
             prompt = prompt.replace("{PROJECTS}",           readFile(join(CONTEXT_ROOT, "projects.md")));
             prompt = prompt.replace("{EXPERIMENTS}",        readFile(join(CONTEXT_ROOT, "experiments.md")));
@@ -108,7 +131,11 @@ export function getSystemPrompt(): string {
             prompt = prompt.replace("{PERSONAL}",           readFile(join(CONTEXT_ROOT, "personal.md")));
             prompt = prompt.replace("{TOOLS}",              readFile(join(CONTEXT_ROOT, "tools.md")));
             prompt = prompt.replace("{LINKS}",              readFile(join(CONTEXT_ROOT, "links.md")));
-            prompt = prompt.replace("{POSITIONING}",        readFile(join(CONTEXT_ROOT, "positioning.md")));
+
+            // On-demand placeholders — cleared by default, filled per-turn when triggered.
+            prompt = prompt.replace("{AI_TEAM}",        "");
+            prompt = prompt.replace("{CREATIVE_CODING}", "");
+
             systemCache = { content: prompt, mtime: currentMtime };
             console.log("[twin/prompts] system prompt reloaded from disk");
         } catch (err) {
@@ -142,7 +169,7 @@ export function getSummarisePrompt(): string {
 }
 
 /**
- * Loads an on-demand context file by key ("early_career" | "tools_legacy").
+ * Loads an on-demand context file by key.
  * Returns an empty string if the key is unknown or the file cannot be read.
  */
 export function getOnDemandContext(key: string): string {
@@ -174,7 +201,9 @@ export function getOnDemandContext(key: string): string {
 export function checkOnDemandKeywords(userText: string): string[] {
     const lower  = userText.toLowerCase();
     const extras: string[] = [];
-    if (EARLY_CAREER_KEYWORDS.some((kw) => lower.includes(kw))) extras.push("early_career");
-    if (LEGACY_TOOLS_KEYWORDS.some((kw) => lower.includes(kw))) extras.push("tools_legacy");
+    if (EARLY_CAREER_KEYWORDS.some((kw) => lower.includes(kw)))    extras.push("early_career");
+    if (LEGACY_TOOLS_KEYWORDS.some((kw) => lower.includes(kw)))    extras.push("tools_legacy");
+    if (AI_TEAM_KEYWORDS.some((kw) => lower.includes(kw)))         extras.push("ai_team");
+    if (CREATIVE_CODING_KEYWORDS.some((kw) => lower.includes(kw))) extras.push("creative_coding");
     return extras;
 }

@@ -8,12 +8,10 @@ These are personal coding experiments and side projects I've built independently
    Status: Live & actively maintained
    Repo: telegram-digital-twin
 
-   An AI-powered digital twin of myself — an experiment in building a persistent, multi-interface AI persona. Users can chat with an AI that knows my professional background, projects, and personality.
+   An AI-powered digital twin of myself — an experiment in building a persistent, multi-interface AI persona that answers questions about my career, skills, and projects.
 
    What it does:
-   - Answers questions about my career, skills, and projects as if I were present
-   - Available via Telegram bot and an embeddable glassmorphic web chat widget
-   - Cross-platform: users can start on web and seamlessly continue on Telegram (and vice versa), with shared memory via an OTP deep-link pairing system
+   - Cross-platform AI persona available via web chat widget and Telegram bot, with shared memory via OTP deep-link pairing
    - Persists conversation history in Redis with 30-day rolling TTL and automatic summarisation
 
    Built with: Next.js, OpenAI GPT, Redis, Telegram Bot API (now hosted on Labs — labs.dianaismail.me)
@@ -25,18 +23,14 @@ These are personal coding experiments and side projects I've built independently
    Status: Live
    Repo: FitCheckerApp
 
-   An AI-powered job search assistant. The core idea: stop guessing whether your CV fits a job — get a scored analysis, a tailored CV rewrite, and an interview prep pack, all in one flow.
+   An AI-powered job search assistant that scores CV-to-job-description fit, generates tailored CV rewrites, and tracks applications through a full pipeline.
 
    What it does:
-   - Users upload their CV and paste a job description → the AI returns a match score, key strengths, skill gaps, and a fully tailored CV rewrite
-   - A built-in job tracker auto-creates an application record on every analysis — no manual entry
-   - Tracks applications through 8 pipeline stages (Interested → Applied → Screening → Interviewing → Offer → Accepted → Rejected → Closed)
-   - Generates AI interview prep packs per role (company summary, likely questions, stage-level coaching)
-   - Logs interview sessions with AI-generated note summaries
-   - An insights dashboard shows your pipeline funnel, weekly trend, average match score, and top industries
-   - Monetised with a credit system: free tier on signup, credit packages purchasable via Stripe (or mock payment for dev)
+   - AI match scoring with tailored CV rewrite and interview prep packs per role
+   - Built-in job tracker with 8-stage pipeline and insights dashboard
+   - Monetised with credit system via Stripe
 
-   Built with: Next.js 16, React 19, TypeScript, Tailwind CSS 4, PostgreSQL, NextAuth.js v5, OpenAI GPT, Railway
+   Built with: Next.js 16, React 19, TypeScript, PostgreSQL, NextAuth.js v5, OpenAI GPT, Railway
    Key learning: The sessionStorage navigation pattern (passing job UUIDs via sessionStorage rather than URL params) was a deliberate privacy and UX decision that required careful SSR guard handling in Next.js.
 
 ---
@@ -48,14 +42,11 @@ These are personal coding experiments and side projects I've built independently
    A conference AI assistant demo built to showcase AI-powered event navigation for a client pitch. Designed around XyzCon 2026 sample data.
 
    What it does:
-   - Attendees chat naturally with the AI to discover sessions, find speakers, explore exhibitors, and build a personalised conflict-free 2-day itinerary
-   - The AI uses 4 background tools (searchSessions, getExhibitors, getPresenters, createSchedule) to pull precise data from static JSON files — no database needed
-   - Sessions are scored by a multi-factor relevance algorithm: interest tag matches, region affinity, external speaker metadata, and job-type fit
-   - Generates a full personalised schedule with conflict detection and 5-minute session buffers
-   - One-click iCalendar (.ics) export for Google Calendar, Apple Calendar, and Outlook
-   - Printable schedule view optimised for landscape format
+   - Natural language chat to discover sessions, speakers, and exhibitors, then build a personalised conflict-free itinerary
+   - Uses 4 background tools for data retrieval with multi-factor relevance scoring
+   - One-click iCalendar export and printable schedule view
 
-   Built with: Next.js 16, Vercel AI SDK, OpenAI GPT-5.1, Tailwind CSS 4, Framer Motion
+   Built with: Next.js 16, Vercel AI SDK, OpenAI GPT-5.1, Framer Motion
    Key learning: Using special AI-emitted markers ([GENERATE_SCHEDULE], schedule_download JSON blocks) to trigger client-side behaviours from within streamed AI responses — a clean way to bridge LLM output and UI state.
 
 ---
@@ -64,18 +55,14 @@ These are personal coding experiments and side projects I've built independently
    Status: Live
    Repo: GEOAudit
 
-   A tool that scores how well a webpage is optimised for AI search citations — i.e., how likely it is to be cited by Perplexity, SearchGPT, Google AI Overviews, or Gemini. Built around 2026 AI search standards.
+   A tool that scores how well a webpage is optimised for AI search citations — how likely it is to be cited by Perplexity, SearchGPT, Google AI Overviews, or Gemini.
 
    What it does:
-   - Free basic audit: scores 3 metrics (Fact Density, Entity Salience, Extractability) — no login required
-   - Paid advanced audit (1 credit): 8 metrics, simulated AI citation examples, competitor gap analysis, per-platform fit scores, and PDF export
-   - Two separate Railway services: a React/Vite SPA served by Nginx (frontend) and an Express Node.js API (backend) — fully decoupled, with all secrets on the API side only
-   - Supports Gemini (default) or OpenAI as the LLM backend, switchable per audit tier
-   - Prompt versioning: the prompt filename is stored alongside each audit record, so you can trace which prompt version produced which report
-   - Stripe payments (optional); mock payment flow available for dev/testing
-   - JWT authentication stored in httpOnly cookies — never exposed to JavaScript
+   - Free basic audit (3 metrics) and paid advanced audit (8 metrics, competitor gap analysis, PDF export)
+   - Fully decoupled frontend/backend architecture on separate Railway services
+   - Supports Gemini or OpenAI as LLM backend with prompt versioning per audit
 
-   Built with: React 19, TypeScript, Vite, Tailwind CSS 4, Node.js, Express 4, PostgreSQL, Gemini API, OpenAI API, Nginx, Stripe, Railway
+   Built with: React 19, TypeScript, Vite, Node.js, Express, PostgreSQL, Gemini API, OpenAI API, Stripe, Railway
    Key learning: Building a credible two-tier (free vs paid) SaaS product with a completely decoupled frontend/backend architecture — VITE_* env vars are baked into the browser bundle at build time, so secrets must never touch the frontend.
 
 ---
@@ -84,8 +71,7 @@ OVERALL THEMES ACROSS EXPERIMENTS
 
 - All projects are deployed on Railway.app using Docker
 - All use OpenAI (or Gemini) as the AI backbone, with provider abstraction patterns
-- All follow semantic versioning with automated release pipelines (semantic-release + GitHub Actions)
 - All prioritise security: httpOnly cookies or JWT, bcrypt passwords, parameterised SQL queries, no secrets in frontend bundles
-- The experiments reflect a pattern of building full, production-quality products — not just throwaway prototypes — with proper auth, payments, logging, CI/CD, and deployment from the start
+- The experiments reflect a pattern of building full, production-quality products — not just throwaway prototypes — with proper auth, payments, logging, and deployment from the start
 
 These projects sit at the intersection of my professional interests: AI, product thinking, and shipping things that actually work.

@@ -36,7 +36,7 @@ TRACK RECORD
   Launched two flagship boutiques (US$1.2M+) — immersive retail experiences with commissioned art sculptures. Managed vendors across China and Malaysia.
 
 - Project Luna, WeAreSocial (Nov 2024 – May 2025) — Completed
-  Built and shipped an agentic AI retail assistant for Skechers' Punggol Coast Mall store in Singapore (US$350K). The system used a kiosk-mounted camera — activated only with the customer's permission — to visually recognise products and clothing the customer was wearing or holding, enabling real-time, contextual styling recommendations without requiring the customer to search, scan a barcode, or describe what they wanted. The camera did not perform constant scanning, ensuring privacy for passersby. Conversational AI (GPT-4o) handled natural dialogue; LiveKit managed audio-visual streaming; Deepgram and ElevenLabs provided speech-to-text and voice synthesis. A Telegram integration extended the experience beyond the store, allowing customers to continue conversations after leaving. Deployed to a live retail environment with real customers.
+  Built and shipped an agentic AI retail assistant to a live Skechers store in Singapore (US$350K) — permission-based camera recognition, conversational AI, and post-visit Telegram follow-up. Full details in recent experience context.
 
 - SK-II VS Series, New York Times Square (2019)
   40-screen digital takeover featuring Simone Biles. Brief to live in six weeks.
