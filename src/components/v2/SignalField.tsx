@@ -15,11 +15,11 @@ import { useReducedMotion } from "./useReducedMotion";
  */
 
 /** Grid configuration */
-const DOT_RADIUS = 1; // 2px diameter
+const DOT_RADIUS = 1.5; // 3px diameter — larger for better visibility
 const GRID_SPACING = 40;
-const BASE_OPACITY = 0.08;
-const HOVER_OPACITY = 0.3;
-const HOVER_RADIUS = 120;
+const BASE_OPACITY = 0.12; // more visible base grid
+const HOVER_OPACITY = 0.45; // stronger cursor highlight
+const HOVER_RADIUS = 160; // wider cursor influence area
 const PULL_RADIUS = 60;
 const PULL_STRENGTH = 2.5; // max displacement in pixels
 
@@ -97,12 +97,12 @@ export function SignalField() {
         smoothCursorRef.current.x = lerp(
           smoothCursorRef.current.x,
           cursorRef.current.x,
-          0.15
+          0.25
         );
         smoothCursorRef.current.y = lerp(
           smoothCursorRef.current.y,
           cursorRef.current.y,
-          0.15
+          0.25
         );
       }
 

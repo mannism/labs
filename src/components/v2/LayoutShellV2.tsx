@@ -11,7 +11,7 @@ import { FooterV2 } from "./FooterV2";
  * Background uses v2 tokens. Max-width matches design (80rem / max-w-7xl).
  * Bottom-right space is reserved for the ChatWidget (rendered externally).
  */
-export function LayoutShellV2({ children }: { children: ReactNode }) {
+export function LayoutShellV2({ children, bootComplete = false }: { children: ReactNode; bootComplete?: boolean }) {
   return (
     <div
       style={{
@@ -23,7 +23,7 @@ export function LayoutShellV2({ children }: { children: ReactNode }) {
     >
       <NavbarV2 />
 
-      <HeroV2 />
+      <HeroV2 bootComplete={bootComplete} />
 
       {/* Main content area */}
       <div className="max-w-7xl mx-auto w-full px-6 flex-1">

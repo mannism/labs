@@ -53,10 +53,22 @@ export function useTextScramble(
   }, []);
 
   useEffect(() => {
-    /* Reduced motion or disabled — show final text immediately */
-    if (prefersReduced || !enabled) {
+    /* Reduced motion — show final text immediately */
+    if (prefersReduced) {
       setDisplayText(text);
       setIsComplete(true);
+      return;
+    }
+
+    /* Not yet enabled — hold on scrambled placeholder until triggered */
+    if (!enabled) {
+      setDisplayText(
+        text
+          .split("")
+          .map((ch) => (PASSTHROUGH.has(ch) ? ch : randomGlyph()))
+          .join("")
+      );
+      setIsComplete(false);
       return;
     }
 

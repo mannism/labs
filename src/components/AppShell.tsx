@@ -25,6 +25,8 @@ export function AppShell() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   /** Saved scroll position so we can restore it when returning to the grid */
   const savedScrollY = useRef(0);
+  /** Whether System Boot has finished — gates Ghost Type scramble */
+  const [bootComplete, setBootComplete] = useState(false);
   /** Datamosh glitch transition state */
   const [datamoshActive, setDatamoshActive] = useState(false);
   /** Track whether transitioning to detail (full) or back to grid (mild) */
@@ -104,7 +106,7 @@ export function AppShell() {
       <SignalField />
 
       {/* System boot overlay — plays once per session */}
-      <SystemBoot />
+      <SystemBoot onComplete={() => setBootComplete(true)} />
 
       {/* Datamosh glitch transition overlay */}
       <DatamoshTransition
@@ -116,7 +118,7 @@ export function AppShell() {
       {/* Atmospheric scan-line */}
       <ScanLine />
 
-      <LayoutShellV2>
+      <LayoutShellV2 bootComplete={bootComplete}>
         <AnimatePresence mode="wait">
           {selectedProject ? (
             <ProjectDetailV2

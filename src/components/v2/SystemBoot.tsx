@@ -79,7 +79,7 @@ function getBootLines(): BootLine[] {
   ];
 }
 
-export function SystemBoot() {
+export function SystemBoot({ onComplete }: { onComplete?: () => void } = {}) {
   const prefersReduced = useReducedMotion();
   const [shouldRender, setShouldRender] = useState(false);
   const [phase, setPhase] = useState<"cursor" | "typing" | "wipe" | "done">(
@@ -92,12 +92,18 @@ export function SystemBoot() {
 
   /** Check session gate on mount */
   useEffect(() => {
-    if (prefersReduced) return;
+    if (prefersReduced) {
+      onComplete?.();
+      return;
+    }
     const played = sessionStorage.getItem(BOOT_STORAGE_KEY);
     if (!played) {
       setShouldRender(true);
+    } else {
+      /* Boot already played this session — signal completion immediately */
+      onComplete?.();
     }
-  }, [prefersReduced]);
+  }, [prefersReduced]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Skip handler — immediately wipe out */
   const handleSkip = useCallback(() => {
@@ -220,7 +226,8 @@ export function SystemBoot() {
     sessionStorage.setItem(BOOT_STORAGE_KEY, "true");
     setPhase("done");
     setShouldRender(false);
-  }, []);
+    onComplete?.();
+  }, [onComplete]);
 
   if (!shouldRender || phase === "done") return null;
 

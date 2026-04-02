@@ -95,8 +95,14 @@ export function useProximityField({
 
     window.addEventListener("resize", onResize);
 
+    /** Recalculate rects on scroll — positions shift in viewport coords */
+    const onScroll = () => updateRects();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     /** Mousemove handler on the grid container */
     const onMouseMove = (e: MouseEvent) => {
+      /* Refresh rects each move to account for any layout shifts */
+      updateRects();
       const rects = rectsRef.current;
       if (rects.length === 0) return;
 
@@ -170,6 +176,7 @@ export function useProximityField({
       grid.removeEventListener("mousemove", onMouseMove);
       grid.removeEventListener("mouseleave", onMouseLeave);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll);
       clearTimeout(resizeTimer);
     };
   }, [disabled, cardCount, updateRects]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
 
@@ -44,6 +44,10 @@ export function DatamoshTransition({
     "idle"
   );
 
+  /** Stable ref for onComplete to avoid re-triggering the effect */
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   /** Detect mobile viewport */
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -65,7 +69,7 @@ export function DatamoshTransition({
 
     /* Skip glitch for reduced motion — fire onComplete immediately */
     if (prefersReduced) {
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
@@ -79,7 +83,7 @@ export function DatamoshTransition({
     const totalTimer = setTimeout(
       () => {
         setPhase("done");
-        onComplete();
+        onCompleteRef.current();
       },
       80 + duration * 1000
     );
@@ -88,7 +92,7 @@ export function DatamoshTransition({
       clearTimeout(freezeTimer);
       clearTimeout(totalTimer);
     };
-  }, [active, prefersReduced, onComplete, duration]);
+  }, [active, prefersReduced, duration]);
 
   if (!active || prefersReduced || phase === "idle" || phase === "done") {
     return null;
@@ -142,24 +146,47 @@ export function DatamoshTransition({
  * Uses mix-blend-mode: difference with colored gradient overlays.
  */
 function FullGlitch({ duration }: { duration: number }) {
-  /** Random horizontal slice positions for displacement */
+  /** Random horizontal slice positions for displacement — larger shifts for visibility */
   const slices = [
-    { top: "10%", height: "22%", shift: 18 },
-    { top: "35%", height: "15%", shift: -25 },
-    { top: "55%", height: "20%", shift: 12 },
-    { top: "80%", height: "12%", shift: -20 },
+    { top: "10%", height: "22%", shift: 30, color: "255,0,0" },
+    { top: "35%", height: "15%", shift: -40, color: "0,255,0" },
+    { top: "55%", height: "20%", shift: 25, color: "0,100,255" },
+    { top: "80%", height: "12%", shift: -35, color: "200,255,0" },
   ];
 
   return (
     <>
-      {/* Displaced horizontal slices with color separation */}
+      {/* Brief dark flash at the start — creates "freeze frame" visual */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.15, 0] }}
+        transition={{ duration: 0.1, ease: "easeOut" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "black",
+          zIndex: 3,
+        }}
+      />
+
+      {/* Semi-transparent dark backdrop so blend modes have contrast on light bg */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0, 0, 0, 0.05)",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Displaced horizontal slices with solid color overlays */}
       {slices.map((slice, i) => (
         <motion.div
           key={i}
           initial={{ x: 0, opacity: 0 }}
           animate={{
             x: [0, slice.shift, slice.shift * 0.5, 0],
-            opacity: [0, 0.7, 0.5, 0],
+            opacity: [0, 0.85, 0.6, 0],
           }}
           transition={{
             duration,
@@ -174,7 +201,7 @@ function FullGlitch({ duration }: { duration: number }) {
             height: slice.height,
             background: `repeating-linear-gradient(
               0deg,
-              rgba(${i % 3 === 0 ? "255,0,0" : i % 3 === 1 ? "0,255,0" : "0,0,255"}, 0.08) 0px,
+              rgba(${slice.color}, 0.25) 0px,
               transparent 2px,
               transparent 4px
             )`,
@@ -184,17 +211,17 @@ function FullGlitch({ duration }: { duration: number }) {
         />
       ))}
 
-      {/* Full-screen RGB noise overlay */}
+      {/* Full-screen RGB noise overlay — boosted opacity */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.15, 0.08, 0] }}
+        animate={{ opacity: [0, 0.3, 0.15, 0] }}
         transition={{ duration, ease: "easeOut" }}
         style={{
           position: "absolute",
           inset: 0,
           background: `repeating-linear-gradient(
             0deg,
-            rgba(200, 255, 0, 0.03) 0px,
+            rgba(200, 255, 0, 0.08) 0px,
             transparent 1px,
             transparent 3px
           )`,

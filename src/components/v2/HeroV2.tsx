@@ -10,11 +10,12 @@ import { useTextScramble } from "./useTextScramble";
  * headline is 3.25rem+ bold, subtitle is body-sized muted text.
  * Clinical aesthetic — Ghost Type scramble on the headline at page load.
  */
-export function HeroV2() {
-  /** Ghost Type scramble on the two headline segments */
-  const headlinePart1 = useTextScramble("Labs by Diana —", { delay: 200 });
+export function HeroV2({ bootComplete = false }: { bootComplete?: boolean }) {
+  /** Ghost Type scramble on the two headline segments — waits for System Boot to finish */
+  const headlinePart1 = useTextScramble("Labs by Diana —", { delay: 200, enabled: bootComplete });
   const headlinePart2 = useTextScramble("Experiments that ship.", {
     delay: 400,
+    enabled: bootComplete,
   });
   return (
     <section
