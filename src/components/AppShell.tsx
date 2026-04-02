@@ -1,115 +1,50 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { ChatWidget } from "./ChatWidget";
 import { Project } from "@/types/project";
-import projectsData from "../data/projects.json";
 
 /* v2 components */
 import { LayoutShellV2 } from "./v2/LayoutShellV2";
 import { ProjectGridV2 } from "./v2/ProjectGridV2";
-import { ProjectDetailV2 } from "./v2/ProjectDetailV2";
 import { ScanLine } from "./v2/ScanLine";
 import { SystemBoot } from "./v2/SystemBoot";
 import { SignalField } from "./v2/SignalField";
 import { DatamoshTransition } from "./v2/DatamoshTransition";
 
 /**
- * AppShell — renders the v2 Speculative Interface.
- * LayoutShellV2 wraps ProjectGridV2 (grid view) or ProjectDetailV2
- * (detail view) with a scan-line atmospheric element.
+ * AppShell — renders the v2 Speculative Interface homepage (grid view).
+ * Clicking a project triggers the Datamosh transition, then navigates
+ * to /module/[slug] via Next.js router. Detail views are now standalone
+ * pages with their own SEO metadata.
  * ChatWidget is always present (bottom-right, z-index 45).
  */
 export function AppShell() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  /** Saved scroll position so we can restore it when returning to the grid */
-  const savedScrollY = useRef(0);
+  const router = useRouter();
   /** Whether System Boot has finished — gates Ghost Type scramble */
   const [bootComplete, setBootComplete] = useState(false);
   /** Datamosh glitch transition state */
   const [datamoshActive, setDatamoshActive] = useState(false);
-  /** Track whether transitioning to detail (full) or back to grid (mild) */
-  const [datamoshMode, setDatamoshMode] = useState<"full" | "mild">("full");
-  /** Pending project for delayed selection after glitch plays */
-  const pendingProjectRef = useRef<Project | null>(null);
+  /** Pending project slug for delayed navigation after glitch plays */
+  const pendingSlugRef = useRef<string | null>(null);
 
-  /** Find a project by its ID from the static dataset */
-  const findProjectById = useCallback((id: string): Project | null => {
-    return (projectsData as Project[]).find((p) => p.id === id) ?? null;
-  }, []);
-
-  /** Track whether we're going back (mild datamosh before history.back) */
-  const goingBackRef = useRef(false);
-
-  /** Callback when datamosh animation completes — apply the pending transition */
+  /** Callback when datamosh animation completes — navigate to the project route */
   const handleDatamoshComplete = useCallback(() => {
     setDatamoshActive(false);
 
-    if (goingBackRef.current) {
-      /* Mild datamosh finished — now do the actual back navigation */
-      goingBackRef.current = false;
-      window.history.back();
-      return;
+    if (pendingSlugRef.current) {
+      const slug = pendingSlugRef.current;
+      pendingSlugRef.current = null;
+      router.push(`/module/${slug}`);
     }
+  }, [router]);
 
-    if (pendingProjectRef.current) {
-      const project = pendingProjectRef.current;
-      pendingProjectRef.current = null;
-      setSelectedProject(project);
-      window.history.pushState(
-        { projectId: project.id },
-        "",
-        `?project=${project.id}`
-      );
-    }
-  }, []);
-
-  /** Open detail view: trigger datamosh, then switch view on completion */
-  const selectProject = useCallback(
-    (project: Project) => {
-      savedScrollY.current = window.scrollY;
-      pendingProjectRef.current = project;
-      setDatamoshMode("full");
-      setDatamoshActive(true);
-    },
-    []
-  );
-
-  /** Close detail view — play mild datamosh first, then navigate back on completion */
-  const goBackToGrid = useCallback(() => {
-    goingBackRef.current = true;
-    setDatamoshMode("mild");
+  /** Open detail view: trigger datamosh, then navigate on completion */
+  const selectProject = useCallback((project: Project) => {
+    pendingSlugRef.current = project.slug;
     setDatamoshActive(true);
-    /* history.back() is called in handleDatamoshComplete after glitch plays */
   }, []);
-
-  /* Handle popstate (browser back/forward) and initial URL param */
-  useEffect(() => {
-    /* On mount, check for ?project= in the URL (handles refresh & forward nav) */
-    const params = new URLSearchParams(window.location.search);
-    const projectParam = params.get("project");
-    if (projectParam) {
-      const found = findProjectById(projectParam);
-      if (found) setSelectedProject(found);
-    }
-
-    /** Popstate handler — sync selectedProject with browser history state */
-    const onPopState = (event: PopStateEvent) => {
-      if (event.state?.projectId) {
-        const found = findProjectById(event.state.projectId);
-        setSelectedProject(found);
-        /* Detail view's own useEffect handles scrolling to the back button */
-      } else {
-        /* Returning to grid — restore saved scroll position */
-        setSelectedProject(null);
-        setTimeout(() => window.scrollTo({ top: savedScrollY.current, behavior: "instant" }), 50);
-      }
-    };
-
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, [findProjectById]);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -119,10 +54,10 @@ export function AppShell() {
       {/* System boot overlay — plays once per session */}
       <SystemBoot onComplete={() => setBootComplete(true)} />
 
-      {/* Datamosh glitch transition overlay */}
+      {/* Datamosh glitch transition overlay — full mode for grid-to-detail */}
       <DatamoshTransition
         active={datamoshActive}
-        mode={datamoshMode}
+        mode="full"
         onComplete={handleDatamoshComplete}
       />
 
@@ -130,20 +65,7 @@ export function AppShell() {
       <ScanLine />
 
       <LayoutShellV2 bootComplete={bootComplete}>
-        <AnimatePresence mode="wait">
-          {selectedProject ? (
-            <ProjectDetailV2
-              key="detail"
-              project={selectedProject}
-              onBack={goBackToGrid}
-            />
-          ) : (
-            <ProjectGridV2
-              key="grid"
-              onSelectProject={selectProject}
-            />
-          )}
-        </AnimatePresence>
+        <ProjectGridV2 key="grid" onSelectProject={selectProject} />
       </LayoutShellV2>
 
       {/* Floating chat widget — always present */}
