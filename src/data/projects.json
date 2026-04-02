@@ -25,7 +25,7 @@
     "demoUrl": "",
     "githubUrl": "#",
     "keyLearnings": "The glitch-style view transitions had a narrow timing window — too long and they read as broken rendering, too short and they feel like a flash. Testing across 60Hz and 120Hz displays revealed that frame-rate-dependent animations need explicit duration caps, not just easing. Separately, scoping the v2 design tokens under a class selector while leaving v1 on `:root` avoided a full migration — but every v2 component now carries non-portable variable references, a tradeoff that only works because v1 is frozen.",
-    "version": "2.2.1",
+    "version": "2.2.5",
     "lastUpdated": "2026-03-29"
   },
   {
