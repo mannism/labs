@@ -5,7 +5,8 @@
  */
 
 export const OPENAI_API_KEY       = process.env.OPENAI_API_KEY       ?? "";
-export const OPENAI_MODEL         = process.env.OPENAI_MODEL         ?? "gpt-5.4";
+/** Primary chat model — overridable via OPENAI_MODEL env var (default: gpt-5.4-mini) */
+export const OPENAI_MODEL         = process.env.OPENAI_MODEL         ?? "gpt-5.4-mini";
 export const OPENAI_MODEL_SUMMARY = process.env.OPENAI_MODEL_SUMMARY ?? "gpt-5.4-nano";
 
 export const REDIS_URL         = process.env.REDIS_URL ?? "redis://localhost:6379";
