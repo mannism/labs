@@ -4,11 +4,11 @@ import packageJson from "../../../package.json";
 
 /**
  * NavbarV2 — Speculative Interface top navigation.
- * "L A B S" letterspaced logo left, "PORTFOLIO" link + version toggle right.
+ * "L A B S" letterspaced logo left, "PORTFOLIO" link right.
  * Chartreuse 2px top accent line. Clean white surface, no glassmorphism.
  * Version badge in monospace. All text is uppercase for clinical feel.
  */
-export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode }) {
+export function NavbarV2() {
   return (
     <nav
       style={{
@@ -46,7 +46,7 @@ export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode })
           </span>
         </div>
 
-        {/* Right side: portfolio link, version toggle, version display */}
+        {/* Right side: portfolio link, version display */}
         <div className="flex items-center gap-3 md:gap-5">
           <a
             href="https://dianaismail.me"
@@ -67,9 +67,6 @@ export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode })
           >
             PORTFOLIO &rarr;
           </a>
-
-          {/* Version toggle placeholder — populated by parent */}
-          {versionToggle}
 
           {/* Package version — hidden on mobile to save space */}
           <span

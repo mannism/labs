@@ -4,7 +4,6 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
 import projects from "@/data/projects.json";
-import { ClientProviders } from "@/components/ClientProviders";
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -143,37 +142,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        {/* Prevent theme flash: read localStorage before React hydrates and apply correct class */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var v=localStorage.getItem('labs-ui-version');if(v==='v2'||!v){document.documentElement.classList.remove('dark');document.documentElement.classList.add('v2')}}catch(e){}`,
-          }}
-        />
-      </head>
+    <html lang="en" className="v2">
       <body
         className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased font-sans`}
         style={{ position: "relative" }}
       >
-        {/* Fixed decorative background orbs */}
-        <div className="bg-orbs" aria-hidden="true">
-          <div className="bg-orb bg-orb-blue" />
-          <div className="bg-orb bg-orb-purple" />
-        </div>
-
         {/* Structured data for search engines and AI crawlers */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Page content layered above orbs — wrapped in client providers for version toggle */}
-        <ClientProviders>
-          <div style={{ position: "relative", zIndex: 1 }}>
-            {children}
-          </div>
-        </ClientProviders>
+        {/* Page content */}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {children}
+        </div>
 
         {/* Google Analytics — only loads when NEXT_PUBLIC_GA_ID is set */}
         {gaId && <GoogleAnalytics gaId={gaId} />}

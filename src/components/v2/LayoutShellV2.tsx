@@ -8,16 +8,10 @@ import { FooterV2 } from "./FooterV2";
 /**
  * LayoutShellV2 — page-level wrapper for the Speculative Interface (v2).
  * Renders NavbarV2, HeroV2 (system label + headline), children, and FooterV2.
- * Background uses v2 tokens. Max-width matches v1 (80rem / max-w-7xl).
+ * Background uses v2 tokens. Max-width matches design (80rem / max-w-7xl).
  * Bottom-right space is reserved for the ChatWidget (rendered externally).
  */
-export function LayoutShellV2({
-  children,
-  versionToggle,
-}: {
-  children: ReactNode;
-  versionToggle?: ReactNode;
-}) {
+export function LayoutShellV2({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -27,7 +21,7 @@ export function LayoutShellV2({
         background: "var(--v2-bg-primary)",
       }}
     >
-      <NavbarV2 versionToggle={versionToggle} />
+      <NavbarV2 />
 
       <HeroV2 />
 
