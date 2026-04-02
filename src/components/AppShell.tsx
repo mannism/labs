@@ -11,6 +11,7 @@ import { LayoutShellV2 } from "./v2/LayoutShellV2";
 import { ProjectGridV2 } from "./v2/ProjectGridV2";
 import { ProjectDetailV2 } from "./v2/ProjectDetailV2";
 import { ScanLine } from "./v2/ScanLine";
+import { SystemBoot } from "./v2/SystemBoot";
 
 /**
  * AppShell — renders the v2 Speculative Interface.
@@ -73,6 +74,9 @@ export function AppShell() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      {/* System boot overlay — plays once per session */}
+      <SystemBoot />
+
       {/* Atmospheric scan-line */}
       <ScanLine />
 
