@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ChatWidget } from "./ChatWidget";
 import { Project } from "@/types/project";
@@ -20,17 +20,22 @@ import { ScanLine } from "./v2/ScanLine";
  */
 export function AppShell() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  /** Saved scroll position so we can restore it when returning to the grid */
+  const savedScrollY = useRef(0);
 
   /** Find a project by its ID from the static dataset */
   const findProjectById = useCallback((id: string): Project | null => {
     return (projectsData as Project[]).find((p) => p.id === id) ?? null;
   }, []);
 
-  /** Open detail view and push a history entry */
+  /** Open detail view: save scroll position, push history, scroll to top */
   const selectProject = useCallback(
     (project: Project) => {
+      savedScrollY.current = window.scrollY;
       setSelectedProject(project);
       window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
+      /* Scroll to top after state update */
+      requestAnimationFrame(() => window.scrollTo(0, 0));
     },
     []
   );
@@ -55,8 +60,11 @@ export function AppShell() {
       if (event.state?.projectId) {
         const found = findProjectById(event.state.projectId);
         setSelectedProject(found);
+        requestAnimationFrame(() => window.scrollTo(0, 0));
       } else {
+        /* Returning to grid — restore saved scroll position */
         setSelectedProject(null);
+        requestAnimationFrame(() => window.scrollTo(0, savedScrollY.current));
       }
     };
 
