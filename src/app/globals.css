@@ -238,6 +238,19 @@ html.v2 .bg-orbs {
   }
 }
 
+/* V2 bento grid responsive overrides */
+@media (max-width: 767px) {
+  .bento-grid { grid-template-columns: 1fr !important; }
+  .bento-cell { grid-column: span 1 !important; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .bento-cell { grid-column: span 1 !important; }
+}
+
+/* Hide scrollbar on horizontally scrollable elements */
+.overflow-x-auto::-webkit-scrollbar { display: none; }
+
 /* ─── Display / serif font helper ───────────────────────────── */
 .font-display {
   /* Merriweather injected as --font-merriweather by next/font in layout.tsx */

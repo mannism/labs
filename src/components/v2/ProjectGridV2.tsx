@@ -251,6 +251,7 @@ export function ProjectGridV2({
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: "var(--v2-space-lg)",
           perspective: "800px",
+          marginBottom: "var(--v2-space-3xl)",
         }}
         className="bento-grid"
         variants={prefersReduced ? undefined : containerVariants}
@@ -262,22 +263,7 @@ export function ProjectGridV2({
         {gridItems}
       </motion.div>
 
-      {/* Bottom spacing to separate cards from footer */}
-      <div style={{ height: "var(--v2-space-3xl)" }} />
-
-      {/* Responsive overrides: mobile full-width, tablet 2-col equal, hide tab scrollbar */}
-      <style>{`
-        @media (max-width: 767px) {
-          .bento-grid { grid-template-columns: 1fr !important; }
-          .bento-cell { grid-column: span 1 !important; }
-        }
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .bento-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .bento-cell { grid-column: span 1 !important; }
-        }
-        /* Hide scrollbar on category tabs while allowing horizontal scroll */
-        .overflow-x-auto::-webkit-scrollbar { display: none; }
-      `}</style>
+      {/* Responsive overrides + scrollbar hiding moved to globals.css */}
     </div>
   );
 }
