@@ -36,12 +36,13 @@ jobs:
           const PROJECTS_PATH = "src/data/projects.json";
 
           const REPO_MAP = {
-            "Diana Ismail Labs": "mannism/labs",
+            "Labs": "mannism/labs",
             "Diana's Digital Twin": "mannism/telegram-digital-twin",
             "CV/JD Matcher & Application Tool": "mannism/FitCheckerApp",
             "AI Chat Scheduler": "mannism/EventChatScheduler",
             "GEO Audit": "mannism/GEOAudit",
             "Slack \u2194 Claude CLI Bridge": "mannism/claudecli-local-mcp",
+            "Diana Ismail \u2014 Portfolio": "mannism/portfolio",
           };
 
           const TOKEN = process.env.PAT_READ_REPOS;
