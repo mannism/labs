@@ -44,7 +44,7 @@ export function FillerCard() {
 /* --- Shared wrapper styles --- */
 
 const wrapperStyle: React.CSSProperties = {
-  background: "#1A1D23",
+  background: "var(--v2-bg-invert)",
   border: "1px solid var(--v2-border)",
   borderRadius: "0.5rem",
   padding: "var(--v2-space-xl)",

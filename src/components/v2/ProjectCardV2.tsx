@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Project } from "../ProjectCard";
+import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 
@@ -57,6 +57,7 @@ export function ProjectCardV2({
     <motion.div
       role="button"
       tabIndex={0}
+      aria-label={`View details for ${project.title}`}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {

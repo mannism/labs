@@ -121,6 +121,7 @@ html.v2 {
   --v2-border: rgba(0, 0, 0, 0.08);
   --v2-border-hover: rgba(0, 0, 0, 0.15);
   --v2-border-accent: #C8FF00;
+  --v2-bg-invert: #1A1D23;
   --v2-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   --v2-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
 
@@ -212,6 +213,15 @@ html.v2 body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* V2 mode: keyboard focus indicator for interactive cards and buttons */
+html.v2 [role="button"]:focus-visible,
+html.v2 button:focus-visible,
+html.v2 a:focus-visible {
+  outline: 2px solid var(--v2-accent);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
 }
 
 /* V2 mode: hide v1 decorative background orbs */

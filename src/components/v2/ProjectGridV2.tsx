@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ProjectCardV2 } from "./ProjectCardV2";
 import { FillerCard } from "./FillerCard";
-import { Project } from "../ProjectCard";
+import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import projectsData from "../../data/projects.json";
 
@@ -159,7 +159,7 @@ export function ProjectGridV2({
                 background: "none",
                 border: "none",
                 borderBottom: isTabActive ? "2px solid var(--v2-text-primary)" : "2px solid transparent",
-                padding: "var(--v2-space-sm) 0",
+                padding: "var(--v2-space-md) 0",
                 cursor: "pointer",
                 transition: "color 0.2s ease, border-color 0.2s ease",
                 letterSpacing: "0.06em",

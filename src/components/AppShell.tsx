@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ChatWidget } from "./ChatWidget";
-import { Project } from "./ProjectCard";
+import { Project } from "@/types/project";
 import projectsData from "../data/projects.json";
 
 /* v2 components */

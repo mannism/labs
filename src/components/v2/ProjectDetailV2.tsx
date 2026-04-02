@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
-import { Project } from "../ProjectCard";
+import { Project } from "@/types/project";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
+import projectsData from "../../data/projects.json";
 
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.
@@ -28,6 +30,15 @@ export function ProjectDetailV2({
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
   const prefersReduced = useReducedMotion();
 
+  /** Derive the display index from the sorted visible projects list */
+  const moduleIndex = useMemo(() => {
+    const visible = (projectsData as Project[])
+      .filter((p) => p.display !== false)
+      .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    const idx = visible.findIndex((p) => p.id === project.id);
+    return String((idx >= 0 ? idx : 0) + 1).padStart(3, "0");
+  }, [project.id]);
+
   return (
     <motion.div
       initial={prefersReduced ? undefined : { opacity: 0, y: 16 }}
@@ -38,6 +49,7 @@ export function ProjectDetailV2({
       {/* Back navigation */}
       <button
         onClick={onBack}
+        aria-label="Back to modules"
         style={{
           fontFamily: "var(--v2-font-mono)",
           fontSize: "var(--v2-font-size-xs)",
@@ -46,7 +58,10 @@ export function ProjectDetailV2({
           border: "none",
           cursor: "pointer",
           letterSpacing: "var(--v2-letter-spacing-wide)",
-          padding: 0,
+          padding: "var(--v2-space-sm) 0",
+          minHeight: "44px",
+          display: "inline-flex",
+          alignItems: "center",
           marginBottom: "var(--v2-space-2xl)",
           transition: "color 0.2s ease",
         }}
@@ -119,7 +134,7 @@ export function ProjectDetailV2({
           textTransform: "uppercase",
         }}
       >
-        MODULE_{String(1).padStart(3, "0")}
+        MODULE_{moduleIndex}
       </p>
 
       {/* Two-column layout: metadata sidebar + content */}
@@ -325,6 +340,7 @@ export function ProjectDetailV2({
                     border: "none",
                     borderRadius: "0.25rem",
                     padding: "var(--v2-space-sm) var(--v2-space-lg)",
+                    minHeight: "44px",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
@@ -359,6 +375,7 @@ export function ProjectDetailV2({
                     border: "1px solid var(--v2-border)",
                     borderRadius: "0.25rem",
                     padding: "var(--v2-space-sm) var(--v2-space-lg)",
+                    minHeight: "44px",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
