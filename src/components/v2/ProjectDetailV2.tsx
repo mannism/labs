@@ -31,8 +31,12 @@ export function ProjectDetailV2({
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
   const prefersReduced = useReducedMotion();
 
-  /** Ghost Type scramble on the project title — triggers on mount */
-  const titleScramble = useTextScramble(project.title, { delay: 150 });
+  /** Ghost Type scramble on the project title — triggers on mount.
+   *  sessionKey ensures each project title only scrambles once per session. */
+  const titleScramble = useTextScramble(project.title, {
+    delay: 150,
+    sessionKey: `ghost-type-project-${project.slug}`,
+  });
 
   const detailRef = useRef<HTMLDivElement>(null);
 

@@ -11,11 +11,17 @@ import { useTextScramble } from "./useTextScramble";
  * Clinical aesthetic — Ghost Type scramble on the headline at page load.
  */
 export function HeroV2({ bootComplete = false }: { bootComplete?: boolean }) {
-  /** Ghost Type scramble on the two headline segments — waits for System Boot to finish */
-  const headlinePart1 = useTextScramble("Labs by Diana —", { delay: 200, enabled: bootComplete });
+  /** Ghost Type scramble on the two headline segments — waits for System Boot to finish.
+   *  sessionKey ensures the scramble only fires once per session. */
+  const headlinePart1 = useTextScramble("Labs by Diana —", {
+    delay: 200,
+    enabled: bootComplete,
+    sessionKey: "ghost-type-hero-1",
+  });
   const headlinePart2 = useTextScramble("Experiments that ship.", {
     delay: 400,
     enabled: bootComplete,
+    sessionKey: "ghost-type-hero-2",
   });
   return (
     <section

@@ -77,6 +77,7 @@ function buildGridItems(
     items.push(
       <div
         key={project.id}
+        data-slug={project.slug}
         style={{ gridColumn: `span ${span}` }}
         className="bento-cell"
       >
@@ -130,6 +131,25 @@ export function ProjectGridV2({
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  /** Scroll to the previously viewed card when returning from a detail page */
+  useEffect(() => {
+    try {
+      const slug = sessionStorage.getItem("labs-return-to-slug");
+      if (!slug) return;
+      sessionStorage.removeItem("labs-return-to-slug");
+
+      /* Wait for cards to render before scrolling */
+      requestAnimationFrame(() => {
+        const card = document.querySelector(`[data-slug="${slug}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: "instant", block: "center" });
+        }
+      });
+    } catch {
+      /* sessionStorage unavailable — no-op */
+    }
   }, []);
 
   /* Sort by order field (ascending), filter hidden projects */

@@ -25,6 +25,12 @@ interface TextScrambleOptions {
   delay?: number;
   /** Whether the scramble is enabled (trigger control). Default: true */
   enabled?: boolean;
+  /**
+   * SessionStorage key for once-per-session gating. When provided, the
+   * scramble only fires once per session for this key. Subsequent mounts
+   * within the same session show the final text immediately.
+   */
+  sessionKey?: string;
 }
 
 interface TextScrambleResult {
@@ -38,11 +44,26 @@ export function useTextScramble(
   text: string,
   options: TextScrambleOptions = {}
 ): TextScrambleResult {
-  const { speed = 30, delay = 0, enabled = true } = options;
+  const { speed = 30, delay = 0, enabled = true, sessionKey } = options;
   const prefersReduced = useReducedMotion();
 
-  const [displayText, setDisplayText] = useState(text);
-  const [isComplete, setIsComplete] = useState(true);
+  /**
+   * Check sessionStorage to determine if this scramble has already played.
+   * If a sessionKey is provided and the flag exists, skip the animation.
+   */
+  const alreadyPlayed = useRef(false);
+  if (typeof window !== "undefined" && sessionKey) {
+    try {
+      alreadyPlayed.current = sessionStorage.getItem(sessionKey) === "done";
+    } catch {
+      /* sessionStorage unavailable — fall through to normal behavior */
+    }
+  }
+
+  const [displayText, setDisplayText] = useState(
+    alreadyPlayed.current ? text : text
+  );
+  const [isComplete, setIsComplete] = useState(alreadyPlayed.current);
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number | null>(null);
   const delayedRef = useRef(false);
@@ -55,6 +76,13 @@ export function useTextScramble(
   useEffect(() => {
     /* Reduced motion — show final text immediately */
     if (prefersReduced) {
+      setDisplayText(text);
+      setIsComplete(true);
+      return;
+    }
+
+    /* Already played this session — show final text immediately */
+    if (alreadyPlayed.current) {
       setDisplayText(text);
       setIsComplete(true);
       return;
@@ -109,6 +137,14 @@ export function useTextScramble(
         /* Animation complete — lock to final text */
         setDisplayText(text);
         setIsComplete(true);
+        /* Mark this scramble as played for the session */
+        if (sessionKey) {
+          try {
+            sessionStorage.setItem(sessionKey, "done");
+          } catch {
+            /* sessionStorage unavailable — no-op */
+          }
+        }
         return;
       }
 

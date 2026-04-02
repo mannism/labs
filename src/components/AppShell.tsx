@@ -40,9 +40,14 @@ export function AppShell() {
     }
   }, [router]);
 
-  /** Open detail view: trigger datamosh, then navigate on completion */
+  /** Open detail view: store slug for return-scroll, trigger datamosh, then navigate */
   const selectProject = useCallback((project: Project) => {
     pendingSlugRef.current = project.slug;
+    try {
+      sessionStorage.setItem("labs-return-to-slug", project.slug);
+    } catch {
+      /* sessionStorage unavailable — no-op */
+    }
     setDatamoshActive(true);
   }, []);
 
