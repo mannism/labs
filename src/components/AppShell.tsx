@@ -13,6 +13,7 @@ import { ProjectDetailV2 } from "./v2/ProjectDetailV2";
 import { ScanLine } from "./v2/ScanLine";
 import { SystemBoot } from "./v2/SystemBoot";
 import { SignalField } from "./v2/SignalField";
+import { DatamoshTransition } from "./v2/DatamoshTransition";
 
 /**
  * AppShell — renders the v2 Speculative Interface.
@@ -24,25 +25,49 @@ export function AppShell() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   /** Saved scroll position so we can restore it when returning to the grid */
   const savedScrollY = useRef(0);
+  /** Datamosh glitch transition state */
+  const [datamoshActive, setDatamoshActive] = useState(false);
+  /** Track whether transitioning to detail (full) or back to grid (mild) */
+  const [datamoshMode, setDatamoshMode] = useState<"full" | "mild">("full");
+  /** Pending project for delayed selection after glitch plays */
+  const pendingProjectRef = useRef<Project | null>(null);
 
   /** Find a project by its ID from the static dataset */
   const findProjectById = useCallback((id: string): Project | null => {
     return (projectsData as Project[]).find((p) => p.id === id) ?? null;
   }, []);
 
-  /** Open detail view: save scroll position, push history, scroll to top */
+  /** Callback when datamosh animation completes — apply the pending transition */
+  const handleDatamoshComplete = useCallback(() => {
+    setDatamoshActive(false);
+    if (datamoshMode === "full" && pendingProjectRef.current) {
+      const project = pendingProjectRef.current;
+      pendingProjectRef.current = null;
+      setSelectedProject(project);
+      window.history.pushState(
+        { projectId: project.id },
+        "",
+        `?project=${project.id}`
+      );
+    }
+  }, [datamoshMode]);
+
+  /** Open detail view: trigger datamosh, then switch view on completion */
   const selectProject = useCallback(
     (project: Project) => {
       savedScrollY.current = window.scrollY;
-      setSelectedProject(project);
-      window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
-      /* Detail view's own useEffect handles scrolling to the back button */
+      pendingProjectRef.current = project;
+      setDatamoshMode("full");
+      setDatamoshActive(true);
     },
     []
   );
 
-  /** Close detail view via browser back */
+  /** Close detail view via browser back — triggers mild datamosh */
   const goBackToGrid = useCallback(() => {
+    setDatamoshMode("mild");
+    setDatamoshActive(true);
+    /* The actual back navigation happens after datamosh completes via popstate */
     window.history.back();
   }, []);
 
@@ -80,6 +105,13 @@ export function AppShell() {
 
       {/* System boot overlay — plays once per session */}
       <SystemBoot />
+
+      {/* Datamosh glitch transition overlay */}
+      <DatamoshTransition
+        active={datamoshActive}
+        mode={datamoshMode}
+        onComplete={handleDatamoshComplete}
+      />
 
       {/* Atmospheric scan-line */}
       <ScanLine />
