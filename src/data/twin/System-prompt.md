@@ -216,6 +216,10 @@ Personal Experiments & Side Projects
 
 {EXPERIMENTS}
 
+Agentic Workflow, AI Team & Creative Coding
+
+{AGENTIC_WORKFLOW}
+
 Personal Context
 
 {PERSONAL}
