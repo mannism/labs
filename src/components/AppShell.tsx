@@ -34,8 +34,8 @@ export function AppShell() {
       savedScrollY.current = window.scrollY;
       setSelectedProject(project);
       window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
-      /* Scroll to top after state update */
-      requestAnimationFrame(() => window.scrollTo(0, 0));
+      /* Scroll to top after React renders the detail view */
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 50);
     },
     []
   );
@@ -60,11 +60,11 @@ export function AppShell() {
       if (event.state?.projectId) {
         const found = findProjectById(event.state.projectId);
         setSelectedProject(found);
-        requestAnimationFrame(() => window.scrollTo(0, 0));
+        setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 50);
       } else {
         /* Returning to grid — restore saved scroll position */
         setSelectedProject(null);
-        requestAnimationFrame(() => window.scrollTo(0, savedScrollY.current));
+        setTimeout(() => window.scrollTo({ top: savedScrollY.current, behavior: "instant" }), 50);
       }
     };
 

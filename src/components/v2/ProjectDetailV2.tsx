@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
 import { Project } from "@/types/project";
@@ -29,6 +29,11 @@ export function ProjectDetailV2({
   const hasGithub = Boolean(project.githubUrl && project.githubUrl !== "#");
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
   const prefersReduced = useReducedMotion();
+
+  /* Ensure detail view starts at the top on mount */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [project.id]);
 
   /** Derive the display index from the sorted visible projects list */
   const moduleIndex = useMemo(() => {
