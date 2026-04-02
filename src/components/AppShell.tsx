@@ -39,10 +39,21 @@ export function AppShell() {
     return (projectsData as Project[]).find((p) => p.id === id) ?? null;
   }, []);
 
+  /** Track whether we're going back (mild datamosh before history.back) */
+  const goingBackRef = useRef(false);
+
   /** Callback when datamosh animation completes — apply the pending transition */
   const handleDatamoshComplete = useCallback(() => {
     setDatamoshActive(false);
-    if (datamoshMode === "full" && pendingProjectRef.current) {
+
+    if (goingBackRef.current) {
+      /* Mild datamosh finished — now do the actual back navigation */
+      goingBackRef.current = false;
+      window.history.back();
+      return;
+    }
+
+    if (pendingProjectRef.current) {
       const project = pendingProjectRef.current;
       pendingProjectRef.current = null;
       setSelectedProject(project);
@@ -52,7 +63,7 @@ export function AppShell() {
         `?project=${project.id}`
       );
     }
-  }, [datamoshMode]);
+  }, []);
 
   /** Open detail view: trigger datamosh, then switch view on completion */
   const selectProject = useCallback(
@@ -65,12 +76,12 @@ export function AppShell() {
     []
   );
 
-  /** Close detail view via browser back — triggers mild datamosh */
+  /** Close detail view — play mild datamosh first, then navigate back on completion */
   const goBackToGrid = useCallback(() => {
+    goingBackRef.current = true;
     setDatamoshMode("mild");
     setDatamoshActive(true);
-    /* The actual back navigation happens after datamosh completes via popstate */
-    window.history.back();
+    /* history.back() is called in handleDatamoshComplete after glitch plays */
   }, []);
 
   /* Handle popstate (browser back/forward) and initial URL param */

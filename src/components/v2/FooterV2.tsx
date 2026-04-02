@@ -18,8 +18,9 @@ export function FooterV2() {
   const prefersReduced = useReducedMotion();
   const [latency, setLatency] = useState(24);
 
-  /** Easter egg: replay the boot sequence by clearing session gate and reloading */
+  /** Easter egg: replay the boot sequence by scrolling to top, clearing session gate, and reloading */
   const handleReplayBoot = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     sessionStorage.removeItem("labs-boot-played");
     window.location.reload();
   }, []);
