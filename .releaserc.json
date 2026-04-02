@@ -30,13 +30,13 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "sed -i 's/\\*\\*Version:\\*\\* [0-9][0-9.]*/\\*\\*Version:\\*\\* ${nextRelease.version}/' README.md"
+        "prepareCmd": "sed -i 's/\\*\\*Version:\\*\\* [0-9][0-9.]*/\\*\\*Version:\\*\\* ${nextRelease.version}/' README.md && npm version ${nextRelease.version} --no-git-tag-version --allow-same-version"
       }
     ],
     [
       "@semantic-release/git",
       {
-        "assets": ["README.md"],
+        "assets": ["README.md", "package.json"],
         "message": "chore(release): sync README to v${nextRelease.version} [skip ci]"
       }
     ],
