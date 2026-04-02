@@ -57,7 +57,7 @@
   },
   {
     "id": "12",
-    "slug": "reso",
+    "slug": "cv-jd-matcher",
     "order": 2,
     "title": "CV/JD Matcher & Application Tool",
     "shortDescription": "Reso scores a CV against a job description, surfaces gaps with specific improvement suggestions, and tracks the full application pipeline — matching analysis, interview prep packs, and logged sessions with AI-generated notes. Built with Next.js, OpenAI, and PostgreSQL.",
