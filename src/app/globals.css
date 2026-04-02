@@ -1,17 +1,18 @@
 /*
- * Cyber-Minimalist Design System
- * -------------------------------
- * Dark  base: #0A0C10 (Charcoal)
- * Light base: #f8fafc (Slate-50)
- * Accent:     #0069FF (Electric Blue)
- * Body:       Open Sans (16px)
- * Title:      Merriweather (Serif)
+ * Speculative Interface Design System (v2)
+ * -----------------------------------------
+ * Base:    #F0F2F5 (Pale blue-grey) — light mode only
+ * Accent:  #C8FF00 (Chartreuse)
+ * Font:    Space Grotesk (display + body), Geist Mono (labels)
+ *
+ * Legacy v1 tokens (dark/light) are retained below html.v2 for reference
+ * but are not active — the site renders exclusively under html.v2.
  */
 
 /* ─── Tailwind v4 ────────────────────────────────────────────── */
 @import "tailwindcss";
 
-/* Enable class-based dark mode so dark: prefixes respond to html.dark */
+/* Enable class-based dark mode so dark: prefixes respond to html.dark (legacy v1, retained for token compatibility) */
 @variant dark (&:where(.dark, .dark *));
 
 @theme inline {
@@ -23,7 +24,7 @@
   --font-display: var(--font-space-grotesk);
 }
 
-/* ─── Design Tokens: Dark mode (default) ────────────────────── */
+/* ─── Legacy v1 Design Tokens: Dark mode ─────────────────────── */
 :root,
 html.dark {
   --bg-primary: #0A0C10;
@@ -67,7 +68,7 @@ html.dark {
   --foreground: var(--text-primary);
 }
 
-/* ─── Design Tokens: Light mode overrides ───────────────────── */
+/* ─── Legacy v1 Design Tokens: Light mode overrides ──────────── */
 html.light {
   --bg-primary: #f8fafc;
   --bg-glass: rgba(255, 255, 255, 0.80);
@@ -105,9 +106,9 @@ html.light {
   --foreground: var(--text-primary);
 }
 
-/* === V2: Speculative Interface Design System === */
-/* Pale blue-grey base with chartreuse (#C8FF00) accent.
-   Light mode only. Scoped under html.v2 so v1 tokens remain intact. */
+/* === Active Design System: Speculative Interface (v2) === */
+/* Pale blue-grey base (#F0F2F5) with chartreuse (#C8FF00) accent.
+   Light mode only. Space Grotesk typography. Applied via html.v2. */
 html.v2 {
   /* Colors */
   --v2-bg-primary: #F0F2F5;
@@ -177,7 +178,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
 
-  /* Subtle 48×48px grid — dark mode: white lines */
+  /* Subtle 48×48px grid (legacy v1 dark mode — overridden by html.v2 body below) */
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
@@ -224,7 +225,7 @@ html.v2 a:focus-visible {
   border-radius: 0.25rem;
 }
 
-/* V2 mode: hide v1 decorative background orbs */
+/* Hide legacy v1 decorative background orbs in v2 mode */
 html.v2 .bg-orbs {
   display: none;
 }

@@ -8,8 +8,9 @@ import projects from "@/data/projects.json";
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 // Next.js Font Optimization:
-// These fonts are downloaded at build time and served from the application origin,
+// All fonts are downloaded at build time and served from the application origin,
 // eliminating external requests to Google Fonts API and improving performance/privacy.
+// Primary v2 font is Space Grotesk; legacy fonts (Merriweather, Open Sans) retained for token compat.
 const merriweather = Merriweather({
   variable: "--font-merriweather",
   subsets: ["latin"],

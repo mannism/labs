@@ -2,16 +2,26 @@
 
 **Version:** 2.2.0
 
-A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine that powers a floating digital twin chat widget and a Telegram bot.
+A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine powering a floating digital twin chat widget and a Telegram bot.
 
-## Design System: "Cyber-Minimalist"
+## Design System: "Speculative Interface" (v2)
 
-The UI is built around a single coherent design language:
+A clinical, forward-looking aesthetic built on pale blue-grey surfaces with chartreuse (#C8FF00) accent:
 
-- **Atmospheric Depth:** Deep charcoal background (`#0A0C10`) with a 48×48px CSS grid pattern and large, heavily blurred ambient orbs (electric blue + purple) rendered at fixed positions to create physical depth without scroll cost.
-- **Glassmorphism:** Translucent cards with 16px backdrop blur. Hover states trigger an electric-blue radiant glow (`#0069FF`).
-- **Typography:** Dual-font system — **Merriweather** (serif) for display headings, **Open Sans** (sans-serif, 16px / 1.625 leading) for body text, and **Geist Mono** for badges and technical labels.
-- **Micro-interactions:** CSS-driven transitions on filter tabs and links (no JS re-renders). Framer Motion handles component entry and card hover animations.
+- **Palette:** Light mode only. Pale blue-grey base (`#F0F2F5`), white card surfaces, dark text. Chartreuse used for accents, active states, and interactive highlights.
+- **Typography:** Space Grotesk throughout — display headlines (uppercase, tight tracking), Geist Mono for system labels and metadata.
+- **Layout:** Highlight-aware 3-column bento grid with glitch/diagnostic filler cards inserted between adjacent highlighted projects. Responsive down to 375px.
+- **Accessibility:** `prefers-reduced-motion` respected across all animations, `focus-visible` outlines, 44px minimum touch targets, semantic `aria-labels`.
+
+## Creative Animations
+
+| Animation | Description |
+|---|---|
+| **Ghost Type** | Procedural text scramble — characters resolve left-to-right through Unicode glyphs (headlines, chat header, detail titles) |
+| **System Boot** | Full-page terminal initialization overlay on first visit. Character-by-character boot log with status dots. Click to skip. Session-gated. |
+| **Signal Field** | Full-viewport HTML5 Canvas dot grid. Desktop: cursor-reactive (brighten + chartreuse shift + pull). Mobile: ambient sine wave. |
+| **Datamosh** | RGB channel separation glitch overlay during view transitions. Full mode (grid→detail) and mild mode (detail→grid). |
+| **Proximity Pulse** | Cursor-driven magnetic field on the bento grid. Nearest card lifts (translateZ), adjacent cards compress. Directional chartreuse glow follows cursor. |
 
 ## Tech Stack
 
@@ -19,46 +29,60 @@ The UI is built around a single coherent design language:
 |---|---|
 | Framework | Next.js 16 (App Router, standalone output) |
 | Language | TypeScript (strict mode) |
+| UI | React 19 |
 | Styling | Tailwind CSS v4 + CSS custom properties |
-| Animations | Framer Motion |
+| Animations | Framer Motion + HTML5 Canvas |
+| Typography | Space Grotesk, Geist Mono (self-hosted via `next/font`) |
 | Icons | Lucide React |
 | AI | OpenAI API |
 | Session store | Redis (ioredis) |
 | Deployment | Docker (multi-stage, Node 22 Alpine) |
 
 **Security & Privacy:**
-- All fonts (Merriweather, Open Sans, Geist Mono) are self-hosted via `next/font/google` — zero external HTTP requests at runtime.
-- Strict security headers enforced in `next.config.ts`: HSTS (2-year preload), `X-Frame-Options: DENY`, restrictive `Permissions-Policy`, and a tight CSP.
+- All fonts self-hosted via `next/font/google` — zero external HTTP requests at runtime.
+- Strict security headers in `next.config.ts`: HSTS (2-year preload), `X-Frame-Options: DENY`, restrictive `Permissions-Policy`, tight CSP.
 
 ## Architecture
 
 The app has two layers:
 
-**UI layer** — single-page client-side React application. All project data lives in `src/data/projects.json` — no database, no auth.
+**UI layer** — single-page client-side React application. All project data lives in `src/data/projects.json` — no database, no auth. Browser history integration for detail view (`?project=` URL params with pushState/popState).
 
 **Chat engine layer** — three API routes backed by OpenAI and Redis. The engine powers the floating chat widget (web) and a Telegram bot, with shared conversation history across both interfaces.
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx              # Root layout: fonts, SEO metadata, background orbs
-│   ├── page.tsx                # Home page: Navbar + Hero + ProjectGrid + Footer + ChatWidget
-│   ├── globals.css             # Design tokens, glassmorphism, animations, component base styles
+│   ├── layout.tsx              # Root layout: fonts, SEO metadata, JSON-LD
+│   ├── page.tsx                # Renders AppShell
+│   ├── globals.css             # Design tokens (v2 Speculative Interface), animations, chat widget styles
 │   └── api/
 │       ├── chat/stream/        # POST — SSE streaming endpoint for the chat widget
 │       ├── link/               # POST — OTP verification to link web session ↔ Telegram
 │       ├── telegram/           # POST — Telegram webhook handler
 │       └── cors.ts             # CORS policy: *.dianaismail.me + localhost
 ├── components/
-│   ├── Hero.tsx                # Status badge + staggered headline animations
-│   ├── Navbar.tsx              # Sticky nav: branding, portfolio link, dark/light toggle
-│   ├── ProjectGrid.tsx         # Category filter tabs, grid layout, drawer state
-│   ├── ProjectCard.tsx         # Glassmorphic card: badges, icon buttons, tags, live ping
-│   ├── ProjectDetailsDrawer.tsx # Slide-out panel (bottom-sheet on mobile, side-panel on desktop)
-│   ├── ChatWidget.tsx          # Floating AI chat: SSE streaming, typewriter, Telegram linking
-│   └── Footer.tsx              # Copyright footer
+│   ├── AppShell.tsx            # Root orchestrator: SignalField, SystemBoot, Datamosh, LayoutShellV2, ChatWidget
+│   ├── ChatWidget.tsx          # Floating AI chat: SSE streaming, typewriter, Ghost Type header, Telegram linking
+│   └── v2/
+│       ├── LayoutShellV2.tsx   # Page wrapper: NavbarV2 + HeroV2 + content + FooterV2
+│       ├── NavbarV2.tsx        # Sticky nav: letterspaced logo, version, portfolio link
+│       ├── HeroV2.tsx          # System-label breadcrumb + Ghost Type headline
+│       ├── ProjectGridV2.tsx   # Category filter tabs, bento grid, stagger entrance, proximity field
+│       ├── ProjectCardV2.tsx   # Card: module counter, status pulse, Proximity Pulse, code-highlighted description
+│       ├── ProjectDetailV2.tsx # Full detail view: metadata sidebar, description, key learnings, CTAs
+│       ├── FillerCard.tsx      # Decorative glitch/diagnostic cards between highlights
+│       ├── SignalField.tsx     # Canvas dot grid — cursor-reactive (desktop) / ambient wave (mobile)
+│       ├── SystemBoot.tsx      # Terminal boot overlay — session-gated, skippable
+│       ├── DatamoshTransition.tsx # Glitch overlay for view transitions (full/mild modes)
+│       ├── ScanLine.tsx        # Atmospheric drifting horizontal line
+│       ├── FooterV2.tsx        # System status bar: latency readout, status dot, boot replay easter egg
+│       ├── renderWithCodeHighlights.tsx # Inline code highlighting for bracket/backtick patterns
+│       ├── useTextScramble.ts  # Ghost Type hook — procedural text scramble
+│       ├── useProximityField.ts # Proximity Pulse hook — cursor-driven magnetic field for grid cards
+│       └── useReducedMotion.ts # Detects prefers-reduced-motion for animation gating
 ├── lib/twin/
-│   ├── config.ts               # All env vars — single import point, never use process.env directly
+│   ├── config.ts               # All env vars — single import point
 │   ├── engine.ts               # Core chat orchestration: context injection, OpenAI calls, memory
 │   ├── memory.ts               # Redis: chat history, rate limiting, OTP pairing codes
 │   ├── redis.ts                # ioredis singleton
@@ -137,20 +161,22 @@ Add, edit, or hide projects by modifying `src/data/projects.json`. The category 
   "order": 1,
   "title": "Project Title",
   "shortDescription": "One-line summary shown on the card.",
-  "detailedDescription": "Full description shown in the details drawer.",
+  "detailedDescription": "Full description shown in the detail view.",
   "category": "Agentic-AI",
   "status": "Active",
   "display": true,
+  "highlight": false,
   "tags": ["Python", "OpenAI"],
   "demoUrl": "https://project.dianaismail.me",
   "githubUrl": "https://github.com/...",
-  "keyLearnings": "Optional — shown in the drawer above the tech tags."
+  "keyLearnings": "Optional — shown in the detail view above the tech tags."
 }
 ```
 
 **Field notes:**
 - `display: false` hides the project from the grid without deleting it.
-- `status` accepts `"Active"`, `"Research"`, or `"Archived"` — each maps to a distinct badge colour.
+- `status` accepts `"Active"`, `"Research"`, or `"Archived"` — each maps to a distinct badge style.
+- `highlight: true` gives the project a 2-column span in the bento grid with larger typography.
 - Setting `demoUrl` or `githubUrl` to `"#"` hides the corresponding action button.
 - Demo URLs containing `dianaismail.me` open in the same tab; all other URLs open in a new tab with `noopener noreferrer`.
 - `order` controls display position — lower numbers appear first.
