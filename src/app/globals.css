@@ -460,6 +460,23 @@ html.light .bg-orb-purple { opacity: 0.12; }
   border-color: var(--v2-border-accent);
 }
 
+/* Subtle chartreuse glow pulse — draws attention to the chat toggle */
+.chat-toggle-glow {
+  animation: chat-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes chat-glow-pulse {
+  0%, 100% { box-shadow: var(--v2-shadow); }
+  50%      { box-shadow: var(--v2-shadow), 0 0 12px rgba(200, 255, 0, 0.2); }
+}
+
+/* Disable glow animation for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .chat-toggle-glow {
+    animation: none;
+  }
+}
+
 .chat-toggle-label {
   font-family: var(--v2-font-mono);
   font-size: var(--v2-font-size-xs);

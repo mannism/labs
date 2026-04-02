@@ -11,6 +11,9 @@ import { LayoutShellV2 } from "./v2/LayoutShellV2";
 import { ProjectGridV2 } from "./v2/ProjectGridV2";
 import { ProjectDetailV2 } from "./v2/ProjectDetailV2";
 import { ScanLine } from "./v2/ScanLine";
+import { SystemBoot } from "./v2/SystemBoot";
+import { SignalField } from "./v2/SignalField";
+import { DatamoshTransition } from "./v2/DatamoshTransition";
 
 /**
  * AppShell — renders the v2 Speculative Interface.
@@ -22,26 +25,63 @@ export function AppShell() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   /** Saved scroll position so we can restore it when returning to the grid */
   const savedScrollY = useRef(0);
+  /** Whether System Boot has finished — gates Ghost Type scramble */
+  const [bootComplete, setBootComplete] = useState(false);
+  /** Datamosh glitch transition state */
+  const [datamoshActive, setDatamoshActive] = useState(false);
+  /** Track whether transitioning to detail (full) or back to grid (mild) */
+  const [datamoshMode, setDatamoshMode] = useState<"full" | "mild">("full");
+  /** Pending project for delayed selection after glitch plays */
+  const pendingProjectRef = useRef<Project | null>(null);
 
   /** Find a project by its ID from the static dataset */
   const findProjectById = useCallback((id: string): Project | null => {
     return (projectsData as Project[]).find((p) => p.id === id) ?? null;
   }, []);
 
-  /** Open detail view: save scroll position, push history, scroll to top */
+  /** Track whether we're going back (mild datamosh before history.back) */
+  const goingBackRef = useRef(false);
+
+  /** Callback when datamosh animation completes — apply the pending transition */
+  const handleDatamoshComplete = useCallback(() => {
+    setDatamoshActive(false);
+
+    if (goingBackRef.current) {
+      /* Mild datamosh finished — now do the actual back navigation */
+      goingBackRef.current = false;
+      window.history.back();
+      return;
+    }
+
+    if (pendingProjectRef.current) {
+      const project = pendingProjectRef.current;
+      pendingProjectRef.current = null;
+      setSelectedProject(project);
+      window.history.pushState(
+        { projectId: project.id },
+        "",
+        `?project=${project.id}`
+      );
+    }
+  }, []);
+
+  /** Open detail view: trigger datamosh, then switch view on completion */
   const selectProject = useCallback(
     (project: Project) => {
       savedScrollY.current = window.scrollY;
-      setSelectedProject(project);
-      window.history.pushState({ projectId: project.id }, "", `?project=${project.id}`);
-      /* Detail view's own useEffect handles scrolling to the back button */
+      pendingProjectRef.current = project;
+      setDatamoshMode("full");
+      setDatamoshActive(true);
     },
     []
   );
 
-  /** Close detail view via browser back */
+  /** Close detail view — play mild datamosh first, then navigate back on completion */
   const goBackToGrid = useCallback(() => {
-    window.history.back();
+    goingBackRef.current = true;
+    setDatamoshMode("mild");
+    setDatamoshActive(true);
+    /* history.back() is called in handleDatamoshComplete after glitch plays */
   }, []);
 
   /* Handle popstate (browser back/forward) and initial URL param */
@@ -73,10 +113,23 @@ export function AppShell() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      {/* Cursor-reactive dot grid background — z-index 0, behind everything */}
+      <SignalField />
+
+      {/* System boot overlay — plays once per session */}
+      <SystemBoot onComplete={() => setBootComplete(true)} />
+
+      {/* Datamosh glitch transition overlay */}
+      <DatamoshTransition
+        active={datamoshActive}
+        mode={datamoshMode}
+        onComplete={handleDatamoshComplete}
+      />
+
       {/* Atmospheric scan-line */}
       <ScanLine />
 
-      <LayoutShellV2>
+      <LayoutShellV2 bootComplete={bootComplete}>
         <AnimatePresence mode="wait">
           {selectedProject ? (
             <ProjectDetailV2

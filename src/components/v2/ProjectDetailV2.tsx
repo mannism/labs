@@ -6,6 +6,7 @@ import { ArrowUpRight, Github } from "lucide-react";
 import { Project } from "@/types/project";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
+import { useTextScramble } from "./useTextScramble";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 import projectsData from "../../data/projects.json";
 
@@ -29,6 +30,9 @@ export function ProjectDetailV2({
   const hasGithub = Boolean(project.githubUrl && project.githubUrl !== "#");
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
   const prefersReduced = useReducedMotion();
+
+  /** Ghost Type scramble on the project title — triggers on mount */
+  const titleScramble = useTextScramble(project.title, { delay: 150 });
 
   const detailRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +134,7 @@ export function ProjectDetailV2({
           textTransform: "uppercase",
         }}
       >
-        {project.title}
+        {titleScramble.text}
       </h1>
 
       {/* Module ID below title */}

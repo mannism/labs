@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
+import { CardProximityData } from "./useProximityField";
 
 /**
  * ProjectCardV2 — Speculative Interface project card with selective motion.
@@ -26,32 +27,56 @@ export function ProjectCardV2({
   index,
   size = "default",
   onClick,
+  proximity,
 }: {
   project: Project;
   index: number;
   size?: "large" | "default";
   onClick?: () => void;
+  /** Proximity Pulse data from useProximityField — desktop only */
+  proximity?: CardProximityData;
 }) {
   const moduleNumber = String(index + 1).padStart(3, "0");
   const isActive = project.status.toLowerCase() === "active";
   const isLarge = size === "large";
   const prefersReduced = useReducedMotion();
 
+  /** Whether proximity field is actively affecting this card */
+  const hasProximity = proximity?.isActive && !prefersReduced;
+
+  /**
+   * Build the CSS transform string.
+   * Proximity tilt takes precedence when active, otherwise standard hover lift applies.
+   */
+  const proximityTransform = hasProximity
+    ? `perspective(800px) rotateX(${proximity.rotateX.toFixed(2)}deg) rotateY(${proximity.rotateY.toFixed(2)}deg) translateZ(${proximity.translateZ.toFixed(1)}px)`
+    : undefined;
+
+  /** Enhanced shadow when the card is lifted by proximity */
+  const proximityShadow =
+    hasProximity && proximity.translateZ > 2
+      ? "0 8px 24px rgba(0, 0, 0, 0.12)"
+      : undefined;
+
   /** Handle hover in — inset box-shadow instead of borderLeftWidth to avoid layout shift */
   const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
-    el.style.transform = "translateY(-2px)";
+    if (!hasProximity) {
+      el.style.transform = "translateY(-2px)";
+    }
     el.style.boxShadow = "inset 3px 0 0 0 var(--v2-accent), var(--v2-shadow-hover)";
     el.style.borderColor = "var(--v2-border-hover)";
-  }, []);
+  }, [hasProximity]);
 
   /** Handle hover out — restore default state */
   const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
-    el.style.transform = "translateY(0)";
+    if (!hasProximity) {
+      el.style.transform = "translateY(0)";
+    }
     el.style.boxShadow = "var(--v2-shadow)";
     el.style.borderColor = "var(--v2-border)";
-  }, []);
+  }, [hasProximity]);
 
   return (
     <motion.div
@@ -81,17 +106,36 @@ export function ProjectCardV2({
         borderRadius: "0.5rem",
         padding: isLarge ? "var(--v2-space-2xl)" : "var(--v2-space-xl)",
         cursor: "pointer",
-        transition: "transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), border-color 0.25s ease",
+        transition: "transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), border-color 0.25s ease",
         position: "relative",
         height: "100%",
         boxSizing: "border-box",
-        boxShadow: "var(--v2-shadow)",
+        boxShadow: proximityShadow ?? "var(--v2-shadow)",
         display: "flex",
         flexDirection: "column",
+        transform: proximityTransform,
+        willChange: hasProximity ? "transform" : undefined,
+        overflow: "hidden",
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* Proximity Pulse — directional chartreuse glow overlay */}
+      {hasProximity && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "inherit",
+            pointerEvents: "none",
+            background: `radial-gradient(circle 120px at ${(proximity.glowX * 100).toFixed(0)}% ${(proximity.glowY * 100).toFixed(0)}%, rgba(200, 255, 0, 0.25), transparent)`,
+            zIndex: 0,
+            transition: "background 0.15s ease",
+          }}
+        />
+      )}
+
       {/* Module number (animated counter) + status label */}
       <div className="flex items-center justify-between" style={{ marginBottom: isLarge ? "var(--v2-space-lg)" : "var(--v2-space-md)" }}>
         <span
