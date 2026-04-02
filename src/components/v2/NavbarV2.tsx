@@ -35,6 +35,7 @@ export function NavbarV2() {
           {/* Version — part of the identity block, hidden on small mobile */}
           <span
             className="hidden sm:inline"
+            suppressHydrationWarning
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",

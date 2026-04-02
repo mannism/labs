@@ -49,6 +49,7 @@ export function FooterV2() {
       >
         {/* Left: system identifier */}
         <p
+          suppressHydrationWarning
           style={{
             fontFamily: "var(--v2-font-mono)",
             fontSize: "var(--v2-font-size-xs)",
