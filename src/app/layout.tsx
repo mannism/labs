@@ -143,13 +143,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      {/* Prevent theme flash: read localStorage before React hydrates and apply correct class */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `try{var v=localStorage.getItem('labs-ui-version');if(v==='v2'||!v){document.documentElement.classList.remove('dark');document.documentElement.classList.add('v2')}}catch(e){}`,
-        }}
-      />
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Prevent theme flash: read localStorage before React hydrates and apply correct class */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var v=localStorage.getItem('labs-ui-version');if(v==='v2'||!v){document.documentElement.classList.remove('dark');document.documentElement.classList.add('v2')}}catch(e){}`,
+          }}
+        />
+      </head>
       <body
         className={`${merriweather.variable} ${openSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased font-sans`}
         style={{ position: "relative" }}
