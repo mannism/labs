@@ -7,7 +7,7 @@ import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-export const alt = "Labs by Diana — AI experiments, all live. Built by Diana Ismail.";
+export const alt = "Labs by Diana — Speculative interface and AI experiments. Built by Diana Ismail, agentic AI builder.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -118,7 +118,7 @@ export default async function OGImage() {
                         lineHeight: 1.5,
                     }}
                 >
-                    Side projects that got out of hand. AI tools built for problems I kept tripping over.
+                    Creative coding, agentic AI, and speculative interface design. All live.
                 </div>
             </div>
         ),

@@ -1,20 +1,23 @@
 {
   "siteName": "Labs by Diana",
-  "title": "Labs | Diana Ismail",
-  "description": "Labs by Diana — AI experiments built to solve real problems. All live, all free to use. No fluff.",
+  "title": "Labs by Diana Ismail — Agentic AI Builder",
+  "description": "A speculative interface built by Diana Ismail — agentic AI builder. Live experiments in AI, creative coding, and canvas animation. Every project ships production-quality.",
   "keywords": [
     "Diana Ismail",
-    "AI projects",
+    "agentic AI builder",
     "agentic AI",
-    "full-stack developer",
-    "portfolio",
-    "labs",
-    "Next.js",
-    "FastAPI",
-    "OpenAI",
+    "speculative interface",
+    "creative coding",
+    "canvas animation",
+    "generative art",
     "digital twin",
-    "AI chat",
-    "GEO audit"
+    "AI experiments",
+    "Next.js",
+    "Claude Code",
+    "OpenAI",
+    "GEO audit",
+    "interactive design",
+    "Next.js 16"
   ],
   "author": "Diana Ismail",
   "siteUrl": "https://labs.dianaismail.me",
@@ -25,6 +28,6 @@
     "imageUrl": "https://labs.dianaismail.me/opengraph-image",
     "imageWidth": 1200,
     "imageHeight": 630,
-    "imageAlt": "Labs by Diana — AI experiments, all live. Built by Diana Ismail."
+    "imageAlt": "Labs by Diana — Speculative interface and AI experiments. Built by Diana Ismail, agentic AI builder."
   }
 }

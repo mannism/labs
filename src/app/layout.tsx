@@ -97,8 +97,13 @@ const jsonLd = {
       "@id": `${seo.siteUrl}/#person`,
       name: seo.author,
       url: seo.siteUrl,
+      jobTitle: "Agentic AI Builder",
+      description:
+        "Agentic AI builder creating at the intersection of AI, interactive design, and brand experience.",
       sameAs: [
         `https://twitter.com/${seo.twitterHandle.replace("@", "")}`,
+        "https://www.linkedin.com/in/dee-ismail/",
+        "https://dianaismail.me",
       ],
     },
     {
