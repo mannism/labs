@@ -262,6 +262,9 @@ export function ProjectGridV2({
         {gridItems}
       </motion.div>
 
+      {/* Bottom spacing to separate cards from footer */}
+      <div style={{ height: "var(--v2-space-3xl)" }} />
+
       {/* Responsive overrides: mobile full-width, tablet 2-col equal, hide tab scrollbar */}
       <style>{`
         @media (max-width: 767px) {

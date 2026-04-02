@@ -236,8 +236,9 @@ export function ProjectCardV2({
         ))}
       </div>
 
-      {/* Version + date metadata line */}
+      {/* Version + date metadata line — suppressHydrationWarning for nightly sync version drift */}
       <div
+        suppressHydrationWarning
         style={{
           fontFamily: "var(--v2-font-mono)",
           fontSize: "var(--v2-font-size-xs)",
