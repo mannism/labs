@@ -49,21 +49,14 @@ export function useTextScramble(
 
   /**
    * Check sessionStorage to determine if this scramble has already played.
-   * If a sessionKey is provided and the flag exists, skip the animation.
+   * Deferred to useEffect to avoid hydration mismatch (sessionStorage is
+   * unavailable on the server, so reading it during render would cause the
+   * client initial state to diverge from the server-rendered state).
    */
   const alreadyPlayed = useRef(false);
-  if (typeof window !== "undefined" && sessionKey) {
-    try {
-      alreadyPlayed.current = sessionStorage.getItem(sessionKey) === "done";
-    } catch {
-      /* sessionStorage unavailable — fall through to normal behavior */
-    }
-  }
 
-  const [displayText, setDisplayText] = useState(
-    alreadyPlayed.current ? text : text
-  );
-  const [isComplete, setIsComplete] = useState(alreadyPlayed.current);
+  const [displayText, setDisplayText] = useState(text);
+  const [isComplete, setIsComplete] = useState(false);
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number | null>(null);
   const delayedRef = useRef(false);
@@ -74,6 +67,16 @@ export function useTextScramble(
   }, []);
 
   useEffect(() => {
+    /* Check sessionStorage for session gating (safe — runs only on client) */
+    if (sessionKey) {
+      try {
+        alreadyPlayed.current =
+          sessionStorage.getItem(sessionKey) === "done";
+      } catch {
+        /* sessionStorage unavailable — fall through */
+      }
+    }
+
     /* Reduced motion — show final text immediately */
     if (prefersReduced) {
       setDisplayText(text);
@@ -177,7 +180,7 @@ export function useTextScramble(
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [text, speed, delay, enabled, prefersReduced, randomGlyph]);
+  }, [text, speed, delay, enabled, prefersReduced, randomGlyph, sessionKey]);
 
   return { text: displayText, isComplete };
 }
