@@ -11,7 +11,7 @@
 export function HeroV2() {
   return (
     <section
-      className="max-w-7xl mx-auto w-full px-6"
+      className="max-w-7xl mx-auto w-full px-6 v2-hero"
       style={{
         paddingTop: "var(--v2-space-4xl)",
         paddingBottom: "var(--v2-space-3xl)",

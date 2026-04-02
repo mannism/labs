@@ -32,8 +32,9 @@ export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode })
           >
             L A B S
           </span>
-          {/* Breadcrumb-style subtitle */}
+          {/* Breadcrumb-style subtitle — hidden on mobile (redundant with HeroV2) */}
           <span
+            className="hidden md:inline"
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",
@@ -46,7 +47,7 @@ export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode })
         </div>
 
         {/* Right side: portfolio link, version toggle, version display */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 md:gap-5">
           <a
             href="https://dianaismail.me"
             target="_blank"
@@ -70,8 +71,9 @@ export function NavbarV2({ versionToggle }: { versionToggle?: React.ReactNode })
           {/* Version toggle placeholder — populated by parent */}
           {versionToggle}
 
-          {/* Package version — subtle monospace label */}
+          {/* Package version — hidden on mobile to save space */}
           <span
+            className="hidden sm:inline"
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",

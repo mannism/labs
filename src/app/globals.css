@@ -219,6 +219,14 @@ html.v2 .bg-orbs {
   display: none;
 }
 
+/* V2 hero: reduce excessive padding on mobile */
+@media (max-width: 767px) {
+  html.v2 .v2-hero {
+    padding-top: var(--v2-space-2xl) !important;
+    padding-bottom: var(--v2-space-xl) !important;
+  }
+}
+
 /* ─── Display / serif font helper ───────────────────────────── */
 .font-display {
   /* Merriweather injected as --font-merriweather by next/font in layout.tsx */

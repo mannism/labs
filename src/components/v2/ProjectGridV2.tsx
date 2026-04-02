@@ -134,13 +134,16 @@ export function ProjectGridV2({
 
   return (
     <div>
-      {/* Category filter tabs — minimal underline-active style */}
+      {/* Category filter tabs — horizontally scrollable on mobile, wrapping on desktop */}
       <div
-        className="flex flex-wrap gap-6"
+        className="flex gap-4 md:gap-6 md:flex-wrap overflow-x-auto"
         style={{
           marginBottom: "var(--v2-space-2xl)",
           borderBottom: "1px solid var(--v2-border)",
           paddingBottom: "var(--v2-space-sm)",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
         {categories.map((category) => {
@@ -161,6 +164,8 @@ export function ProjectGridV2({
                 transition: "color 0.2s ease, border-color 0.2s ease",
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => {
                 if (!isTabActive) e.currentTarget.style.color = "var(--v2-text-secondary)";
@@ -197,14 +202,15 @@ export function ProjectGridV2({
         }}
         className="bento-grid"
         variants={prefersReduced ? undefined : containerVariants}
-        initial={prefersReduced ? undefined : "hidden"}
-        animate={prefersReduced ? undefined : "visible"}
+        initial={prefersReduced ? false : "hidden"}
+        whileInView={prefersReduced ? undefined : "visible"}
+        viewport={{ once: true, amount: 0.05 }}
         key={activeCategory} /* Re-trigger stagger on category change */
       >
         {gridItems}
       </motion.div>
 
-      {/* Responsive overrides: mobile full-width, tablet 2-col equal */}
+      {/* Responsive overrides: mobile full-width, tablet 2-col equal, hide tab scrollbar */}
       <style>{`
         @media (max-width: 767px) {
           .bento-grid { grid-template-columns: 1fr !important; }
@@ -214,6 +220,8 @@ export function ProjectGridV2({
           .bento-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .bento-cell { grid-column: span 1 !important; }
         }
+        /* Hide scrollbar on category tabs while allowing horizontal scroll */
+        .overflow-x-auto::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );
