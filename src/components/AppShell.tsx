@@ -12,6 +12,7 @@ import { ProjectGridV2 } from "./v2/ProjectGridV2";
 import { ProjectDetailV2 } from "./v2/ProjectDetailV2";
 import { ScanLine } from "./v2/ScanLine";
 import { SystemBoot } from "./v2/SystemBoot";
+import { SignalField } from "./v2/SignalField";
 
 /**
  * AppShell — renders the v2 Speculative Interface.
@@ -74,6 +75,9 @@ export function AppShell() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      {/* Cursor-reactive dot grid background — z-index 0, behind everything */}
+      <SignalField />
+
       {/* System boot overlay — plays once per session */}
       <SystemBoot />
 
