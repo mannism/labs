@@ -1,3 +1,8 @@
+/**
+ * OG social preview image — v2 Speculative Interface direction.
+ * Chartreuse accent on dark ground with Space Grotesk typography.
+ * Serves at /opengraph-image — auto-detected by Next.js metadata.
+ */
 import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -7,8 +12,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OGImage() {
-    // Fonts are bundled locally in public/fonts/ — no CDN dependency at runtime.
-    const merriweatherBold = readFileSync(join(process.cwd(), "public/fonts/Merriweather-Bold.ttf"));
+    const spaceGroteskBold = readFileSync(join(process.cwd(), "public/fonts/SpaceGrotesk-Bold.ttf"));
     const openSansRegular  = readFileSync(join(process.cwd(), "public/fonts/OpenSans-Regular.ttf"));
 
     return new ImageResponse(
@@ -17,7 +21,7 @@ export default async function OGImage() {
                 style={{
                     width: 1200,
                     height: 630,
-                    background: "#0A0A0F",
+                    background: "#1A1D23",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -27,7 +31,7 @@ export default async function OGImage() {
                     overflow: "hidden",
                 }}
             >
-                {/* Background orb — blue */}
+                {/* Background orb — chartreuse */}
                 <div
                     style={{
                         position: "absolute",
@@ -36,10 +40,10 @@ export default async function OGImage() {
                         width: 500,
                         height: 500,
                         borderRadius: "50%",
-                        background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)",
+                        background: "radial-gradient(circle, rgba(200,255,0,0.10) 0%, transparent 70%)",
                     }}
                 />
-                {/* Background orb — purple */}
+                {/* Background orb — secondary glow */}
                 <div
                     style={{
                         position: "absolute",
@@ -48,7 +52,7 @@ export default async function OGImage() {
                         width: 400,
                         height: 400,
                         borderRadius: "50%",
-                        background: "radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)",
+                        background: "radial-gradient(circle, rgba(200,255,0,0.05) 0%, transparent 70%)",
                     }}
                 />
 
@@ -70,7 +74,7 @@ export default async function OGImage() {
                             width: 10,
                             height: 10,
                             borderRadius: "50%",
-                            background: "#22C55E",
+                            background: "#C8FF00",
                         }}
                     />
                     <span
@@ -85,13 +89,13 @@ export default async function OGImage() {
                     </span>
                 </div>
 
-                {/* Headline — display:flex required by satori for multi-child elements */}
+                {/* Headline */}
                 <div
                     style={{
                         display: "flex",
                         flexWrap: "wrap",
                         alignItems: "baseline",
-                        fontFamily: "Merriweather",
+                        fontFamily: "Space Grotesk",
                         fontSize: 80,
                         fontWeight: 700,
                         color: "#FFFFFF",
@@ -101,7 +105,7 @@ export default async function OGImage() {
                     }}
                 >
                     <span>{"Labs by Diana — "}</span>
-                    <span style={{ color: "#3B82F6" }}>Experiments that ship.</span>
+                    <span style={{ color: "#C8FF00" }}>Experiments that ship.</span>
                 </div>
 
                 {/* Subtitle */}
@@ -121,8 +125,8 @@ export default async function OGImage() {
         {
             ...size,
             fonts: [
-                { name: "Merriweather", data: merriweatherBold, style: "normal", weight: 700 },
-                { name: "Open Sans", data: openSansRegular, style: "normal", weight: 400 },
+                { name: "Space Grotesk", data: spaceGroteskBold, style: "normal" as const, weight: 700 as const },
+                { name: "Open Sans", data: openSansRegular, style: "normal" as const, weight: 400 as const },
             ],
         }
     );

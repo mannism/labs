@@ -4,7 +4,7 @@ import seo from "@/data/seo.json";
 /**
  * Generates /manifest.json via Next.js Metadata Route API.
  * Provides PWA metadata and discoverability signals for browsers and search engines.
- * Background and theme colors match globals.css --bg-primary and --accent-blue.
+ * Background and theme colors match v2 Speculative Interface direction.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -13,17 +13,17 @@ export default function manifest(): MetadataRoute.Manifest {
     description: seo.description,
     start_url: "/",
     display: "standalone",
-    background_color: "#0a0a0f",
-    theme_color: "#3b82f6",
+    background_color: "#1A1D23",
+    theme_color: "#C8FF00",
     icons: [
       {
-        src: "/android-chrome-192x192.png",
-        sizes: "192x192",
+        src: "/icon",
+        sizes: "32x32",
         type: "image/png",
       },
       {
-        src: "/favicon-512x512.png",
-        sizes: "512x512",
+        src: "/apple-icon",
+        sizes: "180x180",
         type: "image/png",
       },
     ],
