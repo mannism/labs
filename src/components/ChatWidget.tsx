@@ -5,6 +5,8 @@ import { flushSync } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, ExternalLink, Link, Send } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { useTextScramble } from "./v2/useTextScramble";
+import { useReducedMotion } from "./v2/useReducedMotion";
 
 /** Shape of a single chat bubble in the messages list. */
 interface ChatMessage {
@@ -109,6 +111,14 @@ export function ChatWidget() {
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkCode, setLinkCode] = useState("");
     const [bottomOffset, setBottomOffset] = useState(30);
+    const prefersReducedMotion = useReducedMotion();
+
+    /** Ghost-type scramble on the header title — re-triggers on each open via openCount key. */
+    const { text: headerText } = useTextScramble("AI Diana", {
+        speed: 25,
+        delay: 100,
+        enabled: isOpen,
+    });
 
     /** Ref on the scrollable messages container — needed for explicit scrollTop math. */
     const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -383,13 +393,16 @@ export function ChatWidget() {
             <AnimatePresence>
                 {!isOpen && (
                     <motion.button
-                        className="chat-toggle-btn"
+                        className={`chat-toggle-btn${!prefersReducedMotion ? " chat-toggle-glow" : ""}`}
                         style={{ bottom: bottomOffset }}
                         onClick={() => { trackEvent("chat_open", {}); setIsOpen(true); }}
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
-                        transition={{ type: "spring", damping: 20, stiffness: 260 }}
+                        transition={prefersReducedMotion
+                            ? { duration: 0 }
+                            : { type: "spring", damping: 20, stiffness: 260 }
+                        }
                         whileTap={{ scale: 0.9 }}
                         aria-label="Open AI Diana chat"
                     >
@@ -404,11 +417,22 @@ export function ChatWidget() {
                 {isOpen && (
                     <motion.div
                         className="chat-window"
-                        style={{ bottom: bottomOffset }}
-                        initial={{ opacity: 0, scale: 0.95, y: 16 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 16 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        style={{ bottom: bottomOffset, transformOrigin: "bottom right" }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{
+                            opacity: 1,
+                            scale: 1,
+                            transition: prefersReducedMotion
+                                ? { duration: 0 }
+                                : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] },
+                        }}
+                        exit={{
+                            opacity: 0,
+                            scale: 0.95,
+                            transition: prefersReducedMotion
+                                ? { duration: 0 }
+                                : { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] },
+                        }}
                         role="dialog"
                         aria-label="AI Diana chat"
                     >
@@ -433,7 +457,7 @@ export function ChatWidget() {
                                             letterSpacing: "var(--v2-letter-spacing-tight)",
                                         }}
                                     >
-                                        AI Diana
+                                        {headerText}
                                     </h3>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
