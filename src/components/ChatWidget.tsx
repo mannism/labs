@@ -89,7 +89,7 @@ function parseMarkdown(text: string, sessionId: string | null): string {
 }
 
 /**
- * FloatingChatWidget — AI Diana
+ * FloatingChatWidget — AI Diana (v2 Speculative Interface)
  *
  * A fixed-position chat widget that streams responses from the Digital Twin
  * FastAPI backend via Server-Sent Events. SSE chunks are accumulated silently;
@@ -97,8 +97,8 @@ function parseMarkdown(text: string, sessionId: string | null): string {
  * once the complete response arrives. Supports Telegram account linking and
  * auto-pairing from the `?connect=` URL query param.
  *
- * Styling uses CSS custom properties from globals.css so dark/light mode
- * is handled automatically without any additional state.
+ * Styled with v2 design tokens: white surfaces, chartreuse accent, Space Grotesk
+ * typography, clinical aesthetic. CSS classes in globals.css, inline v2 tokens.
  */
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -190,19 +190,19 @@ export function ChatWidget() {
                     ...prev,
                     {
                         role: "assistant",
-                        text: "✅ Linked with Telegram! Your conversation history is now synced.",
+                        text: "Linked with Telegram! Your conversation history is now synced.",
                     },
                 ]);
             } else {
                 setMessages((prev) => [
                     ...prev,
-                    { role: "assistant", text: `❌ ${data.message ?? "Could not link account."}` },
+                    { role: "assistant", text: `${data.message ?? "Could not link account."}` },
                 ]);
             }
         } catch {
             setMessages((prev) => [
                 ...prev,
-                { role: "assistant", text: "❌ Failed to connect to server." },
+                { role: "assistant", text: "Failed to connect to server." },
             ]);
         }
     }, []);
@@ -415,16 +415,23 @@ export function ChatWidget() {
                         {/* Header */}
                         <div
                             style={{
-                                borderBottom: "1px solid var(--border-subtle)",
+                                borderBottom: "1px solid var(--v2-border)",
                                 padding: "1rem 1.25rem",
                                 flexShrink: 0,
+                                background: "var(--v2-bg-surface)",
                             }}
                         >
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <div>
                                     <h3
-                                        className="font-display text-xl font-bold tracking-tight"
-                                        style={{ color: "var(--text-primary)", margin: 0 }}
+                                        style={{
+                                            color: "var(--v2-text-primary)",
+                                            margin: 0,
+                                            fontFamily: "var(--v2-font-display)",
+                                            fontSize: "var(--v2-font-size-lg)",
+                                            fontWeight: 600,
+                                            letterSpacing: "var(--v2-letter-spacing-tight)",
+                                        }}
                                     >
                                         AI Diana
                                     </h3>
@@ -435,27 +442,81 @@ export function ChatWidget() {
                                         href={telegramUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="card-icon-btn"
                                         title="Continue on Telegram"
-                                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            padding: "0.375rem",
+                                            borderRadius: "0.375rem",
+                                            color: "var(--v2-text-secondary)",
+                                            background: "transparent",
+                                            border: "1px solid transparent",
+                                            transition: "color 0.2s ease, background 0.2s ease, border-color 0.2s ease",
+                                            cursor: "pointer",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-primary)";
+                                            e.currentTarget.style.background = "var(--v2-bg-secondary)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-secondary)";
+                                            e.currentTarget.style.background = "transparent";
+                                        }}
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                     </a>
                                     {/* Toggle Telegram link input */}
                                     <button
-                                        className="card-icon-btn"
                                         onClick={() => setShowLinkInput((v) => !v)}
                                         title="Link Telegram account"
-                                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            padding: "0.375rem",
+                                            borderRadius: "0.375rem",
+                                            color: "var(--v2-text-secondary)",
+                                            background: "transparent",
+                                            border: "1px solid transparent",
+                                            transition: "color 0.2s ease, background 0.2s ease",
+                                            cursor: "pointer",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-primary)";
+                                            e.currentTarget.style.background = "var(--v2-bg-secondary)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-secondary)";
+                                            e.currentTarget.style.background = "transparent";
+                                        }}
                                     >
                                         <Link className="w-4 h-4" />
                                     </button>
                                     {/* Close */}
                                     <button
-                                        className="card-icon-btn"
                                         onClick={() => setIsOpen(false)}
                                         aria-label="Close chat"
-                                        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            padding: "0.375rem",
+                                            borderRadius: "0.375rem",
+                                            color: "var(--v2-text-secondary)",
+                                            background: "transparent",
+                                            border: "1px solid transparent",
+                                            transition: "color 0.2s ease, background 0.2s ease",
+                                            cursor: "pointer",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-primary)";
+                                            e.currentTarget.style.background = "var(--v2-bg-secondary)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color = "var(--v2-text-secondary)";
+                                            e.currentTarget.style.background = "transparent";
+                                        }}
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -486,23 +547,31 @@ export function ChatWidget() {
                                                 placeholder="8-digit code from /connect"
                                                 style={{
                                                     flex: 1,
-                                                    background: "var(--tab-bg)",
-                                                    border: "1px solid var(--border-subtle)",
-                                                    borderRadius: "0.5rem",
+                                                    background: "var(--v2-bg-primary)",
+                                                    border: "1px solid var(--v2-border)",
+                                                    borderRadius: "0.375rem",
                                                     padding: "0.375rem 0.625rem",
-                                                    color: "var(--text-primary)",
-                                                    fontSize: "0.75rem",
-                                                    fontFamily: "var(--font-geist-mono)",
+                                                    color: "var(--v2-text-primary)",
+                                                    fontSize: "var(--v2-font-size-xs)",
+                                                    fontFamily: "var(--v2-font-mono)",
                                                     outline: "none",
+                                                    letterSpacing: "0.05em",
                                                 }}
                                             />
                                             <button
-                                                className="drawer-btn-primary"
                                                 style={{
-                                                    borderRadius: "0.5rem",
+                                                    borderRadius: "0.375rem",
                                                     padding: "0.375rem 0.875rem",
-                                                    fontSize: "0.75rem",
+                                                    fontSize: "var(--v2-font-size-xs)",
+                                                    fontFamily: "var(--v2-font-mono)",
                                                     fontWeight: 600,
+                                                    textTransform: "uppercase" as const,
+                                                    letterSpacing: "var(--v2-letter-spacing-wide)",
+                                                    background: "var(--v2-accent)",
+                                                    color: "var(--v2-text-primary)",
+                                                    border: "none",
+                                                    cursor: "pointer",
+                                                    transition: "opacity 0.2s ease",
                                                 }}
                                                 onClick={() => {
                                                     processLinkCode(linkCode);
@@ -521,7 +590,7 @@ export function ChatWidget() {
                         {/* Messages */}
                         <div
                             ref={messagesContainerRef}
-                            className="custom-scrollbar"
+                            className="chat-scrollbar"
                             style={{
                                 flex: 1,
                                 overflowY: "auto",
@@ -529,13 +598,15 @@ export function ChatWidget() {
                                 display: "flex",
                                 flexDirection: "column",
                                 gap: "0.75rem",
+                                background: "var(--v2-bg-primary)",
                             }}
                         >
                             {messages.length === 0 && (
                                 <p
                                     style={{
-                                        color: "var(--text-muted)",
-                                        fontSize: "0.8rem",
+                                        color: "var(--v2-text-tertiary)",
+                                        fontSize: "var(--v2-font-size-sm)",
+                                        fontFamily: "var(--v2-font-body)",
                                         textAlign: "center",
                                         marginTop: "2rem",
                                         lineHeight: 1.6,
@@ -582,12 +653,13 @@ export function ChatWidget() {
                             })}
                         </div>
 
-                        {/* Input */}
+                        {/* Input area */}
                         <div
                             style={{
                                 padding: "0.75rem 1rem",
-                                borderTop: "1px solid var(--border-subtle)",
+                                borderTop: "1px solid var(--v2-border)",
                                 flexShrink: 0,
+                                background: "var(--v2-bg-surface)",
                             }}
                         >
                             <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
@@ -596,40 +668,50 @@ export function ChatWidget() {
                                     value={input}
                                     onChange={handleInputChange}
                                     onKeyDown={handleKeyDown}
-                                    placeholder={isStreaming ? "Thinking…" : "Ask anything… (Enter to send)"}
+                                    placeholder={isStreaming ? "Thinking..." : "Ask anything... (Enter to send)"}
                                     maxLength={600}
                                     rows={1}
                                     disabled={isStreaming}
                                     style={{
                                         flex: 1,
                                         resize: "none",
-                                        background: "var(--tab-bg)",
-                                        border: "1px solid var(--border-subtle)",
-                                        borderRadius: "0.75rem",
+                                        background: "var(--v2-bg-primary)",
+                                        border: "1px solid var(--v2-border)",
+                                        borderRadius: "0.5rem",
                                         padding: "0.625rem 0.875rem",
-                                        color: "var(--text-primary)",
-                                        fontSize: "0.875rem",
-                                        fontFamily: "var(--font-open-sans)",
+                                        color: "var(--v2-text-primary)",
+                                        fontSize: "var(--v2-font-size-sm)",
+                                        fontFamily: "var(--v2-font-body)",
                                         outline: "none",
                                         lineHeight: "1.5",
                                         maxHeight: "100px",
                                         overflowY: "auto",
+                                        transition: "border-color 0.2s ease",
+                                    }}
+                                    onFocus={(e) => {
+                                        e.currentTarget.style.borderColor = "var(--v2-border-accent)";
+                                    }}
+                                    onBlur={(e) => {
+                                        e.currentTarget.style.borderColor = "var(--v2-border)";
                                     }}
                                 />
                                 <button
                                     onClick={sendMessage}
                                     disabled={isStreaming || !input.trim()}
-                                    className="drawer-btn-primary"
                                     aria-label="Send message"
                                     style={{
-                                        borderRadius: "0.75rem",
+                                        borderRadius: "0.5rem",
                                         padding: "0.625rem 0.875rem",
                                         flexShrink: 0,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
+                                        background: "var(--v2-accent)",
+                                        color: "var(--v2-text-primary)",
+                                        border: "none",
                                         opacity: isStreaming || !input.trim() ? 0.45 : 1,
                                         cursor: isStreaming || !input.trim() ? "not-allowed" : "pointer",
+                                        transition: "opacity 0.2s ease",
                                     }}
                                 >
                                     <Send className="w-4 h-4" />
