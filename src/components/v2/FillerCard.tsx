@@ -11,9 +11,30 @@ import { useReducedMotion } from "./useReducedMotion";
  */
 export function FillerCard() {
   const prefersReduced = useReducedMotion();
-  const style = useMemo(() => (Math.random() > 0.5 ? "glitch" : "diagnostic"), []);
+  const [mounted, setMounted] = useState(false);
+  const style = useRef<"glitch" | "diagnostic">("glitch");
 
-  return style === "glitch" ? (
+  useEffect(() => {
+    style.current = Math.random() > 0.5 ? "glitch" : "diagnostic";
+    setMounted(true);
+  }, []);
+
+  /* Render an empty dark placeholder on server to avoid hydration mismatch */
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          ...wrapperStyle,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        aria-hidden="true"
+      />
+    );
+  }
+
+  return style.current === "glitch" ? (
     <GlitchCard reduced={prefersReduced} />
   ) : (
     <DiagnosticCard reduced={prefersReduced} />
