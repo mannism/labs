@@ -1,14 +1,21 @@
 "use client";
 
+import { useTextScramble } from "./useTextScramble";
+
 /**
  * HeroV2 — display header for the Speculative Interface (v2).
  * Renders a system-label breadcrumb, dramatically large display headline
  * (Space Grotesk, uppercase), and a compact subtitle.
  * Typography hierarchy matches Stitch: breadcrumb is tiny monospace,
  * headline is 3.25rem+ bold, subtitle is body-sized muted text.
- * Clinical aesthetic — no decorative effects.
+ * Clinical aesthetic — Ghost Type scramble on the headline at page load.
  */
 export function HeroV2() {
+  /** Ghost Type scramble on the two headline segments */
+  const headlinePart1 = useTextScramble("Labs by Diana —", { delay: 200 });
+  const headlinePart2 = useTextScramble("Experiments that ship.", {
+    delay: 400,
+  });
   return (
     <section
       className="max-w-7xl mx-auto w-full px-6 v2-hero"
@@ -46,9 +53,9 @@ export function HeroV2() {
           textTransform: "uppercase",
         }}
       >
-        Labs by Diana —{" "}
+        {headlinePart1.text}{" "}
         <span style={{ color: "var(--v2-text-secondary)", fontWeight: 400 }}>
-          Experiments that ship.
+          {headlinePart2.text}
         </span>
       </h1>
 
