@@ -143,6 +143,7 @@ jobs:
           EOF
 
       - name: Commit and push if changed
+        shell: bash {0}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -153,14 +154,22 @@ jobs:
           git add src/data/projects.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "chore: sync project versions and update dates [skip ci]"
-            # Retry push up to 3 times in case remote moves between commit and push
-            for i in 1 2 3; do
-              git push && break
-              echo "Push attempt $i failed, rebasing and retrying..."
-              git pull --rebase origin main
-            done
+            exit 0
           fi
+
+          git commit -m "chore: sync project versions and update dates [skip ci]"
+
+          # Retry push up to 3 times — remote may move between commit and push
+          for i in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $i."
+              exit 0
+            fi
+            echo "Push attempt $i failed, rebasing and retrying..."
+            git pull --rebase origin main
+          done
+
+          echo "All push attempts failed."
+          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
