@@ -149,6 +149,7 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "chore: sync project versions and update dates [skip ci]"
+            git pull --rebase origin main
             git push
           fi
         env:
