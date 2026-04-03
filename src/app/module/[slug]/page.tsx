@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Project } from "@/types/project";
-import projectsData from "@/data/projects.json";
+import projectsData from "@/lib/projects";
 import seo from "@/data/seo.json";
 import { ModuleDetailClient } from "./ModuleDetailClient";
 

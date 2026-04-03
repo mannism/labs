@@ -8,7 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
 import { useTextScramble } from "./useTextScramble";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
-import projectsData from "../../data/projects.json";
+import projectsData from "@/lib/projects";
 
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.

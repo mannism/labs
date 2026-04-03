@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import seo from "@/data/seo.json";
-import projectsData from "@/data/projects.json";
+import projectsData from "@/lib/projects";
 import { Project } from "@/types/project";
 
 /**

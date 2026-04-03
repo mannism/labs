@@ -7,7 +7,7 @@ import { FillerCard } from "./FillerCard";
 import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import { useProximityField, CardProximityData } from "./useProximityField";
-import projectsData from "../../data/projects.json";
+import projectsData from "@/lib/projects";
 
 /**
  * ProjectGridV2 — Speculative Interface project grid with stagger entrance.

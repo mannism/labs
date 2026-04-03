@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import seo from "@/data/seo.json";
-import projects from "@/data/projects.json";
+import projects from "@/lib/projects";
 
 /**
  * Serves /llms.txt — an AI-crawler-readable plain-text description of this site.
@@ -10,7 +10,7 @@ import projects from "@/data/projects.json";
 export function GET() {
   const projectLines = projects
     .filter((p) => p.display)
-    .sort((a, b) => a.order - b.order)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map((p) => `- ${p.title}: ${p.shortDescription}`)
     .join("\n");
 

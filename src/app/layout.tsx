@@ -3,7 +3,7 @@ import { Geist_Mono, Merriweather, Open_Sans, Space_Grotesk } from "next/font/go
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
-import projects from "@/data/projects.json";
+import projects from "@/lib/projects";
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -113,7 +113,7 @@ const jsonLd = {
       numberOfItems: projects.filter((p) => p.display).length,
       itemListElement: projects
         .filter((p) => p.display)
-        .sort((a, b) => a.order - b.order)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((p, i) => ({
           "@type": "ListItem",
           position: i + 1,

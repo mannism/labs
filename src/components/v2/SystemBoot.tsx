@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
 import packageJson from "../../../package.json";
-import projectsData from "../../data/projects.json";
+import projectsData from "@/lib/projects";
 import { Project } from "@/types/project";
 
 /**
