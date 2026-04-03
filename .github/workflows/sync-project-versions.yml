@@ -144,13 +144,21 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Pull latest before staging to avoid divergence from concurrent workflows
+          git pull --rebase origin main
+
           git add src/data/projects.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             git commit -m "chore: sync project versions and update dates [skip ci]"
-            git pull --rebase origin main
-            git push
+            # Retry push up to 3 times in case remote moves between commit and push
+            for i in 1 2 3; do
+              git push && break
+              echo "Push attempt $i failed, rebasing and retrying..."
+              git pull --rebase origin main
+            done
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
