@@ -137,7 +137,7 @@
     "demoUrl": "https://geoaudit.dianaismail.me/",
     "githubUrl": "#",
     "keyLearnings": "`VITE_*` environment variables are bundled into the client at build time and visible in the browser — so any variable the frontend reads is effectively public. Keeping the two-tier feature logic on the server (Express decides what the free tier returns) rather than in the frontend bundle was not optional: feature flags in the client are easily bypassed.",
-    "version": "1.3.2",
+    "version": "2.1.1",
     "lastUpdated": "2026-04-04"
   },
   {
