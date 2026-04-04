@@ -275,17 +275,9 @@ export function ProjectDetailV2({
             {renderWithCodeHighlights(project.detailedDescription)}
           </p>
 
-          {/* Key learnings callout — bordered card with chartreuse left accent */}
+          {/* Key learnings log — up to 3 numbered blocks with chartreuse left accent */}
           {project.keyLearnings && (
-            <div
-              style={{
-                borderLeft: "3px solid var(--v2-accent)",
-                background: "var(--v2-tag-bg)",
-                borderRadius: "0 0.5rem 0.5rem 0",
-                padding: "var(--v2-space-xl)",
-                marginBottom: "var(--v2-space-2xl)",
-              }}
-            >
+            <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
               <p
                 style={{
                   fontFamily: "var(--v2-font-mono)",
@@ -293,22 +285,54 @@ export function ProjectDetailV2({
                   color: "var(--v2-text-tertiary)",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  margin: "0 0 var(--v2-space-sm) 0",
+                  margin: "0 0 var(--v2-space-lg) 0",
+                  borderBottom: "1px solid var(--v2-border)",
+                  paddingBottom: "var(--v2-space-sm)",
                 }}
               >
-                KEY_LEARNINGS
+                PROJECT_LEARNINGS_LOG
               </p>
-              <p
-                style={{
-                  fontFamily: "var(--v2-font-body)",
-                  fontSize: "var(--v2-font-size-sm)",
-                  color: "var(--v2-text-secondary)",
-                  lineHeight: 1.7,
-                  margin: 0,
-                }}
-              >
-                {renderWithCodeHighlights(project.keyLearnings!)}
-              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
+                {(Array.isArray(project.keyLearnings)
+                  ? project.keyLearnings
+                  : [project.keyLearnings]
+                ).map((learning, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      borderLeft: "3px solid var(--v2-accent)",
+                      background: "var(--v2-tag-bg)",
+                      borderRadius: "0 0.5rem 0.5rem 0",
+                      padding: "var(--v2-space-xl)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "var(--v2-font-mono)",
+                        fontSize: "var(--v2-font-size-xs)",
+                        color: "var(--v2-text-tertiary)",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        margin: "0 0 var(--v2-space-sm) 0",
+                      }}
+                    >
+                      KEY_LEARNING_{String(i + 1).padStart(2, "0")}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "var(--v2-font-body)",
+                        fontSize: "var(--v2-font-size-sm)",
+                        color: "var(--v2-text-secondary)",
+                        lineHeight: 1.7,
+                        margin: 0,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {renderWithCodeHighlights(learning)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

@@ -15,8 +15,8 @@ export interface Project {
   tags: string[];
   demoUrl: string;
   githubUrl: string;
-  /** A single key insight or engineering decision highlighted in the drawer. */
-  keyLearnings?: string;
+  /** Up to 3 key insights or engineering decisions highlighted in the detail view. */
+  keyLearnings?: string | string[];
   /** Semver string sourced from the latest GitHub release/tag, e.g. "2.2.5". */
   version?: string;
   /** ISO date string of the last push to the GitHub repo, e.g. "2026-03-25". */
