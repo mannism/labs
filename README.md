@@ -1,6 +1,6 @@
 # Diana Ismail Labs
 
-**Version:** 2.7.0
+**Version:** 2.8.0
 
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine powering a floating digital twin chat widget and a Telegram bot.
 
@@ -56,6 +56,11 @@ src/
 │   ├── layout.tsx              # Root layout: fonts, SEO metadata, JSON-LD
 │   ├── page.tsx                # Renders AppShell
 │   ├── globals.css             # Design tokens (v2 Speculative Interface), animations, chat widget styles
+│   ├── opengraph-image.tsx     # Root OG image (1200x630) — site-wide fallback
+│   ├── module/[slug]/
+│   │   ├── page.tsx            # Per-project SSR: generateMetadata (title, desc, keywords), JSON-LD
+│   │   ├── ModuleDetailClient.tsx # Client wrapper: datamosh transitions, back navigation
+│   │   └── opengraph-image.tsx # Per-project OG image: title + category badge + MODULE/ARTICLE label
 │   └── api/
 │       ├── chat/stream/        # POST — SSE streaming endpoint for the chat widget
 │       ├── link/               # POST — OTP verification to link web session ↔ Telegram
@@ -70,7 +75,7 @@ src/
 │       ├── HeroV2.tsx          # System-label breadcrumb + Ghost Type headline
 │       ├── ProjectGridV2.tsx   # Category filter tabs, bento grid, stagger entrance, proximity field
 │       ├── ProjectCardV2.tsx   # Card: module counter, status pulse, Proximity Pulse, code-highlighted description
-│       ├── ProjectDetailV2.tsx # Full detail view: metadata sidebar, description, key learnings, CTAs
+│       ├── ProjectDetailV2.tsx # Full detail view: ProjectLayout (sidebar+content) or ArticleLayout (prose+sticky takeaways)
 │       ├── FillerCard.tsx      # Decorative glitch/diagnostic cards between highlights
 │       ├── SignalField.tsx     # Canvas dot grid — cursor-reactive (desktop) / ambient wave (mobile)
 │       ├── SystemBoot.tsx      # Terminal boot overlay — session-gated, skippable
@@ -158,6 +163,7 @@ Add, edit, or hide projects by modifying `src/data/projects.json`. The category 
 ```json
 {
   "id": "unique-slug",
+  "slug": "url-safe-slug",
   "order": 1,
   "title": "Project Title",
   "shortDescription": "One-line summary shown on the card.",
@@ -166,10 +172,14 @@ Add, edit, or hide projects by modifying `src/data/projects.json`. The category 
   "status": "Active",
   "display": true,
   "highlight": false,
+  "type": "project",
   "tags": ["Python", "OpenAI"],
   "demoUrl": "https://project.dianaismail.me",
   "githubUrl": "https://github.com/...",
-  "keyLearnings": "Optional — shown in the detail view above the tech tags."
+  "keyLearnings": ["Optional — shown in the detail view as numbered callouts."],
+  "articleSections": [
+    { "title": "Section Title", "body": "Section content..." }
+  ]
 }
 ```
 
@@ -177,9 +187,13 @@ Add, edit, or hide projects by modifying `src/data/projects.json`. The category 
 - `display: false` hides the project from the grid without deleting it.
 - `status` accepts `"Active"`, `"Research"`, or `"Archived"` — each maps to a distinct badge style.
 - `highlight: true` gives the project a 2-column span in the bento grid with larger typography.
+- `type: "article"` renders a full-width editorial layout with titled prose sections and a sticky key takeaways sidebar. Defaults to `"project"` when absent.
+- `articleSections` is only used when `type` is `"article"` — an array of `{ title, body }` objects rendered as headed prose blocks.
+- `tags` drive the category filter tabs, card chips, and per-project `<meta name="keywords">` for SEO.
 - Setting `demoUrl` or `githubUrl` to `"#"` hides the corresponding action button.
 - Demo URLs containing `dianaismail.me` open in the same tab; all other URLs open in a new tab with `noopener noreferrer`.
 - `order` controls display position — lower numbers appear first.
+- `version` and `lastUpdated` are auto-populated by the GitHub Actions sync workflow — do not edit by hand.
 
 ## Getting Started
 

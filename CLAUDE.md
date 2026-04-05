@@ -31,6 +31,8 @@ The app has two layers:
 - **CSS transitions over JS for micro-interactions:** Filter tabs, links, and hover states use CSS `transition` (see `.filter-tab`, `.card-icon-btn` in `globals.css`). Reserve Framer Motion for component entry/exit and card hover lift.
 - **`statusClass` duplication is intentional:** Both `ProjectCard` and `ProjectDetailsDrawer` define their own `statusClass` helper to keep components self-contained and independently deployable. Do not extract it to a shared util unless a third component needs it.
 - **Internal vs external URLs:** Demo URLs containing `dianaismail.me` open in `_self`; all others use `target="_blank" rel="noopener noreferrer"`. This logic is mirrored in both `ProjectCard` and `ProjectDetailsDrawer` — keep them in sync.
+- **Article type entries:** Projects with `type: "article"` render a full-width editorial layout (`ArticleLayout`) with titled prose sections and a sticky right sidebar for key takeaways (collapses below content on mobile). Article cards in the grid show an `ARTICLE_` prefix and dashed chartreuse top border. Standard project entries default to `type: "project"` and render the sidebar+content `ProjectLayout`.
+- **Per-project SEO:** Each `/module/[slug]` page generates unique keywords (from `project.tags`), JSON-LD structured data (`SoftwareApplication` for projects, `Article` for articles), and a dynamic OG social preview image via `opengraph-image.tsx` in the `[slug]` directory.
 
 ### Chat engine layer (`src/lib/twin/`)
 - **`config.ts` is the single env var entry point.** All modules import from `config.ts` — never call `process.env` directly anywhere else.
@@ -67,8 +69,8 @@ The app has two layers:
 ## Code Quality
 
 - Use descriptive names. Add JSDoc comments where the logic isn't obvious from the code.
-- Do not duplicate the `Project` interface — it is exported from `ProjectCard.tsx` and imported wherever needed.
-- Keep components focused. `ProjectGrid` owns filtering state and drawer visibility. Individual cards are stateless display components.
+- Do not duplicate the `Project` interface — it is exported from `src/types/project.ts` and imported wherever needed.
+- Keep components focused. `ProjectGridV2` owns filtering state and category tabs. Individual cards are stateless display components.
 - Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
 - **Break large tasks into focused subtasks.** Complete and verify each subtask before moving to the next to avoid cascading breakage.
 
