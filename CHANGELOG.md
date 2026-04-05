@@ -1,3 +1,8 @@
+## [2.8.0] - 2026-04-05
+
+### Feature
+* per-project SEO: keywords from tags, SoftwareApplication/Article JSON-LD, and unique OG social preview images for every project page
+
 ## [2.7.0] - 2026-04-05
 
 ### Feature
