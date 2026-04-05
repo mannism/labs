@@ -261,5 +261,61 @@
       "Puppeteer must wait for `networkidle0` before capturing the screenshot to ensure Google Fonts have fully loaded — without this, the first render of a template captures system fallback fonts, producing a visually different graphic than intended. The wait adds ~2 seconds per render but eliminates font flash entirely.",
       "Cloudflare R2's S3-compatible API satisfies Instagram's requirement that image URLs be publicly accessible at publish time — but R2 public URLs are bucket-scoped, not signed, so every uploaded image is permanently public. For a personal content pipeline this is acceptable; for multi-tenant use it would require signed URLs with expiry, which R2 does not natively support."
     ]
+  },
+  {
+    "id": "18",
+    "slug": "agentic-workflow",
+    "order": 8,
+    "title": "Building an Agentic Workflow",
+    "shortDescription": "How Diana's 12-person AI team actually works — session persistence, context management, cross-project state awareness, and the architecture decisions behind a multi-persona Claude Code workflow that builds and ships real products.",
+    "detailedDescription": "Every project in this portfolio was built by a 12-person AI team running inside Claude Code. Not a chatbot conversation — a structured engineering workflow with specialised personas (frontend, backend, brand, copy, QA, infrastructure, design, research), session persistence across conversations, and cross-project awareness so work in one repo stays informed by progress in another. This article documents the system: what problems it solves, how the pieces fit together, and what was learned building it.",
+    "category": "Research",
+    "status": "Active",
+    "display": true,
+    "highlight": false,
+    "type": "article",
+    "tags": [
+      "Claude Code",
+      "Agentic AI",
+      "Session Persistence",
+      "Context Management",
+      "Workflow Architecture",
+      "Hooks",
+      "AGENT.md",
+      "Subagents"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "articleSections": [
+      {
+        "title": "The Problem",
+        "body": "Claude Code sessions start cold. Every new conversation begins with zero memory of what happened before — which files were touched, which decisions were made and why, which approaches were tried and rejected. Over long sessions, context degrades as the conversation compresses older messages to stay within the token window. And when you're working across multiple repositories simultaneously, there's no built-in way for one session to know what's happening in another. These aren't edge cases. They're the default experience for anyone using AI-assisted development beyond a single prompt. The result is repeated work, contradictory decisions across sessions, and a constant feeling of re-explaining context that should already be known."
+      },
+      {
+        "title": "The 12-Person AI Team",
+        "body": "The solution starts with role specialisation. Rather than prompting Claude as a generic assistant, each task is handled by a persona with a defined scope: Nix owns frontend implementation, Sable handles backend and infrastructure, Reid does brand strategy, Vera writes copy, Quinn runs QA, Tom handles research, Maya designs in Stitch MCP, Lena manages content strategy, Cleo runs CMS, Jo handles operations, Oren manages knowledge systems, and Sheena orchestrates across all of them. Each persona has an AGENT.md file — a structured brief that defines their role, constraints, decision-making boundaries, and how they hand off to other team members. When Claude is invoked as a subagent with a specific AGENT.md, it operates within those constraints. This isn't prompt engineering — it's organisational design applied to AI tooling. The personas don't just answer differently; they scope their work differently, flag different risks, and escalate different decisions."
+      },
+      {
+        "title": "Session Persistence",
+        "body": "Claude Code ships with a hooks system — 12 lifecycle events that can trigger shell commands at key moments. Three hooks form the core of the persistence layer. A PreCompact hook fires before the context window compresses, capturing the current task state, decisions made, and files touched into a structured handoff file. A SessionEnd hook captures the final state when a session terminates. And a SessionStart hook injects the most recent handoff back into context when a new session begins, so Claude resumes with full awareness of where things left off. The handoff format is standardised: active persona, task objective and progress, what was done, decisions with rationale, open blockers, files touched, git state, and a copy-pasteable resume command. This means session boundaries become invisible — work continues across conversations without the user having to re-explain context."
+      },
+      {
+        "title": "Context Management",
+        "body": "Context degradation is measurable — roughly 2% quality loss per 100K tokens of conversation. The default auto-compact triggers at 75-80% capacity, which is too late. The discipline is to compact at 60-65%, using explicit preservation instructions that tell the compressor which details to keep. But the deeper fix is architectural: write important decisions to files (they survive compaction), use subagents for context-heavy operations like research and file scanning (each gets its own 200K token window), and scope sessions to one task so context doesn't accumulate across unrelated work. The Plan mode in Claude Code also helps — it forces decisions into a structured format that's easy to preserve and reference."
+      },
+      {
+        "title": "Cross-Project State",
+        "body": "The SessionStart hook was extended to scan all active repositories at session start. It reads git status, last commit, and uncommitted changes across every project in the working set, then injects a dashboard into the conversation. When Sheena starts a session in Labs, she can see that FitChecker has uncommitted changes on main, or that GEO Audit's last commit was a null-check fix. This replaced a manual process that staled within hours. A global memory directory at ~/.claude/memory/ stores shared knowledge that compounds across projects — tool preferences, domain context, cross-project dependencies. Combined with per-project CLAUDE.md files that document conventions, the system ensures that work in any repo stays informed by the broader context."
+      },
+      {
+        "title": "What's Next",
+        "body": "Claude Code's experimental Agent Teams feature allows multiple Claude instances to run in parallel with shared task lists and direct messaging between agents. The research mapped the 12-person team to independent parallel agents — but at $50-150+ per multi-agent session and plan limits of 2-10 tasks daily, the economics don't support full adoption yet. The current approach — persona switching within a single session, with subagents for isolated parallel work — costs near-zero and covers 90% of use cases. Agent Teams are reserved for genuinely parallel-decomposable tasks where the speedup justifies the cost. The system is designed to migrate incrementally: AGENT.md files already define each persona's scope, so promoting a persona from in-session switching to a standalone agent is a configuration change, not an architecture change."
+      }
+    ],
+    "keyLearnings": [
+      "AGENT.md files are the highest-leverage intervention — they cost nothing, require no tooling changes, and immediately improve subagent output quality by constraining scope, defining escalation rules, and eliminating the ambiguity that causes generic responses.",
+      "Context compaction is lossy and the loss is silent. There's no error when a key decision gets compressed away — the model just starts making contradictory choices. Writing decisions to files (not conversation) is the only reliable defence, because files survive compaction and are re-read on demand.",
+      "The gap between 'AI that can do anything' and 'AI that does the right thing' is organisational design. The same model that produces mediocre output as a generic assistant produces focused, high-quality work when given a clear role, defined boundaries, and structured handoff protocols."
+    ]
   }
 ]
