@@ -21,9 +21,8 @@ export function generateStaticParams() {
 
 /**
  * generateMetadata — per-project SEO metadata.
- * Title: "{project.title} — Labs | Diana Ismail"
- * Description: project.shortDescription
- * Canonical URL: https://labs.dianaismail.me/module/{slug}
+ * Title, description, keywords, canonical URL, OG tags, and twitter card.
+ * Keywords derived from project tags for GEO optimization.
  */
 export async function generateMetadata({
   params,
@@ -38,10 +37,12 @@ export async function generateMetadata({
   }
 
   const canonicalUrl = `${seo.siteUrl}/module/${slug}`;
+  const title = `${project.title} — Labs | Diana Ismail`;
 
   return {
-    title: `${project.title} — Labs | Diana Ismail`,
+    title,
     description: project.shortDescription,
+    keywords: [...project.tags, "Diana Ismail", "Labs"],
     alternates: {
       canonical: canonicalUrl,
     },
@@ -50,12 +51,12 @@ export async function generateMetadata({
       locale: seo.openGraph.locale,
       url: canonicalUrl,
       siteName: seo.siteName,
-      title: `${project.title} — Labs | Diana Ismail`,
+      title,
       description: project.shortDescription,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${project.title} — Labs | Diana Ismail`,
+      title,
       description: project.shortDescription,
       creator: seo.twitterHandle,
     },
@@ -63,9 +64,56 @@ export async function generateMetadata({
 }
 
 /**
+ * Per-project JSON-LD structured data.
+ * SoftwareApplication schema for project pages, Article schema for article pages.
+ */
+function buildJsonLd(project: Project) {
+  const canonicalUrl = `${seo.siteUrl}/module/${project.slug}`;
+  const isArticle = project.type === "article";
+
+  if (isArticle) {
+    return {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: project.title,
+      description: project.shortDescription,
+      url: canonicalUrl,
+      author: {
+        "@type": "Person",
+        name: seo.author,
+        url: "https://dianaismail.me",
+      },
+      publisher: {
+        "@type": "Person",
+        name: seo.author,
+      },
+      keywords: project.tags.join(", "),
+    };
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: project.title,
+    description: project.shortDescription,
+    url: project.demoUrl || canonicalUrl,
+    applicationCategory: "WebApplication",
+    operatingSystem: "Web",
+    author: {
+      "@type": "Person",
+      name: seo.author,
+      url: "https://dianaismail.me",
+    },
+    ...(project.version && { softwareVersion: project.version }),
+    keywords: project.tags.join(", "),
+  };
+}
+
+/**
  * ModuleDetailPage — server component entry for /module/[slug].
  * Resolves the project by slug, returns 404 if not found,
  * then delegates rendering to the client component.
+ * Injects per-project JSON-LD structured data.
  */
 export default async function ModuleDetailPage({
   params,
@@ -79,5 +127,13 @@ export default async function ModuleDetailPage({
     notFound();
   }
 
-  return <ModuleDetailClient project={project} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(project)) }}
+      />
+      <ModuleDetailClient project={project} />
+    </>
+  );
 }
