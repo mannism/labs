@@ -42,6 +42,7 @@ jobs:
             "GEO Audit": "mannism/GEOAudit",
             "Slack \u2194 Claude CLI Bridge": "mannism/claudecli-local-mcp",
             "Diana Ismail \u2014 Portfolio": "mannism/portfolio",
+            "IG Autopilot": "mannism/ig-autopilot",
           };
 
           const TOKEN = process.env.PAT_READ_REPOS;

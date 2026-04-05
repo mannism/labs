@@ -1,3 +1,8 @@
+## [2.7.0] - 2026-04-05
+
+### Feature
+* add IG Autopilot project entry to projects.json — automated Instagram content pipeline (Node.js, Puppeteer, Cloudflare R2, Instagram Graph API)
+
 ## [1.11.0] - 2026-03-31
 
 ### Feature
