@@ -23,4 +23,16 @@ export interface Project {
   lastUpdated?: string;
   /** When true, spans 2 columns in the v2 bento grid for emphasis. */
   highlight?: boolean;
+  /** Entry type — "project" (default) renders as module detail, "article" renders as long-form article. */
+  type?: "project" | "article";
+  /** Structured sections for article-type entries. Rendered as titled prose blocks on the detail page. */
+  articleSections?: ArticleSection[];
+}
+
+/** A single section within an article-type project entry. */
+export interface ArticleSection {
+  /** Section heading displayed as an uppercase monospace label. */
+  title: string;
+  /** Section body text — rendered with code highlights, same as detailedDescription. */
+  body: string;
 }

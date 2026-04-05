@@ -3,7 +3,7 @@
 import { useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
-import { Project } from "@/types/project";
+import { Project, ArticleSection } from "@/types/project";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
 import { useTextScramble } from "./useTextScramble";
@@ -12,11 +12,9 @@ import projectsData from "@/lib/projects";
 
 /**
  * ProjectDetailV2 — full content view replacing the drawer pattern for v2.
- * Layout: left metadata sidebar + right content area.
- * Left: version, date, stability status, tech stack tags.
- * Right: large uppercase title, module ID, full description,
- *   key learnings callout (chartreuse left border).
- * CTA buttons: chartreuse-filled "LAUNCH DEMO", outlined "VIEW SOURCE".
+ * Two layout modes driven by `project.type`:
+ *   "project" (default): left metadata sidebar + right content area.
+ *   "article": full-width long-form prose with titled sections.
  * Motion: fade+slide on mount/unmount (respects prefers-reduced-motion).
  */
 export function ProjectDetailV2({
@@ -26,6 +24,7 @@ export function ProjectDetailV2({
   project: Project;
   onBack: () => void;
 }) {
+  const isArticle = project.type === "article";
   const hasDemo = Boolean(project.demoUrl && project.demoUrl !== "#");
   const hasGithub = Boolean(project.githubUrl && project.githubUrl !== "#");
   const isInternalDemo = project.demoUrl?.includes("dianaismail.me");
@@ -152,86 +151,52 @@ export function ProjectDetailV2({
           textTransform: "uppercase",
         }}
       >
-        MODULE_{moduleIndex}
+        {isArticle ? "ARTICLE" : "MODULE"}_{moduleIndex}
       </p>
 
-      {/* Two-column layout: metadata sidebar + content */}
-      <div
-        className="flex flex-col md:flex-row gap-12"
-        style={{ alignItems: "flex-start" }}
+      {isArticle ? (
+        <ArticleLayout project={project} />
+      ) : (
+        <ProjectLayout
+          project={project}
+          hasDemo={hasDemo}
+          hasGithub={hasGithub}
+          isInternalDemo={isInternalDemo}
+        />
+      )}
+
+      {/* Bottom spacing to separate CTAs from footer */}
+      <div style={{ height: "var(--v2-space-3xl)" }} />
+    </motion.div>
+  );
+}
+
+/**
+ * ArticleLayout — full-width long-form layout for article-type entries.
+ * Renders detailedDescription as a lead paragraph, then articleSections
+ * as titled prose blocks, followed by topic tags and key takeaways.
+ */
+function ArticleLayout({ project }: { project: Project }) {
+  const sections = project.articleSections ?? [];
+
+  return (
+    <div style={{ maxWidth: "720px" }}>
+      {/* Lead paragraph */}
+      <p
+        style={{
+          fontFamily: "var(--v2-font-body)",
+          fontSize: "var(--v2-font-size-base)",
+          color: "var(--v2-text-secondary)",
+          lineHeight: 1.85,
+          margin: "0 0 var(--v2-space-3xl) 0",
+        }}
       >
-        {/* Left sidebar — metadata */}
-        <aside
-          style={{
-            width: "100%",
-            maxWidth: "220px",
-            flexShrink: 0,
-          }}
-          className="hidden md:block"
-        >
-          {/* Version */}
-          {project.version && (
-            <MetaBlock label="VERSION" value={`v${project.version}`} />
-          )}
+        {renderWithCodeHighlights(project.detailedDescription)}
+      </p>
 
-          {/* Last updated */}
-          {project.lastUpdated && (
-            <MetaBlock
-              label="DEPLOYED"
-              value={(() => {
-                const d = new Date(project.lastUpdated);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, "0");
-                const dd = String(d.getDate()).padStart(2, "0");
-                return `${yyyy}.${mm}.${dd}`;
-              })()}
-            />
-          )}
-
-          {/* Status */}
-          <MetaBlock label="STABILITY" value={project.status.toUpperCase()} />
-
-          {/* Tech stack — outlined pill tags */}
-          <div style={{ marginBottom: "var(--v2-space-xl)" }}>
-            <p
-              style={{
-                fontFamily: "var(--v2-font-mono)",
-                fontSize: "var(--v2-font-size-xs)",
-                color: "var(--v2-text-tertiary)",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                margin: "0 0 var(--v2-space-sm) 0",
-              }}
-            >
-              ARCHITECTURE_STACK
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  style={{
-                    fontFamily: "var(--v2-font-mono)",
-                    fontSize: "var(--v2-font-size-xs)",
-                    color: "var(--v2-tag-color)",
-                    border: "1px solid var(--v2-tag-border)",
-                    background: "var(--v2-tag-bg)",
-                    borderRadius: "4px",
-                    padding: "3px 10px",
-                    display: "inline-block",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Right content area */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Section label */}
+      {/* Article sections */}
+      {sections.map((section, i) => (
+        <div key={i} style={{ marginBottom: "var(--v2-space-3xl)" }}>
           <p
             style={{
               fontFamily: "var(--v2-font-mono)",
@@ -244,103 +209,170 @@ export function ProjectDetailV2({
               paddingBottom: "var(--v2-space-sm)",
             }}
           >
-            TECHNICAL_OVERVIEW
+            {section.title.replace(/ /g, "_")}
           </p>
-
-          {/* Mobile-only metadata (shown inline on small screens) */}
-          <div
-            className="flex flex-wrap gap-3 md:hidden"
-            style={{
-              marginBottom: "var(--v2-space-lg)",
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-            }}
-          >
-            {project.version && <span>v{project.version}</span>}
-            <span>{project.status}</span>
-            <span>{project.category}</span>
-          </div>
-
-          {/* Full description */}
           <p
             style={{
               fontFamily: "var(--v2-font-body)",
               fontSize: "var(--v2-font-size-base)",
               color: "var(--v2-text-secondary)",
-              lineHeight: 1.75,
-              margin: "0 0 var(--v2-space-2xl) 0",
+              lineHeight: 1.85,
+              margin: 0,
             }}
           >
-            {renderWithCodeHighlights(project.detailedDescription)}
+            {renderWithCodeHighlights(section.body)}
           </p>
+        </div>
+      ))}
 
-          {/* Key learnings log — up to 3 numbered blocks with chartreuse left accent */}
-          {project.keyLearnings && (
-            <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
-              <p
+      {/* Topic tags */}
+      <div
+        className="flex flex-wrap gap-1.5"
+        style={{ marginBottom: "var(--v2-space-2xl)" }}
+      >
+        {project.tags.map((tag) => (
+          <span
+            key={tag}
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-tag-color)",
+              border: "1px solid var(--v2-tag-border)",
+              background: "var(--v2-tag-bg)",
+              borderRadius: "4px",
+              padding: "3px 10px",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Key takeaways — reuses the learning callout pattern */}
+      {project.keyLearnings && (
+        <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
+          <p
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              margin: "0 0 var(--v2-space-lg) 0",
+              borderBottom: "1px solid var(--v2-border)",
+              paddingBottom: "var(--v2-space-sm)",
+            }}
+          >
+            KEY_TAKEAWAYS
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
+            {(Array.isArray(project.keyLearnings)
+              ? project.keyLearnings
+              : [project.keyLearnings]
+            ).map((learning, i) => (
+              <div
+                key={i}
                 style={{
-                  fontFamily: "var(--v2-font-mono)",
-                  fontSize: "var(--v2-font-size-xs)",
-                  color: "var(--v2-text-tertiary)",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  margin: "0 0 var(--v2-space-lg) 0",
-                  borderBottom: "1px solid var(--v2-border)",
-                  paddingBottom: "var(--v2-space-sm)",
+                  borderLeft: "3px solid var(--v2-accent)",
+                  background: "var(--v2-tag-bg)",
+                  borderRadius: "0 0.5rem 0.5rem 0",
+                  padding: "var(--v2-space-xl)",
                 }}
               >
-                PROJECT_LEARNINGS_LOG
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
-                {(Array.isArray(project.keyLearnings)
-                  ? project.keyLearnings
-                  : [project.keyLearnings]
-                ).map((learning, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      borderLeft: "3px solid var(--v2-accent)",
-                      background: "var(--v2-tag-bg)",
-                      borderRadius: "0 0.5rem 0.5rem 0",
-                      padding: "var(--v2-space-xl)",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontFamily: "var(--v2-font-mono)",
-                        fontSize: "var(--v2-font-size-xs)",
-                        color: "var(--v2-text-tertiary)",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        margin: "0 0 var(--v2-space-sm) 0",
-                      }}
-                    >
-                      KEY_LEARNING_{String(i + 1).padStart(2, "0")}
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "var(--v2-font-body)",
-                        fontSize: "var(--v2-font-size-sm)",
-                        color: "var(--v2-text-secondary)",
-                        lineHeight: 1.7,
-                        margin: 0,
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {renderWithCodeHighlights(learning)}
-                    </p>
-                  </div>
-                ))}
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-mono)",
+                    fontSize: "var(--v2-font-size-xs)",
+                    color: "var(--v2-text-tertiary)",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    margin: "0 0 var(--v2-space-sm) 0",
+                  }}
+                >
+                  TAKEAWAY_{String(i + 1).padStart(2, "0")}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-body)",
+                    fontSize: "var(--v2-font-size-sm)",
+                    color: "var(--v2-text-secondary)",
+                    lineHeight: 1.7,
+                    margin: 0,
+                    fontStyle: "italic",
+                  }}
+                >
+                  {renderWithCodeHighlights(learning)}
+                </p>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-          {/* Mobile-only tech tags */}
-          <div
-            className="flex flex-wrap gap-1.5 md:hidden"
-            style={{ marginBottom: "var(--v2-space-xl)" }}
+/**
+ * ProjectLayout — two-column layout with metadata sidebar + content area.
+ * Standard layout for project-type entries.
+ */
+function ProjectLayout({
+  project,
+  hasDemo,
+  hasGithub,
+  isInternalDemo,
+}: {
+  project: Project;
+  hasDemo: boolean;
+  hasGithub: boolean;
+  isInternalDemo: boolean | undefined;
+}) {
+  return (
+    <div
+      className="flex flex-col md:flex-row gap-12"
+      style={{ alignItems: "flex-start" }}
+    >
+      {/* Left sidebar — metadata */}
+      <aside
+        style={{
+          width: "100%",
+          maxWidth: "220px",
+          flexShrink: 0,
+        }}
+        className="hidden md:block"
+      >
+        {project.version && (
+          <MetaBlock label="VERSION" value={`v${project.version}`} />
+        )}
+        {project.lastUpdated && (
+          <MetaBlock
+            label="DEPLOYED"
+            value={(() => {
+              const d = new Date(project.lastUpdated);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return `${yyyy}.${mm}.${dd}`;
+            })()}
+          />
+        )}
+        <MetaBlock label="STABILITY" value={project.status.toUpperCase()} />
+        <div style={{ marginBottom: "var(--v2-space-xl)" }}>
+          <p
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              margin: "0 0 var(--v2-space-sm) 0",
+            }}
           >
+            ARCHITECTURE_STACK
+          </p>
+          <div className="flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
               <span
                 key={tag}
@@ -352,101 +384,226 @@ export function ProjectDetailV2({
                   background: "var(--v2-tag-bg)",
                   borderRadius: "4px",
                   padding: "3px 10px",
+                  display: "inline-block",
                   textTransform: "uppercase",
+                  letterSpacing: "0.04em",
                 }}
               >
                 {tag}
               </span>
             ))}
           </div>
-
-          {/* Action buttons — chartreuse primary, outlined secondary */}
-          {(hasDemo || hasGithub) && (
-            <div className="flex gap-3 flex-wrap">
-              {hasDemo && (
-                <a
-                  href={project.demoUrl}
-                  target={isInternalDemo ? "_self" : "_blank"}
-                  rel={isInternalDemo ? undefined : "noopener noreferrer"}
-                  onClick={() =>
-                    trackEvent("demo_launch", {
-                      project_title: project.title,
-                      demo_url: project.demoUrl,
-                    })
-                  }
-                  style={{
-                    fontFamily: "var(--v2-font-mono)",
-                    fontSize: "var(--v2-font-size-xs)",
-                    color: "var(--v2-text-primary)",
-                    background: "var(--v2-accent)",
-                    border: "none",
-                    borderRadius: "0.25rem",
-                    padding: "var(--v2-space-sm) var(--v2-space-lg)",
-                    minHeight: "44px",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "var(--v2-space-xs)",
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                    textTransform: "uppercase",
-                    transition: "opacity 0.2s ease, transform 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = "0.88";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = "1";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  LAUNCH DEMO <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              )}
-              {hasGithub && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    fontFamily: "var(--v2-font-mono)",
-                    fontSize: "var(--v2-font-size-xs)",
-                    color: "var(--v2-text-primary)",
-                    background: "none",
-                    border: "1px solid var(--v2-border)",
-                    borderRadius: "0.25rem",
-                    padding: "var(--v2-space-sm) var(--v2-space-lg)",
-                    minHeight: "44px",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "var(--v2-space-xs)",
-                    fontWeight: 500,
-                    letterSpacing: "0.04em",
-                    textTransform: "uppercase",
-                    transition: "border-color 0.2s ease, transform 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "var(--v2-text-primary)";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--v2-border)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  <Github className="w-3.5 h-3.5" /> VIEW SOURCE
-                </a>
-              )}
-            </div>
-          )}
         </div>
-      </div>
+      </aside>
 
-      {/* Bottom spacing to separate CTAs from footer */}
-      <div style={{ height: "var(--v2-space-3xl)" }} />
-    </motion.div>
+      {/* Right content area */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            margin: "0 0 var(--v2-space-md) 0",
+            borderBottom: "1px solid var(--v2-border)",
+            paddingBottom: "var(--v2-space-sm)",
+          }}
+        >
+          TECHNICAL_OVERVIEW
+        </p>
+
+        <div
+          className="flex flex-wrap gap-3 md:hidden"
+          style={{
+            marginBottom: "var(--v2-space-lg)",
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+          }}
+        >
+          {project.version && <span>v{project.version}</span>}
+          <span>{project.status}</span>
+          <span>{project.category}</span>
+        </div>
+
+        <p
+          style={{
+            fontFamily: "var(--v2-font-body)",
+            fontSize: "var(--v2-font-size-base)",
+            color: "var(--v2-text-secondary)",
+            lineHeight: 1.75,
+            margin: "0 0 var(--v2-space-2xl) 0",
+          }}
+        >
+          {renderWithCodeHighlights(project.detailedDescription)}
+        </p>
+
+        {project.keyLearnings && (
+          <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-text-tertiary)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                margin: "0 0 var(--v2-space-lg) 0",
+                borderBottom: "1px solid var(--v2-border)",
+                paddingBottom: "var(--v2-space-sm)",
+              }}
+            >
+              PROJECT_LEARNINGS_LOG
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
+              {(Array.isArray(project.keyLearnings)
+                ? project.keyLearnings
+                : [project.keyLearnings]
+              ).map((learning, i) => (
+                <div
+                  key={i}
+                  style={{
+                    borderLeft: "3px solid var(--v2-accent)",
+                    background: "var(--v2-tag-bg)",
+                    borderRadius: "0 0.5rem 0.5rem 0",
+                    padding: "var(--v2-space-xl)",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-mono)",
+                      fontSize: "var(--v2-font-size-xs)",
+                      color: "var(--v2-text-tertiary)",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      margin: "0 0 var(--v2-space-sm) 0",
+                    }}
+                  >
+                    KEY_LEARNING_{String(i + 1).padStart(2, "0")}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-body)",
+                      fontSize: "var(--v2-font-size-sm)",
+                      color: "var(--v2-text-secondary)",
+                      lineHeight: 1.7,
+                      margin: 0,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {renderWithCodeHighlights(learning)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div
+          className="flex flex-wrap gap-1.5 md:hidden"
+          style={{ marginBottom: "var(--v2-space-xl)" }}
+        >
+          {project.tags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-tag-color)",
+                border: "1px solid var(--v2-tag-border)",
+                background: "var(--v2-tag-bg)",
+                borderRadius: "4px",
+                padding: "3px 10px",
+                textTransform: "uppercase",
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {(hasDemo || hasGithub) && (
+          <div className="flex gap-3 flex-wrap">
+            {hasDemo && (
+              <a
+                href={project.demoUrl}
+                target={isInternalDemo ? "_self" : "_blank"}
+                rel={isInternalDemo ? undefined : "noopener noreferrer"}
+                onClick={() =>
+                  trackEvent("demo_launch", {
+                    project_title: project.title,
+                    demo_url: project.demoUrl,
+                  })
+                }
+                style={{
+                  fontFamily: "var(--v2-font-mono)",
+                  fontSize: "var(--v2-font-size-xs)",
+                  color: "var(--v2-text-primary)",
+                  background: "var(--v2-accent)",
+                  border: "none",
+                  borderRadius: "0.25rem",
+                  padding: "var(--v2-space-sm) var(--v2-space-lg)",
+                  minHeight: "44px",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "var(--v2-space-xs)",
+                  fontWeight: 600,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  transition: "opacity 0.2s ease, transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.88";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                LAUNCH DEMO <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
+            )}
+            {hasGithub && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: "var(--v2-font-mono)",
+                  fontSize: "var(--v2-font-size-xs)",
+                  color: "var(--v2-text-primary)",
+                  background: "none",
+                  border: "1px solid var(--v2-border)",
+                  borderRadius: "0.25rem",
+                  padding: "var(--v2-space-sm) var(--v2-space-lg)",
+                  minHeight: "44px",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "var(--v2-space-xs)",
+                  fontWeight: 500,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  transition: "border-color 0.2s ease, transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--v2-text-primary)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--v2-border)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <Github className="w-3.5 h-3.5" /> VIEW SOURCE
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
