@@ -91,7 +91,7 @@
     "githubUrl": "#",
     "keyLearnings": "The `sessionStorage` navigation pattern (passing job UUIDs via `sessionStorage` rather than URL params) was a deliberate privacy and UX decision that required careful `SSR` guard handling in Next.js.",
     "version": "1.1.4",
-    "lastUpdated": "2026-03-22"
+    "lastUpdated": "2026-04-05"
   },
   {
     "id": "13",
