@@ -172,143 +172,219 @@ export function ProjectDetailV2({
 }
 
 /**
- * ArticleLayout — full-width long-form layout for article-type entries.
- * Renders detailedDescription as a lead paragraph, then articleSections
- * as titled prose blocks, followed by topic tags and key takeaways.
+ * ArticleLayout — two-column editorial layout for article-type entries.
+ * Left: lead paragraph + titled prose sections + topic tags.
+ * Right: sticky key takeaways sidebar (collapses below content on mobile).
  */
 function ArticleLayout({ project }: { project: Project }) {
   const sections = project.articleSections ?? [];
+  const learnings = project.keyLearnings
+    ? Array.isArray(project.keyLearnings)
+      ? project.keyLearnings
+      : [project.keyLearnings]
+    : [];
 
   return (
-    <div style={{ maxWidth: "720px" }}>
-      {/* Lead paragraph */}
-      <p
-        style={{
-          fontFamily: "var(--v2-font-body)",
-          fontSize: "var(--v2-font-size-base)",
-          color: "var(--v2-text-secondary)",
-          lineHeight: 1.85,
-          margin: "0 0 var(--v2-space-3xl) 0",
-        }}
-      >
-        {renderWithCodeHighlights(project.detailedDescription)}
-      </p>
+    <div
+      className="flex flex-col md:flex-row gap-12"
+      style={{ alignItems: "flex-start" }}
+    >
+      {/* Left — article content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Lead paragraph */}
+        <p
+          style={{
+            fontFamily: "var(--v2-font-body)",
+            fontSize: "var(--v2-font-size-base)",
+            color: "var(--v2-text-secondary)",
+            lineHeight: 1.85,
+            margin: "0 0 var(--v2-space-3xl) 0",
+          }}
+        >
+          {renderWithCodeHighlights(project.detailedDescription)}
+        </p>
 
-      {/* Article sections */}
-      {sections.map((section, i) => (
-        <div key={i} style={{ marginBottom: "var(--v2-space-3xl)" }}>
-          <p
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              margin: "0 0 var(--v2-space-md) 0",
-              borderBottom: "1px solid var(--v2-border)",
-              paddingBottom: "var(--v2-space-sm)",
-            }}
-          >
-            {section.title.replace(/ /g, "_")}
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--v2-font-body)",
-              fontSize: "var(--v2-font-size-base)",
-              color: "var(--v2-text-secondary)",
-              lineHeight: 1.85,
-              margin: 0,
-            }}
-          >
-            {renderWithCodeHighlights(section.body)}
-          </p>
-        </div>
-      ))}
-
-      {/* Topic tags */}
-      <div
-        className="flex flex-wrap gap-1.5"
-        style={{ marginBottom: "var(--v2-space-2xl)" }}
-      >
-        {project.tags.map((tag) => (
-          <span
-            key={tag}
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-tag-color)",
-              border: "1px solid var(--v2-tag-border)",
-              background: "var(--v2-tag-bg)",
-              borderRadius: "4px",
-              padding: "3px 10px",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-            }}
-          >
-            {tag}
-          </span>
+        {/* Article sections */}
+        {sections.map((section, i) => (
+          <div key={i} style={{ marginBottom: "var(--v2-space-3xl)" }}>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-text-tertiary)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                margin: "0 0 var(--v2-space-md) 0",
+                borderBottom: "1px solid var(--v2-border)",
+                paddingBottom: "var(--v2-space-sm)",
+              }}
+            >
+              {section.title.replace(/ /g, "_")}
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-body)",
+                fontSize: "var(--v2-font-size-base)",
+                color: "var(--v2-text-secondary)",
+                lineHeight: 1.85,
+                margin: 0,
+              }}
+            >
+              {renderWithCodeHighlights(section.body)}
+            </p>
+          </div>
         ))}
+
+        {/* Topic tags */}
+        <div
+          className="flex flex-wrap gap-1.5"
+          style={{ marginBottom: "var(--v2-space-2xl)" }}
+        >
+          {project.tags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-tag-color)",
+                border: "1px solid var(--v2-tag-border)",
+                background: "var(--v2-tag-bg)",
+                borderRadius: "4px",
+                padding: "3px 10px",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
 
-      {/* Key takeaways — reuses the learning callout pattern */}
-      {project.keyLearnings && (
-        <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
-          <p
+      {/* Right sidebar — sticky key takeaways (hidden on mobile, shown below content instead) */}
+      {learnings.length > 0 && (
+        <>
+          {/* Desktop: sticky sidebar */}
+          <aside
+            className="hidden md:block"
             style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--v2-text-tertiary)",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              margin: "0 0 var(--v2-space-lg) 0",
-              borderBottom: "1px solid var(--v2-border)",
-              paddingBottom: "var(--v2-space-sm)",
+              width: "100%",
+              maxWidth: "300px",
+              flexShrink: 0,
+              position: "sticky",
+              top: "var(--v2-space-2xl)",
             }}
           >
-            KEY_TAKEAWAYS
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
-            {(Array.isArray(project.keyLearnings)
-              ? project.keyLearnings
-              : [project.keyLearnings]
-            ).map((learning, i) => (
-              <div
-                key={i}
-                style={{
-                  borderLeft: "3px solid var(--v2-accent)",
-                  background: "var(--v2-tag-bg)",
-                  borderRadius: "0 0.5rem 0.5rem 0",
-                  padding: "var(--v2-space-xl)",
-                }}
-              >
-                <p
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-text-tertiary)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                margin: "0 0 var(--v2-space-lg) 0",
+                borderBottom: "1px solid var(--v2-border)",
+                paddingBottom: "var(--v2-space-sm)",
+              }}
+            >
+              KEY_TAKEAWAYS
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
+              {learnings.map((learning, i) => (
+                <div
+                  key={i}
                   style={{
-                    fontFamily: "var(--v2-font-mono)",
-                    fontSize: "var(--v2-font-size-xs)",
-                    color: "var(--v2-text-tertiary)",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    margin: "0 0 var(--v2-space-sm) 0",
+                    borderLeft: "3px solid var(--v2-accent)",
+                    background: "var(--v2-tag-bg)",
+                    borderRadius: "0 0.5rem 0.5rem 0",
+                    padding: "var(--v2-space-lg)",
                   }}
                 >
-                  TAKEAWAY_{String(i + 1).padStart(2, "0")}
-                </p>
-                <p
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-mono)",
+                      fontSize: "var(--v2-font-size-xs)",
+                      color: "var(--v2-text-tertiary)",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      margin: "0 0 var(--v2-space-xs) 0",
+                    }}
+                  >
+                    TAKEAWAY_{String(i + 1).padStart(2, "0")}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-body)",
+                      fontSize: "var(--v2-font-size-xs)",
+                      color: "var(--v2-text-secondary)",
+                      lineHeight: 1.65,
+                      margin: 0,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {renderWithCodeHighlights(learning)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          {/* Mobile: key takeaways below content */}
+          <div className="md:hidden" style={{ marginBottom: "var(--v2-space-2xl)" }}>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--v2-text-tertiary)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                margin: "0 0 var(--v2-space-lg) 0",
+                borderBottom: "1px solid var(--v2-border)",
+                paddingBottom: "var(--v2-space-sm)",
+              }}
+            >
+              KEY_TAKEAWAYS
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-md)" }}>
+              {learnings.map((learning, i) => (
+                <div
+                  key={i}
                   style={{
-                    fontFamily: "var(--v2-font-body)",
-                    fontSize: "var(--v2-font-size-sm)",
-                    color: "var(--v2-text-secondary)",
-                    lineHeight: 1.7,
-                    margin: 0,
-                    fontStyle: "italic",
+                    borderLeft: "3px solid var(--v2-accent)",
+                    background: "var(--v2-tag-bg)",
+                    borderRadius: "0 0.5rem 0.5rem 0",
+                    padding: "var(--v2-space-xl)",
                   }}
                 >
-                  {renderWithCodeHighlights(learning)}
-                </p>
-              </div>
-            ))}
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-mono)",
+                      fontSize: "var(--v2-font-size-xs)",
+                      color: "var(--v2-text-tertiary)",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      margin: "0 0 var(--v2-space-sm) 0",
+                    }}
+                  >
+                    TAKEAWAY_{String(i + 1).padStart(2, "0")}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--v2-font-body)",
+                      fontSize: "var(--v2-font-size-sm)",
+                      color: "var(--v2-text-secondary)",
+                      lineHeight: 1.7,
+                      margin: 0,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {renderWithCodeHighlights(learning)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
