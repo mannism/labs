@@ -232,5 +232,34 @@
     ],
     "version": "2.0.0",
     "lastUpdated": "2026-04-01"
+  },
+  {
+    "id": "17",
+    "slug": "ig-autopilot",
+    "order": 7,
+    "title": "IG Autopilot",
+    "shortDescription": "An automated Instagram content pipeline — write a line of text, pick a template, and the tool renders a pixel-perfect graphic, uploads it to a CDN, and publishes it to Instagram via the Graph API. Ten designed templates across six content pillars, with single-post and carousel support. Built with Node.js, Puppeteer, Cloudflare R2, and the Instagram Graph API.",
+    "detailedDescription": "IG Autopilot converts HTML/CSS templates into Instagram-ready graphics and publishes them in a single CLI command. The pipeline runs in four stages: inject content variables (text, subtext, accent colour) into an HTML template, render it to a pixel-perfect PNG via headless Puppeteer at exact Instagram dimensions (1080\u00d71080 square or 1080\u00d71350 portrait), upload the image to Cloudflare R2 for a public CDN URL, then publish through the Instagram Graph API's two-stage container architecture — create a media container, poll until processing completes, and publish. Ten templates span six content pillars: Body as Archive, Taking Up Space, The Long Middle, Chosen Family, Unlearning, and Joy Without Justification. Each template uses DM Sans typography with variable injection for headline text, subtext, and accent colour overrides, so a single template serves multiple tonal variations. Carousel publishing supports up to ten slides in one post, with each slide rendered and uploaded independently before being assembled into a single carousel container. A dry-run mode generates the PNG locally without uploading or publishing, and a quota check queries the API's 25-posts-per-day limit before attempting to publish. Built with Node.js, Puppeteer, @aws-sdk/client-s3 (S3-compatible for Cloudflare R2), and the Meta Instagram Graph API v21.0.",
+    "category": "Automation",
+    "status": "Active",
+    "display": true,
+    "highlight": false,
+    "tags": [
+      "Content Automation",
+      "Instagram API",
+      "Node.js",
+      "Puppeteer",
+      "Cloudflare R2",
+      "HTML/CSS Templates",
+      "Meta Graph API",
+      "CLI Tool"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "keyLearnings": [
+      "Instagram's Graph API enforces a two-stage publish flow — create a media container, then poll a separate status endpoint until processing completes before calling publish. The container can sit in 'IN_PROGRESS' for up to 60 seconds depending on image size, so the client needs a polling loop with a hard timeout, not a single fire-and-forget request.",
+      "Puppeteer must wait for `networkidle0` before capturing the screenshot to ensure Google Fonts have fully loaded — without this, the first render of a template captures system fallback fonts, producing a visually different graphic than intended. The wait adds ~2 seconds per render but eliminates font flash entirely.",
+      "Cloudflare R2's S3-compatible API satisfies Instagram's requirement that image URLs be publicly accessible at publish time — but R2 public URLs are bucket-scoped, not signed, so every uploaded image is permanently public. For a personal content pipeline this is acceptable; for multi-tenant use it would require signed URLs with expiry, which R2 does not natively support."
+    ]
   }
 ]
