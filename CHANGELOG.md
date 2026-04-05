@@ -1,3 +1,8 @@
+## [2.8.2] - 2026-04-05
+
+### Data
+* add GitHub repository URLs for Labs, Portfolio, and Slack ↔ Claude CLI Bridge in projects.json
+
 ## [2.8.0] - 2026-04-05
 
 ### Feature
