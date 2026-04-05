@@ -39,6 +39,7 @@ export function ProjectCardV2({
   const moduleNumber = String(index + 1).padStart(3, "0");
   const isActive = project.status.toLowerCase() === "active";
   const isLarge = size === "large";
+  const isArticle = project.type === "article";
   const prefersReduced = useReducedMotion();
 
   /** Whether proximity field is actively affecting this card */
@@ -103,6 +104,7 @@ export function ProjectCardV2({
       style={{
         background: "var(--v2-bg-surface)",
         border: "1px solid var(--v2-border)",
+        borderTop: isArticle ? "2px dashed var(--v2-accent)" : undefined,
         borderRadius: "0.5rem",
         padding: isLarge ? "var(--v2-space-2xl)" : "var(--v2-space-xl)",
         cursor: "pointer",
@@ -146,7 +148,7 @@ export function ProjectCardV2({
             letterSpacing: "var(--v2-letter-spacing-wide)",
           }}
         >
-          MODULE_<ModuleCounter target={moduleNumber} disabled={prefersReduced} />
+          {isArticle ? "ARTICLE" : "MODULE"}_<ModuleCounter target={moduleNumber} disabled={prefersReduced} />
         </span>
         {/* Status label: dot + ACTIVE/ARCHIVED text */}
         <span
