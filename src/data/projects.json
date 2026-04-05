@@ -24,7 +24,7 @@
       "Telegram Bot"
     ],
     "demoUrl": "",
-    "githubUrl": "#",
+    "githubUrl": "https://github.com/mannism/labs",
     "keyLearnings": [
       "Glitch-style view transitions have a narrow timing window — too long reads as broken rendering, too short feels like a flash. Testing across 60Hz and 120Hz displays revealed that frame-rate-dependent animations need explicit duration caps, not just easing.",
       "Canvas-based cursor animations require bounding-box culling — the Signal Field only recalculates dots within a radius around the pointer, skipping the full grid each frame, which is the difference between 60fps and dropped frames on lower-end devices.",
@@ -196,7 +196,7 @@
       "Slack Bolt"
     ],
     "demoUrl": "",
-    "githubUrl": "#",
+    "githubUrl": "https://github.com/mannism/claudecli-local-mcp",
     "keyLearnings": "Supporting two Claude backends (CLI subprocess vs. direct API call) behind a single env-var switch exposed a hard constraint: CLI mode works only when the `claude` binary is authenticated on the local machine, so cloud deployment silently requires `USE_CLI=false` — a dependency that must be documented, not assumed.",
     "version": "1.0.0",
     "lastUpdated": "2026-03-29"
@@ -224,7 +224,7 @@
       "Railway"
     ],
     "demoUrl": "https://dianaismail.me",
-    "githubUrl": "#",
+    "githubUrl": "https://github.com/mannism/portfolio",
     "keyLearnings": [
       "Turbopack on Railway cannot reach Google Fonts during production builds — switching to local woff2 files via `next/font/local` eliminated the network dependency entirely.",
       "The parent nav's `backdrop-blur` creates a CSS stacking context that traps `position: fixed` children — a portal to `document.body` was the clean escape.",
