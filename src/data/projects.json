@@ -104,7 +104,7 @@
       "Migrating from NextAuth to Better Auth while preserving existing bcrypt-with-pepper password hashes required a custom Drizzle adapter that remaps field names (full_name to name, created_on to createdAt) and a migration script that backfills the new account table from existing user rows — any mismatch silently locks users out because Better Auth checks the account table first.",
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve OKLch to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on OKLch throughout."
     ],
-    "version": "3.5.1",
+    "version": "3.5.2",
     "lastUpdated": "2026-04-06"
   },
   {
