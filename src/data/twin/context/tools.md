@@ -24,11 +24,22 @@ CMS & Enterprise Platforms:
   - SEO research and audit tooling
 
 Engineering & Development (Modern):
-  - Python, JavaScript, HTML/CSS, PHP
+  - Languages: TypeScript 5/6, JavaScript, Python, HTML/CSS, PHP
+  - Frameworks: Next.js 16, React 19, Express.js, FastAPI
+  - Styling: Tailwind CSS 4, CSS custom properties, OKLch colour tokens
+  - Animation: Framer Motion, Canvas API, requestAnimationFrame
+  - State/Data: TanStack Query, Drizzle ORM, Zustand
+  - Auth: Better Auth, NextAuth.js
+  - AI SDKs: OpenAI API, Anthropic API, Vercel AI SDK, Gemini API
+  - Testing: Vitest, Playwright
+  - Logging: Pino
+  - Bundlers: Vite, Turbopack
+  - CMS: Sanity Studio
+  - Automation: Puppeteer, Cloudflare R2, Instagram Graph API
   - Full SDLC, Agile delivery, Waterfall, Hybrid
 
 Databases:
-  - MySQL, PostgreSQL
+  - PostgreSQL, Redis (ioredis, Upstash Redis), MySQL
 
 Experiential & Emerging Technology:
   - Mixed Reality (HoloLens)
