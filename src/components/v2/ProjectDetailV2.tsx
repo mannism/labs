@@ -191,18 +191,21 @@ function ArticleLayout({ project }: { project: Project }) {
     >
       {/* Left — article content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Lead paragraph */}
-        <p
-          style={{
-            fontFamily: "var(--v2-font-body)",
-            fontSize: "var(--v2-font-size-base)",
-            color: "var(--v2-text-secondary)",
-            lineHeight: 1.85,
-            margin: "0 0 var(--v2-space-3xl) 0",
-          }}
-        >
-          {renderWithCodeHighlights(project.detailedDescription)}
-        </p>
+        {/* Lead paragraphs */}
+        {project.detailedDescription.split("\n\n").map((para, i) => (
+          <p
+            key={i}
+            style={{
+              fontFamily: "var(--v2-font-body)",
+              fontSize: "var(--v2-font-size-base)",
+              color: "var(--v2-text-secondary)",
+              lineHeight: 1.85,
+              margin: "0 0 var(--v2-space-3xl) 0",
+            }}
+          >
+            {renderWithCodeHighlights(para)}
+          </p>
+        ))}
 
         {/* Article sections */}
         {sections.map((section, i) => (
@@ -503,17 +506,20 @@ function ProjectLayout({
           <span>{project.category}</span>
         </div>
 
-        <p
-          style={{
-            fontFamily: "var(--v2-font-body)",
-            fontSize: "var(--v2-font-size-base)",
-            color: "var(--v2-text-secondary)",
-            lineHeight: 1.75,
-            margin: "0 0 var(--v2-space-2xl) 0",
-          }}
-        >
-          {renderWithCodeHighlights(project.detailedDescription)}
-        </p>
+        {project.detailedDescription.split("\n\n").map((para, i) => (
+          <p
+            key={i}
+            style={{
+              fontFamily: "var(--v2-font-body)",
+              fontSize: "var(--v2-font-size-base)",
+              color: "var(--v2-text-secondary)",
+              lineHeight: 1.75,
+              margin: "0 0 var(--v2-space-2xl) 0",
+            }}
+          >
+            {renderWithCodeHighlights(para)}
+          </p>
+        ))}
 
         {project.keyLearnings && (
           <div style={{ marginBottom: "var(--v2-space-2xl)" }}>
