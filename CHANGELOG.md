@@ -1,3 +1,8 @@
+## [2.9.0] - 2026-04-11
+
+### Feature
+* add "Scaling an Agentic Workflow" article (id:19) — sequel to Part 1, covering 3-layer rule cascade, dual CLAUDE.md architecture, folder standardisation, and cross-project coordination
+
 ## [2.8.2] - 2026-04-05
 
 ### Data
