@@ -147,6 +147,20 @@ html.v2 {
   --v2-tag-border: rgba(0, 0, 0, 0.12);
   --v2-tag-color: var(--v2-text-primary);
 
+  /* Experiment status colours — semantic, not decorative */
+  --exp-status-live: #22C55E;
+  --exp-status-beta: #F59E0B;
+  --exp-status-concept: #9CA3AF;
+
+  /* Dark glass overlay for experiment control panels on canvas */
+  --exp-glass-bg: rgba(26, 29, 35, 0.85);
+  --exp-glass-border: rgba(255, 255, 255, 0.08);
+  --exp-glass-text: #F0F2F5;
+  --exp-glass-text-muted: #8891A4;
+
+  /* Experiment canvas area */
+  --exp-canvas-bg: #1A1D23;
+
   /* Spacing */
   --v2-space-xs: 0.25rem;
   --v2-space-sm: 0.5rem;
