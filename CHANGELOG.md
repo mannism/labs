@@ -1,3 +1,8 @@
+## [2.12.0] - 2026-04-11
+
+### Feature
+* Overhauled Voice Particle visualization with dual idle/active modes — idle shows a cohesive breathing sphere; audio input explodes particles per frequency band with directional forces, dynamic colors (bass=red, low-mid=chartreuse, high-mid=cyan, treble=white), radial explosion, swirl, and chaotic turbulence
+
 ## [2.11.4] - 2026-04-11
 
 ### Fix
