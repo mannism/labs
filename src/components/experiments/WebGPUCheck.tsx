@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 
 /**
  * WebGPUCheck — client component that detects navigator.gpu availability.
@@ -22,11 +22,11 @@ export function useWebGPU(): WebGPUContextValue {
 
 /** Provider that runs the capability check once on mount. */
 export function WebGPUProvider({ children }: { children: ReactNode }) {
-  const [supported, setSupported] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    /* navigator.gpu exists only in browsers with WebGPU support */
-    setSupported(typeof navigator !== "undefined" && "gpu" in navigator);
+  const supported = useMemo(() => {
+    if (typeof navigator !== "undefined") {
+      return "gpu" in navigator;
+    }
+    return null;
   }, []);
 
   return (

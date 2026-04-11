@@ -111,7 +111,9 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             margin: "0 0 var(--v2-space-sm) 0",
           }}
         >
-          EXPERIMENT_{expNum} //{" "}
+          {"EXPERIMENT_"}
+          {expNum}
+          {" // "}
           {experiment.title.toUpperCase().replace(/ /g, ".")}
         </p>
 
