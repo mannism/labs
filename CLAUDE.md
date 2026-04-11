@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> Global rules (TypeScript, security, git workflow, accessibility baseline) are in ~/.claude/CLAUDE.md
+
 ## Project
 
 **Diana Ismail Labs** — a Next.js 16 portfolio (React 19, TypeScript, Tailwind CSS v4, Framer Motion) with an embedded AI chat engine.
@@ -12,12 +14,9 @@ The app has two layers:
 
 ## Conventions
 
-- **Components:** PascalCase, one per file. Props defined as TypeScript interfaces.
-- **Functions:** camelCase. Constants: `UPPER_SNAKE_CASE`.
 - **CSS classes:** kebab-case with BEM-style prefixes (`glass-*`, `card-*`, `filter-*`).
 - **Fonts:** Merriweather (display/headings), Open Sans (body), Geist Mono (badges/code).
 - **Colors:** always via CSS custom properties — `var(--bg-primary)`, `var(--accent-blue)`, `var(--text-primary)`. Never raw hex values in components.
-- **TypeScript:** strict mode on — no `any` types, no unused locals or parameters.
 
 ---
 
@@ -34,6 +33,14 @@ The app has two layers:
 - **Article type entries:** Projects with `type: "article"` render a full-width editorial layout (`ArticleLayout`) with titled prose sections and a sticky right sidebar for key takeaways (collapses below content on mobile). Article cards in the grid show an `ARTICLE_` prefix and dashed chartreuse top border. Standard project entries default to `type: "project"` and render the sidebar+content `ProjectLayout`.
 - **Per-project SEO:** Each `/module/[slug]` page generates unique keywords (from `project.tags`), JSON-LD structured data (`SoftwareApplication` for projects, `Article` for articles), and a dynamic OG social preview image via `opengraph-image.tsx` in the `[slug]` directory.
 
+### Experiments layer (`src/app/experiments/`, `src/components/experiments/`)
+- **Data source:** `src/data/experiments.json` — same pattern as `projects.json`. Typed by `src/types/experiment.ts`.
+- **Route structure:** `/experiments/` (landing grid) and `/experiments/[slug]` (individual experiment pages). Both are App Router pages with a shared layout.
+- **CSS tokens:** `--exp-*` custom properties defined in `globals.css` under `html.v2` — status colours, dark glass overlay, and canvas background.
+- **WebGPU capability:** `WebGPUProvider` (context) wraps the experiments layout. Components use `useWebGPU()` to conditionally render fallbacks. `WebGPUBanner` shows an amber info bar when unsupported.
+- **Experiment pages will use `next/dynamic` with `ssr: false`** for Three.js / WebGPU canvas components — scaffolded but not yet wired.
+- **NavbarV2 EXPERIMENTS link:** Uses `usePathname()` to highlight with a chartreuse underline when active. "L A B S" is now a `<Link>` back to `/`.
+
 ### Chat engine layer (`src/lib/twin/`)
 - **`config.ts` is the single env var entry point.** All modules import from `config.ts` — never call `process.env` directly anywhere else.
 - **`engine.ts` owns the full message flow:** rate limit → history → context injection → OpenAI → summarize → save. Do not scatter these steps across other modules.
@@ -46,33 +53,26 @@ The app has two layers:
 
 ## Error Handling & Observability
 
-- Every call to OpenAI, Redis, or the Telegram Bot API must be wrapped in `try/catch`. Non-critical failures (Telegram delivery, Redis summarization) must log and continue — never crash the request.
-- Log failures with structured metadata: `[service]`, operation/endpoint, and status code or error type. **Never log API keys, session IDs, raw user message content, or any PII.**
-- API routes must return safe, user-friendly error messages (sourced from `messages.ts`). Never return stack traces, raw error objects, server versions, or internal file paths to clients.
+- Non-critical failures (Telegram delivery, Redis summarization) must log and continue — never crash the request.
+- API routes must return safe, user-friendly error messages (sourced from `messages.ts`).
 - The chat widget and Telegram bot must always show a graceful error state when the engine fails — never a blank screen or unhandled rejection.
 
 ---
 
 ## Security
 
-- Never hardcode API keys or environment-specific URLs in source files. Use `.env.local` (already in `.gitignore`). Only prefix with `NEXT_PUBLIC_` when browser exposure is intentional.
 - All fonts are self-hosted — do not add external CDN links (runtime font fetches from external CDNs create availability dependencies).
 - Security headers are configured in `next.config.ts`. Do not weaken them (HSTS, X-Frame-Options, CSP, Permissions-Policy).
-- Never use `dangerouslySetInnerHTML` with user-controlled content — React's default escaping is sufficient; don't bypass it.
 - All external links must carry `rel="noopener noreferrer"`.
-- Never expose stack traces, raw error objects, or internal file paths in UI-visible output.
 - API routes validate input length and enforce rate limiting before touching OpenAI or Redis. Maintain these guards on any new routes.
-- Validate all API route payloads with **Zod** before processing — never trust client-supplied field types or shapes. Length checks alone are not sufficient as payloads grow.
 
 ---
 
 ## Code Quality
 
-- Use descriptive names. Add JSDoc comments where the logic isn't obvious from the code.
 - Do not duplicate the `Project` interface — it is exported from `src/types/project.ts` and imported wherever needed.
 - Keep components focused. `ProjectGridV2` owns filtering state and category tabs. Individual cards are stateless display components.
 - Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
-- **Break large tasks into focused subtasks.** Complete and verify each subtask before moving to the next to avoid cascading breakage.
 
 ---
 
@@ -111,5 +111,7 @@ Format: `[v<new-version>] <type>: <what was done>`
 
 ### Automated GitHub Releases (semantic-release)
 On every merge to `main`, semantic-release automatically creates a GitHub Release using the commit history since the last tag. It does **not** bump `package.json`, update `CHANGELOG.md`, or push tags — those are done manually as part of the versioning steps above.
+
+**Override: This project uses manual versioning steps. semantic-release only creates GitHub Releases.**
 
 Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
