@@ -425,6 +425,16 @@ function useAudioAnalyser() {
   /** Start microphone capture and connect to analyser. */
   const start = useCallback(async (): Promise<boolean> => {
     try {
+      /* navigator.mediaDevices is undefined on non-secure origins (not
+         localhost and not HTTPS). Guard explicitly so the error message
+         can distinguish "no API" from "permission denied". */
+      if (!navigator.mediaDevices?.getUserMedia) {
+        console.warn(
+          "[VoiceParticles] getUserMedia unavailable — page must be served over HTTPS or localhost."
+        );
+        return false;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
@@ -447,7 +457,8 @@ function useAudioAnalyser() {
       sourceRef.current = source;
 
       return true;
-    } catch {
+    } catch (err) {
+      console.warn("[VoiceParticles] Microphone access failed:", err);
       return false;
     }
   }, []);
