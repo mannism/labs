@@ -87,6 +87,7 @@ function buildJsonLd(project: Project) {
         "@type": "Person",
         name: seo.author,
       },
+      ...(project.createdDate && { datePublished: project.createdDate }),
       keywords: project.tags.join(", "),
     };
   }
