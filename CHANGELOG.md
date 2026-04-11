@@ -1,3 +1,8 @@
+## [2.9.1] - 2026-04-11
+
+### Chore
+* add `createdDate` field to Project interface — articles display publication date as `PUBLISHED`, projects keep `DEPLOYED` with `lastUpdated`. Backfilled on existing articles (id:18, id:19). Added `datePublished` to article JSON-LD.
+
 ## [2.9.0] - 2026-04-11
 
 ### Feature

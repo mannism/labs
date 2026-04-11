@@ -252,14 +252,18 @@ export function ProjectCardV2({
       >
         {[
           project.version && `v${project.version}`,
-          project.lastUpdated &&
-            (() => {
-              const d = new Date(project.lastUpdated);
-              const yyyy = d.getFullYear();
-              const mm = String(d.getMonth() + 1).padStart(2, "0");
-              const dd = String(d.getDate()).padStart(2, "0");
-              return `${yyyy}.${mm}.${dd}`;
-            })(),
+          (() => {
+            const dateStr =
+              project.type === "article"
+                ? project.createdDate
+                : project.lastUpdated;
+            if (!dateStr) return null;
+            const d = new Date(dateStr);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return `${yyyy}.${mm}.${dd}`;
+          })(),
         ]
           .filter(Boolean)
           .join(" // ")}

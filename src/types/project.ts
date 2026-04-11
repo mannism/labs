@@ -21,6 +21,8 @@ export interface Project {
   version?: string;
   /** ISO date string of the last push to the GitHub repo, e.g. "2026-03-25". */
   lastUpdated?: string;
+  /** ISO date string of original publication date, e.g. "2026-04-05". Primarily used for articles. */
+  createdDate?: string;
   /** When true, spans 2 columns in the v2 bento grid for emphasis. */
   highlight?: boolean;
   /** Entry type — "project" (default) renders as module detail, "article" renders as long-form article. */

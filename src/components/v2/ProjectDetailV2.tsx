@@ -425,18 +425,23 @@ function ProjectLayout({
         {project.version && (
           <MetaBlock label="VERSION" value={`v${project.version}`} />
         )}
-        {project.lastUpdated && (
-          <MetaBlock
-            label="DEPLOYED"
-            value={(() => {
-              const d = new Date(project.lastUpdated);
-              const yyyy = d.getFullYear();
-              const mm = String(d.getMonth() + 1).padStart(2, "0");
-              const dd = String(d.getDate()).padStart(2, "0");
-              return `${yyyy}.${mm}.${dd}`;
-            })()}
-          />
-        )}
+        {(() => {
+          const isArticle = project.type === "article";
+          const dateStr = isArticle
+            ? project.createdDate
+            : project.lastUpdated;
+          if (!dateStr) return null;
+          const d = new Date(dateStr);
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return (
+            <MetaBlock
+              label={isArticle ? "PUBLISHED" : "DEPLOYED"}
+              value={`${yyyy}.${mm}.${dd}`}
+            />
+          );
+        })()}
         <MetaBlock label="STABILITY" value={project.status.toUpperCase()} />
         <div style={{ marginBottom: "var(--v2-space-xl)" }}>
           <p
