@@ -26,8 +26,8 @@
     "slug": "crowd-flow",
     "title": "Crowd Flow Twin",
     "description": "Cellular automata meets agent-based crowd simulation. Draw walls and obstacles, then watch emergent flow patterns form in real-time.",
-    "tags": ["WebGPU", "Compute Shader", "Spatial Hash", "Automata"],
-    "status": "concept",
+    "tags": ["Canvas 2D", "Boids", "Spatial Hash", "Gray-Scott RD"],
+    "status": "beta",
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_003",
     "collection": "webgpu"
