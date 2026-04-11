@@ -1,3 +1,9 @@
+## [2.11.3] - 2026-04-11
+
+### Fix
+* Guard `navigator.mediaDevices.getUserMedia` availability before calling — undefined on non-secure origins, causing silent failure with no browser prompt
+* Improved mic error message to mention HTTPS/localhost requirement
+
 ## [2.11.2] - 2026-04-11
 
 ### Fix
