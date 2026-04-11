@@ -1,3 +1,8 @@
+## [2.12.1] - 2026-04-12
+
+### Content
+* Add article 20: "Designing Rules for AI Agents" — Part 3 of the Agentic Workflow series
+
 ## [2.12.0] - 2026-04-11
 
 ### Feature
