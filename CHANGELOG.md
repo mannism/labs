@@ -1,3 +1,10 @@
+## [2.11.0] - 2026-04-11
+
+### Feature
+* Voice Particle Instrument (EXP_001) — microphone-driven GPU particle system with 150K instanced points, spectral centroid pitch mapping, RMS loudness turbulence, onset-detected rhythm cohesion, and FFT-driven terrain mesh deformation. Glass overlay control panel with sensitivity slider, FPS counter, and mic toggle. WebGL2 with reduced-motion support.
+* Three.js 0.172.0 added as dependency
+* CSP headers split: `/experiments/*` routes allow microphone access and `worker-src blob:`
+
 ## [2.10.0] - 2026-04-11
 
 ### Feature

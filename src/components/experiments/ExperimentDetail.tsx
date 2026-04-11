@@ -1,18 +1,63 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import type { Experiment } from "@/types/experiment";
 import { StatusIndicator } from "./StatusIndicator";
 
 /**
- * ExperimentDetail — scaffold for individual experiment pages.
- * Renders breadcrumb navigation, concept header (system label, title,
- * description, input indicator badge), dark canvas placeholder area,
- * and a "coming soon" message where the WebGPU demo will go.
+ * ExperimentDetail — renders individual experiment pages.
+ * Displays breadcrumb navigation, header (system label, title,
+ * description, input indicator badge), and either a live experiment
+ * canvas or a "coming soon" placeholder depending on experiment status.
  *
- * The canvas area uses the pattern that will later accept a dynamically
- * imported Three.js component via next/dynamic with ssr: false.
+ * Live experiments are loaded via next/dynamic with ssr: false to avoid
+ * server-side rendering of Three.js / browser-only APIs.
  */
+
+/**
+ * Map of experiment slugs to their dynamically imported canvas components.
+ * Each entry uses next/dynamic with ssr: false so Three.js and Web Audio API
+ * are only loaded client-side. Add new experiments here as they are built.
+ */
+const EXPERIMENT_COMPONENTS: Record<
+  string,
+  ReturnType<typeof dynamic>
+> = {
+  "voice-particles": dynamic(
+    () =>
+      import("./voice-particles/VoiceParticleCanvas").then(
+        (mod) => mod.VoiceParticleCanvas
+      ),
+    {
+      ssr: false,
+      loading: () => (
+        <div
+          style={{
+            width: "100%",
+            height: "clamp(300px, 70vh, 800px)",
+            background: "var(--exp-canvas-bg)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--exp-glass-text-muted)",
+              letterSpacing: "var(--v2-letter-spacing-wide)",
+              textTransform: "uppercase",
+            }}
+          >
+            LOADING EXPERIMENT...
+          </p>
+        </div>
+      ),
+    }
+  ),
+};
 
 /** Map input types to their descriptive requirement text. */
 const INPUT_LABELS: Record<string, string> = {
@@ -24,6 +69,9 @@ const INPUT_LABELS: Record<string, string> = {
 export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
   /** Format experiment number for breadcrumb display, e.g. EXP_001 -> 001 */
   const expNum = experiment.experimentNumber.replace("EXP_", "");
+
+  /** Look up the live experiment component by slug — undefined means placeholder */
+  const ExperimentComponent = EXPERIMENT_COMPONENTS[experiment.slug] ?? null;
 
   return (
     <>
@@ -182,59 +230,68 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         </div>
       </section>
 
-      {/* Canvas placeholder area — will host WebGPU canvas via next/dynamic */}
+      {/* Experiment canvas area — renders live component or placeholder */}
       <section
         style={{
           width: "100%",
-          height: "clamp(300px, 70vh, 800px)",
-          background: "var(--exp-canvas-bg)",
           margin: "var(--v2-space-lg) 0",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "var(--v2-space-md)",
           position: "relative",
         }}
       >
-        {/* Placeholder content — replaced by live canvas when experiment is built */}
-        <div
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            border: "2px solid var(--v2-accent)",
-            borderTopColor: "transparent",
-            /* Static in scaffold — will animate when experiment loads */
-          }}
-          aria-hidden="true"
-        />
-        <p
-          style={{
-            fontFamily: "var(--v2-font-mono)",
-            fontSize: "var(--v2-font-size-xs)",
-            color: "var(--exp-glass-text-muted)",
-            letterSpacing: "var(--v2-letter-spacing-wide)",
-            textTransform: "uppercase",
-            margin: 0,
-          }}
-        >
-          EXPERIMENT COMING SOON
-        </p>
-        <p
-          style={{
-            fontFamily: "var(--v2-font-body)",
-            fontSize: "var(--v2-font-size-sm)",
-            color: "var(--exp-glass-text-muted)",
-            margin: 0,
-            maxWidth: "400px",
-            textAlign: "center",
-            lineHeight: 1.5,
-          }}
-        >
-          This experiment is in the concept phase. The WebGPU canvas and
-          interactive controls will appear here once development begins.
-        </p>
+        {ExperimentComponent ? (
+          <ExperimentComponent />
+        ) : (
+          /* Placeholder for experiments still in concept phase */
+          <div
+            style={{
+              width: "100%",
+              height: "clamp(300px, 70vh, 800px)",
+              background: "var(--exp-canvas-bg)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--v2-space-md)",
+            }}
+          >
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "2px solid var(--v2-accent)",
+                borderTopColor: "transparent",
+              }}
+              aria-hidden="true"
+            />
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--exp-glass-text-muted)",
+                letterSpacing: "var(--v2-letter-spacing-wide)",
+                textTransform: "uppercase",
+                margin: 0,
+              }}
+            >
+              EXPERIMENT COMING SOON
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-body)",
+                fontSize: "var(--v2-font-size-sm)",
+                color: "var(--exp-glass-text-muted)",
+                margin: 0,
+                maxWidth: "400px",
+                textAlign: "center",
+                lineHeight: 1.5,
+              }}
+            >
+              This experiment is in the concept phase. The WebGPU canvas and
+              interactive controls will appear here once development begins.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Back link */}
