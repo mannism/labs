@@ -1,3 +1,8 @@
+## [2.13.0] - 2026-04-11
+
+### Feature
+* Crowd Flow Twin (EXP_003) — Canvas 2D agent-based crowd simulation with Boids flocking (spatial-hash O(n*k) neighbor search), trail density system, and Gray-Scott reaction-diffusion visualization. Click to place obstacles, right-click to remove. Dual idle/active modes: idle shows gentle agent drift on dark background, interaction triggers dynamic flocking and organic RD pattern growth. Glass overlay control panel with agent count, speed, RD feed/kill rates, trail persistence, agent visibility toggle, and 4 color palettes (Coral, Ocean, Acid, Mono). Desktop: 5K agents, 512x512 RD grid, 60fps target. Mobile: 2K agents, 256x256 grid, 30fps target. Respects prefers-reduced-motion.
+
 ## [2.12.0] - 2026-04-11
 
 ### Feature

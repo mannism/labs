@@ -20,6 +20,32 @@ import { StatusIndicator } from "./StatusIndicator";
  * Each entry uses next/dynamic with ssr: false so Three.js and Web Audio API
  * are only loaded client-side. Add new experiments here as they are built.
  */
+/** Loading placeholder shared across all experiment dynamic imports. */
+const LOADING_PLACEHOLDER = () => (
+  <div
+    style={{
+      width: "100%",
+      height: "clamp(300px, 70vh, 800px)",
+      background: "var(--exp-canvas-bg)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <p
+      style={{
+        fontFamily: "var(--v2-font-mono)",
+        fontSize: "var(--v2-font-size-xs)",
+        color: "var(--exp-glass-text-muted)",
+        letterSpacing: "var(--v2-letter-spacing-wide)",
+        textTransform: "uppercase",
+      }}
+    >
+      LOADING EXPERIMENT...
+    </p>
+  </div>
+);
+
 const EXPERIMENT_COMPONENTS: Record<
   string,
   ReturnType<typeof dynamic>
@@ -31,30 +57,17 @@ const EXPERIMENT_COMPONENTS: Record<
       ),
     {
       ssr: false,
-      loading: () => (
-        <div
-          style={{
-            width: "100%",
-            height: "clamp(300px, 70vh, 800px)",
-            background: "var(--exp-canvas-bg)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              color: "var(--exp-glass-text-muted)",
-              letterSpacing: "var(--v2-letter-spacing-wide)",
-              textTransform: "uppercase",
-            }}
-          >
-            LOADING EXPERIMENT...
-          </p>
-        </div>
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
+  "crowd-flow": dynamic(
+    () =>
+      import("./crowd-flow/CrowdFlowCanvas").then(
+        (mod) => mod.CrowdFlowCanvas
       ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
     }
   ),
 };
