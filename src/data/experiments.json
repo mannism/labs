@@ -5,7 +5,7 @@
     "title": "Voice Particle Instrument",
     "description": "Microphone input drives GPU-accelerated particles and terrain mesh deformation in real-time. Speak, sing, or make noise to shape the visual landscape.",
     "tags": ["WebGPU", "Web Audio", "Compute Shader", "Three.js"],
-    "status": "concept",
+    "status": "live",
     "inputType": "Microphone",
     "experimentNumber": "EXP_001",
     "collection": "webgpu"
