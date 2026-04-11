@@ -1,6 +1,6 @@
 # Diana Ismail Labs
 
-**Version:** 2.9.1
+**Version:** 2.10.0
 
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine powering a floating digital twin chat widget and a Telegram bot.
 
@@ -61,6 +61,10 @@ src/
 │   │   ├── page.tsx            # Per-project SSR: generateMetadata (title, desc, keywords), JSON-LD
 │   │   ├── ModuleDetailClient.tsx # Client wrapper: datamosh transitions, back navigation
 │   │   └── opengraph-image.tsx # Per-project OG image: title + category badge + MODULE/ARTICLE label
+│   ├── experiments/
+│   │   ├── layout.tsx          # Shared experiments layout: metadata, ExperimentsShell wrapper
+│   │   ├── page.tsx            # Landing page: hero + card grid of all experiments
+│   │   └── [slug]/page.tsx     # Individual experiment: breadcrumb, header, canvas placeholder
 │   └── api/
 │       ├── chat/stream/        # POST — SSE streaming endpoint for the chat widget
 │       ├── link/               # POST — OTP verification to link web session ↔ Telegram
@@ -69,6 +73,13 @@ src/
 ├── components/
 │   ├── AppShell.tsx            # Root orchestrator: SignalField, SystemBoot, Datamosh, LayoutShellV2, ChatWidget
 │   ├── ChatWidget.tsx          # Floating AI chat: SSE streaming, typewriter, Ghost Type header, Telegram linking
+│   ├── experiments/
+│   │   ├── ExperimentsShell.tsx   # Client layout: WebGPUProvider + NavbarV2 + FooterV2
+│   │   ├── ExperimentsLanding.tsx # Hero + card grid with stagger-fade entrance
+│   │   ├── ExperimentCard.tsx     # Card: dark preview, system label, status, title, tags
+│   │   ├── ExperimentDetail.tsx   # Detail stub: breadcrumb, header, canvas placeholder
+│   │   ├── StatusIndicator.tsx    # Reusable status dot + label (LIVE/BETA/CONCEPT)
+│   │   └── WebGPUCheck.tsx        # WebGPU context provider + amber fallback banner
 │   └── v2/
 │       ├── LayoutShellV2.tsx   # Page wrapper: NavbarV2 + HeroV2 + content + FooterV2
 │       ├── NavbarV2.tsx        # Sticky nav: letterspaced logo, version, portfolio link
@@ -96,6 +107,7 @@ src/
 │   └── telegram.ts             # Telegram Bot API client (sendMessage, sendTypingAction)
 └── data/
     ├── projects.json           # Single source of truth for all project data
+    ├── experiments.json        # Single source of truth for experiment data
     ├── seo.json                # OpenGraph metadata, site URL, Twitter handle
     └── twin/
         ├── System-prompt.md    # Main AI instruction template

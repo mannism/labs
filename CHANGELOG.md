@@ -1,3 +1,11 @@
+## [2.10.0] - 2026-04-11
+
+### Feature
+* scaffold `/experiments/` section — route group, landing page, individual experiment pages, data file, TypeScript types, CSS tokens, experiment card grid, WebGPU capability detection, and NavbarV2 experiments link
+* add `src/data/experiments.json` with 3 concept experiments: Voice Particle Instrument, Gesture Fluid Wall, Crowd Flow Twin
+* add `ExperimentCard`, `StatusIndicator`, `WebGPUCheck`, `ExperimentsLanding`, `ExperimentDetail`, and `ExperimentsShell` components
+* add `--exp-*` CSS custom properties (status colours, glass overlay, canvas background) to `globals.css` within `html.v2` scope
+
 ## [2.9.1] - 2026-04-11
 
 ### Chore

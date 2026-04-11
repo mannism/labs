@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "slug": "voice-particles",
+    "title": "Voice Particle Instrument",
+    "description": "Microphone input drives GPU-accelerated particles and terrain mesh deformation in real-time. Speak, sing, or make noise to shape the visual landscape.",
+    "tags": ["WebGPU", "Web Audio", "Compute Shader", "Three.js"],
+    "status": "concept",
+    "inputType": "Microphone",
+    "experimentNumber": "EXP_001",
+    "collection": "webgpu"
+  },
+  {
+    "id": "2",
+    "slug": "gesture-fluid",
+    "title": "Gesture Fluid Wall",
+    "description": "Camera-tracked hand gestures drive an Eulerian fluid simulation on the GPU. Move your hands to push, swirl, and sculpt colour fields.",
+    "tags": ["WebGPU", "MediaPipe", "Fluid Dynamics", "Storage Texture"],
+    "status": "concept",
+    "inputType": "Camera",
+    "experimentNumber": "EXP_002",
+    "collection": "webgpu"
+  },
+  {
+    "id": "3",
+    "slug": "crowd-flow",
+    "title": "Crowd Flow Twin",
+    "description": "Cellular automata meets agent-based crowd simulation. Draw walls and obstacles, then watch emergent flow patterns form in real-time.",
+    "tags": ["WebGPU", "Compute Shader", "Spatial Hash", "Automata"],
+    "status": "concept",
+    "inputType": "Mouse / Touch",
+    "experimentNumber": "EXP_003",
+    "collection": "webgpu"
+  }
+]
