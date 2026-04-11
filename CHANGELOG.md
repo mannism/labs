@@ -1,3 +1,8 @@
+## [2.11.4] - 2026-04-11
+
+### Fix
+* Fix Permissions-Policy header: catch-all `/(.*)`  route was overriding `/experiments/*` microphone=(self) with microphone=(). Changed catch-all to exclude experiments via negative lookahead.
+
 ## [2.11.3] - 2026-04-11
 
 ### Fix
