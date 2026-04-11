@@ -47,9 +47,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // All other routes — strict permissions policy
+      // All other routes — strict permissions policy (excludes /experiments/ which has its own headers above)
       {
-        source: "/(.*)",
+        source: "/((?!experiments).*)",
         headers: [
           ...sharedHeaders,
           // Disable permission-sensitive browser features
