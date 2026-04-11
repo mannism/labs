@@ -1,3 +1,8 @@
+## [2.11.2] - 2026-04-11
+
+### Fix
+* Fix WebGL context race condition in VoiceParticleCanvas — removed test context creation that raced with Three.js renderer initialization
+
 ## [2.11.0] - 2026-04-11
 
 ### Feature

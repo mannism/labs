@@ -597,17 +597,15 @@ export function VoiceParticleCanvas() {
 
     if (!canvas || !container) return;
 
-    /** Check WebGL2 support */
-    const gl = canvas.getContext("webgl2");
-    if (!gl) {
+    /** Let Three.js create the WebGL2 context directly — avoid the race
+     *  condition from creating a test context and trying to release it. */
+    let sceneRefs: SceneRefs;
+    try {
+      sceneRefs = initScene(canvas, container);
+    } catch {
       setIsSupported(false);
       return;
     }
-    /** Release the test context so Three.js can create its own */
-    const loseExt = gl.getExtension("WEBGL_lose_context");
-    if (loseExt) loseExt.loseContext();
-
-    const sceneRefs = initScene(canvas, container);
     sceneRefsRef.current = sceneRefs;
     setParticleCount(sceneRefs.positionAttribute.count);
 
