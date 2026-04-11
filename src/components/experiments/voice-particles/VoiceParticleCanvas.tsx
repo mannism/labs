@@ -70,8 +70,11 @@ interface SceneRefs {
   particles: THREE.Points;
   terrain: THREE.Mesh;
   positionAttribute: THREE.BufferAttribute;
+  colorAttribute: THREE.BufferAttribute;
   velocityArray: Float32Array;
   basePositionArray: Float32Array;
+  /** Per-particle frequency band assignment (0-3: bass, low-mid, high-mid, treble) */
+  bandAssignment: Uint8Array;
   terrainPositionAttribute: THREE.BufferAttribute;
   terrainBaseY: Float32Array;
   clock: THREE.Clock;
@@ -172,6 +175,8 @@ function initScene(
   const sizes = new Float32Array(particleCount);
   const velocities = new Float32Array(particleCount * 3);
   const basePositions = new Float32Array(particleCount * 3);
+  /** Each particle belongs to a frequency band (0-3) for group-based audio response */
+  const bandAssignment = new Uint8Array(particleCount);
 
   /** Chartreuse accent color from design tokens: #C8FF00 */
   const accentColor = new THREE.Color(0xc8ff00);
@@ -180,13 +185,14 @@ function initScene(
   for (let i = 0; i < particleCount; i++) {
     const i3 = i * 3;
 
-    /** Distribute particles in a cylinder volume */
-    const radius = Math.random() * 12;
+    /** Distribute particles in a tight sphere — compact idle formation */
+    const radius = Math.pow(Math.random(), 0.6) * 6;
     const angle = Math.random() * Math.PI * 2;
-    const y = (Math.random() - 0.5) * 8;
+    const phi = Math.acos(2 * Math.random() - 1);
 
-    const x = Math.cos(angle) * radius;
-    const z = Math.sin(angle) * radius;
+    const x = Math.sin(phi) * Math.cos(angle) * radius;
+    const y = Math.sin(phi) * Math.sin(angle) * radius - 1;
+    const z = Math.cos(phi) * radius;
 
     positions[i3] = x;
     positions[i3 + 1] = y;
@@ -200,8 +206,12 @@ function initScene(
     velocities[i3 + 1] = 0;
     velocities[i3 + 2] = 0;
 
+    /** Assign frequency band — weighted so more particles respond to bass/low-mid */
+    const r = Math.random();
+    bandAssignment[i] = r < 0.35 ? 0 : r < 0.65 ? 1 : r < 0.85 ? 2 : 3;
+
     /** Blend between dim and accent color based on distance from center */
-    const t = Math.random() * 0.5;
+    const t = Math.random() * 0.3;
     const color = dimColor.clone().lerp(accentColor, t);
     colors[i3] = color.r;
     colors[i3 + 1] = color.g;
@@ -214,7 +224,9 @@ function initScene(
   const positionAttribute = new THREE.BufferAttribute(positions, 3);
   positionAttribute.setUsage(THREE.DynamicDrawUsage);
   particleGeometry.setAttribute("position", positionAttribute);
-  particleGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  const colorAttribute = new THREE.BufferAttribute(colors, 3);
+  colorAttribute.setUsage(THREE.DynamicDrawUsage);
+  particleGeometry.setAttribute("color", colorAttribute);
   particleGeometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
   const particleMaterial = new THREE.PointsMaterial({
@@ -271,8 +283,10 @@ function initScene(
     particles,
     terrain,
     positionAttribute,
+    colorAttribute,
     velocityArray: velocities,
     basePositionArray: basePositions,
+    bandAssignment,
     terrainPositionAttribute,
     terrainBaseY,
     clock,
@@ -283,10 +297,55 @@ function initScene(
 /*                           Animation / render loop                          */
 /* -------------------------------------------------------------------------- */
 
+/** Band energy directions — each frequency band explodes particles in a different direction */
+const BAND_DIRECTIONS = [
+  { x: 0, y: -1, z: 0 },    // Bass: pushes down/outward (ground-shaking)
+  { x: -1, y: 0.3, z: 0.5 }, // Low-mid: pushes left and slightly up
+  { x: 1, y: 0.5, z: -0.5 }, // High-mid: pushes right and up
+  { x: 0, y: 1, z: 0 },      // Treble: pushes straight up (sparkle)
+];
+
+/** Band colors — particles shift color based on their band's energy */
+const BAND_COLORS = [
+  new THREE.Color(0xff3333), // Bass: red
+  new THREE.Color(0xc8ff00), // Low-mid: chartreuse
+  new THREE.Color(0x00ddff), // High-mid: cyan
+  new THREE.Color(0xffffff), // Treble: white
+];
+const IDLE_COLOR = new THREE.Color(0x334455);
+
 /**
- * Update particle positions based on current audio features.
- * Pitch drives attraction toward a focal point, loudness drives turbulence,
- * rhythm triggers cohesion pulses.
+ * Compute average energy for each of the 4 frequency bands from raw FFT data.
+ */
+function computeBandEnergies(freqData: Uint8Array<ArrayBuffer>): [number, number, number, number] {
+  const len = freqData.length;
+  let bass = 0, lowMid = 0, highMid = 0, treble = 0;
+  let bCount = 0, lCount = 0, hCount = 0, tCount = 0;
+
+  for (let i = 0; i < len; i++) {
+    const v = (freqData[i] ?? 0) / 255;
+    const ratio = i / len;
+    if (ratio < 0.06) { bass += v; bCount++; }
+    else if (ratio < 0.25) { lowMid += v; lCount++; }
+    else if (ratio < 0.6) { highMid += v; hCount++; }
+    else { treble += v; tCount++; }
+  }
+
+  return [
+    bCount > 0 ? bass / bCount : 0,
+    lCount > 0 ? lowMid / lCount : 0,
+    hCount > 0 ? highMid / hCount : 0,
+    tCount > 0 ? treble / tCount : 0,
+  ];
+}
+
+/**
+ * Update particle positions and colors based on audio features.
+ *
+ * Two distinct modes:
+ * - IDLE (no/low audio): tight cohesive sphere with gentle breathing drift
+ * - ACTIVE (audio): particles explode outward per frequency band, colors shift,
+ *   chaotic turbulence breaks the formation apart
  */
 function updateParticles(
   sceneRefs: SceneRefs,
@@ -296,24 +355,22 @@ function updateParticles(
 ): void {
   const {
     positionAttribute,
+    colorAttribute,
     velocityArray,
     basePositionArray,
+    bandAssignment,
+    clock,
   } = sceneRefs;
 
   const positions = positionAttribute.array as Float32Array;
+  const colorsArr = colorAttribute.array as Float32Array;
   const particleCount = positionAttribute.count;
-  const effectiveSensitivity = sensitivity * (reducedMotion ? 0.3 : 1.0);
+  const elapsed = clock.getElapsedTime();
 
-  /** Focal point moves based on pitch — higher pitch shifts the attractor right/up */
-  const attractX = (features.pitch - 0.5) * 10;
-  const attractY = features.pitch * 4;
-  const attractZ = 0;
-
-  /** Turbulence intensity scales with loudness */
-  const turbulence = features.loudness * effectiveSensitivity * (reducedMotion ? 0.2 : 1.0);
-
-  /** Cohesion pulse from rhythm — pulls particles inward on onset */
-  const cohesion = features.rhythm * effectiveSensitivity * 0.02;
+  const loudness = features.loudness;
+  const audioActive = loudness > 0.05;
+  const bandEnergies = computeBandEnergies(features.frequencyData);
+  const sens = sensitivity * (reducedMotion ? 0.3 : 1.0);
 
   for (let i = 0; i < particleCount; i++) {
     const i3 = i * 3;
@@ -326,44 +383,95 @@ function updateParticles(
     const baseY = basePositionArray[i3 + 1] ?? 0;
     const baseZ = basePositionArray[i3 + 2] ?? 0;
 
-    /** Direction toward attractor */
-    const toAttractX = attractX - px;
-    const toAttractY = attractY - py;
-    const toAttractZ = attractZ - pz;
+    let fx = 0, fy = 0, fz = 0;
 
-    /** Direction back to base position (spring force) */
-    const toBaseX = baseX - px;
-    const toBaseY = baseY - py;
-    const toBaseZ = baseZ - pz;
+    const band = bandAssignment[i] ?? 0;
+    const phase = i * 0.0073;
 
-    /** Pseudo-random turbulence per particle (deterministic from index for consistency) */
-    const turbX = (Math.sin(i * 0.1 + px * 0.5) * 2 - 1) * turbulence * 0.3;
-    const turbY = (Math.cos(i * 0.13 + py * 0.5) * 2 - 1) * turbulence * 0.3;
-    const turbZ = (Math.sin(i * 0.17 + pz * 0.5) * 2 - 1) * turbulence * 0.3;
+    if (audioActive) {
+      /* ---- ACTIVE MODE: explode per frequency band ---- */
+      const bandEnergy = bandEnergies[band] ?? 0;
+      const dir = BAND_DIRECTIONS[band] ?? BAND_DIRECTIONS[0]!;
 
-    /** Combine forces */
+      /** Band-directional force — each band pushes its particles a different way.
+       *  Strength scales with that band's energy * sensitivity. */
+      const pushStrength = bandEnergy * sens * 0.15;
+      fx += dir.x * pushStrength;
+      fy += dir.y * pushStrength;
+      fz += dir.z * pushStrength;
+
+      /** Radial explosion — loudness pushes all particles outward from center */
+      const dist = Math.sqrt(px * px + py * py + pz * pz) + 0.001;
+      const radialForce = loudness * sens * 0.04;
+      fx += (px / dist) * radialForce;
+      fy += (py / dist) * radialForce;
+      fz += (pz / dist) * radialForce;
+
+      /** Chaotic turbulence — multi-octave, position-dependent, time-evolving.
+       *  Much stronger than idle drift to break formations apart. */
+      const n = i * 0.1 + elapsed * 2.0;
+      const turbStr = loudness * sens * 0.08;
+      fx += (Math.sin(n + px * 0.7) + Math.sin(n * 2.3 + pz) * 0.7) * turbStr;
+      fy += (Math.cos(n * 1.1 + py * 0.6) + Math.sin(n * 1.8 + px * 0.9) * 0.7) * turbStr;
+      fz += (Math.sin(n * 0.8 + pz * 0.5) + Math.cos(n * 2.5 + py) * 0.7) * turbStr;
+
+      /** Swirl — audio adds rotational force around Y axis for organic flow */
+      const swirlStrength = loudness * sens * 0.012;
+      fx += -pz * swirlStrength;
+      fz += px * swirlStrength;
+
+      /** Rhythm cohesion — beat detection pulls particles inward briefly */
+      const cohesion = features.rhythm * sens * 0.04;
+      fx -= px * cohesion;
+      fy -= py * cohesion;
+      fz -= pz * cohesion;
+
+      /** Very weak spring — particles barely return during audio, free to roam */
+      fx += (baseX - px) * 0.0005;
+      fy += (baseY - py) * 0.0005;
+      fz += (baseZ - pz) * 0.0005;
+
+      /** Color: shift toward band color based on energy */
+      const bandColor = BAND_COLORS[band] ?? BAND_COLORS[0]!;
+      const colorMix = Math.min(bandEnergy * 2.5, 1.0);
+      colorsArr[i3] = IDLE_COLOR.r + (bandColor.r - IDLE_COLOR.r) * colorMix;
+      colorsArr[i3 + 1] = IDLE_COLOR.g + (bandColor.g - IDLE_COLOR.g) * colorMix;
+      colorsArr[i3 + 2] = IDLE_COLOR.b + (bandColor.b - IDLE_COLOR.b) * colorMix;
+
+    } else {
+      /* ---- IDLE MODE: cohesive sphere with gentle breathing ---- */
+
+      /** Strong spring back to base — keeps the formation tight */
+      fx += (baseX - px) * 0.02;
+      fy += (baseY - py) * 0.02;
+      fz += (baseZ - pz) * 0.02;
+
+      /** Gentle coordinated breathing — the whole sphere pulses in/out slowly */
+      const breathe = Math.sin(elapsed * 0.5) * 0.002;
+      fx += px * breathe;
+      fy += py * breathe;
+      fz += pz * breathe;
+
+      /** Subtle individual drift — slow, small amplitude, keeps it alive but calm */
+      const driftStr = reducedMotion ? 0.002 : 0.005;
+      fx += Math.sin(elapsed * 0.3 + phase) * driftStr;
+      fy += Math.cos(elapsed * 0.25 + phase * 1.7) * driftStr;
+      fz += Math.sin(elapsed * 0.35 + phase * 2.3) * driftStr;
+
+      /** Fade color back to dim idle */
+      colorsArr[i3] = colorsArr[i3]! + (IDLE_COLOR.r - colorsArr[i3]!) * 0.02;
+      colorsArr[i3 + 1] = colorsArr[i3 + 1]! + (IDLE_COLOR.g - colorsArr[i3 + 1]!) * 0.02;
+      colorsArr[i3 + 2] = colorsArr[i3 + 2]! + (IDLE_COLOR.b - colorsArr[i3 + 2]!) * 0.02;
+    }
+
+    /** Apply forces with damping */
     const vx = velocityArray[i3] ?? 0;
     const vy = velocityArray[i3 + 1] ?? 0;
     const vz = velocityArray[i3 + 2] ?? 0;
 
-    velocityArray[i3] =
-      vx * 0.95 +
-      toAttractX * 0.001 * effectiveSensitivity +
-      toBaseX * 0.005 +
-      turbX -
-      px * cohesion;
-    velocityArray[i3 + 1] =
-      vy * 0.95 +
-      toAttractY * 0.001 * effectiveSensitivity +
-      toBaseY * 0.005 +
-      turbY -
-      py * cohesion;
-    velocityArray[i3 + 2] =
-      vz * 0.95 +
-      toAttractZ * 0.001 * effectiveSensitivity +
-      toBaseZ * 0.005 +
-      turbZ -
-      pz * cohesion;
+    velocityArray[i3] = vx * 0.93 + fx;
+    velocityArray[i3 + 1] = vy * 0.93 + fy;
+    velocityArray[i3 + 2] = vz * 0.93 + fz;
 
     positions[i3] = px + (velocityArray[i3] ?? 0);
     positions[i3 + 1] = py + (velocityArray[i3 + 1] ?? 0);
@@ -371,6 +479,7 @@ function updateParticles(
   }
 
   positionAttribute.needsUpdate = true;
+  colorAttribute.needsUpdate = true;
 }
 
 /**
