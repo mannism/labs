@@ -118,7 +118,8 @@ export function ControlPanel({
           }}
           role="alert"
         >
-          MICROPHONE ACCESS DENIED. CHECK BROWSER PERMISSIONS.
+          MICROPHONE ACCESS FAILED. ALLOW MIC IN BROWSER SETTINGS OR
+          CHECK THAT THE PAGE IS SERVED OVER HTTPS / LOCALHOST.
         </p>
       )}
 
