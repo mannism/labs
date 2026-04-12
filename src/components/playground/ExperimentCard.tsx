@@ -109,7 +109,7 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <Link
-        href={`/experiments/${experiment.slug}`}
+        href={`/playground/${experiment.slug}`}
         style={{
           display: "block",
           textDecoration: "none",
