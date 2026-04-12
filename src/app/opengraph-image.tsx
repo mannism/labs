@@ -7,7 +7,7 @@ import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-export const alt = "Labs by Diana — Speculative interface and AI experiments. Built by Diana Ismail, agentic AI builder.";
+export const alt = "Labs by Diana — Speculative interface and AI playground. Built by Diana Ismail, agentic AI builder.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -105,7 +105,7 @@ export default async function OGImage() {
                     }}
                 >
                     <span>{"Labs by Diana — "}</span>
-                    <span style={{ color: "#C8FF00" }}>Experiments that ship.</span>
+                    <span style={{ color: "#C8FF00" }}>Playground that ships.</span>
                 </div>
 
                 {/* Subtitle */}

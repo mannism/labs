@@ -1,3 +1,8 @@
+## [2.14.1] - 2026-04-12
+
+### Refactor
+* Rename "Experiments" section to "Playground" — routes (`/experiments` → `/playground`), navbar link, breadcrumbs, back buttons, page titles, SEO metadata, OG image text, and component directory
+
 ## [2.14.0] - 2026-04-12
 
 ### Feature

@@ -1,7 +1,7 @@
-import { ExperimentsLanding } from "@/components/experiments/ExperimentsLanding";
+import { ExperimentsLanding } from "@/components/playground/ExperimentsLanding";
 
 /**
- * Experiments landing page — displays hero + card grid of all experiments.
+ * Playground landing page — displays hero + card grid of all experiments.
  * Server Component wrapper; interactive content delegated to ExperimentsLanding.
  */
 export default function ExperimentsPage() {
