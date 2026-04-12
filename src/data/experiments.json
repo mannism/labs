@@ -37,12 +37,35 @@
     "id": "2",
     "slug": "gesture-fluid",
     "title": "Gesture Fluid Wall",
-    "description": "Camera-tracked hand gestures drive an Eulerian fluid simulation on the GPU. Move your hands to push, swirl, and sculpt colour fields.",
-    "tags": ["WebGPU", "MediaPipe", "Fluid Dynamics", "Storage Texture"],
-    "status": "concept",
-    "inputType": "Camera",
+    "description": "Pointer-driven Eulerian fluid simulation using Jos Stam's Stable Fluids algorithm. Move your mouse or finger to inject velocity and density into a real-time fluid field.",
+    "tags": ["Canvas 2D", "Stable Fluids", "Fluid Dynamics", "Navier-Stokes"],
+    "status": "beta",
+    "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_002",
-    "collection": "webgpu"
+    "collection": "webgpu",
+    "conceptStatement": "A 256×256 Eulerian fluid grid runs Jos Stam's Stable Fluids algorithm entirely on the CPU, rendered to Canvas 2D. Moving your pointer injects velocity and density into the grid — the fluid advects, diffuses, and conserves mass in real time, producing ink-in-water trails that respond to gesture speed and direction. Four selectable colour palettes map fluid density to visual output.",
+    "howItWorks": [
+      {
+        "title": "Navier-Stokes Solver",
+        "body": "Each frame runs the four steps of Stam's Stable Fluids: diffusion (Jacobi iteration, 20 passes), advection (semi-Lagrangian backtracing with bilinear interpolation), pressure solve (Jacobi iteration, 40 passes), and projection (subtract pressure gradient to enforce mass conservation). The velocity field is processed twice through projection — before and after advection — to maintain a divergence-free field at both stages."
+      },
+      {
+        "title": "Pointer Injection",
+        "body": "Pointer movement is converted to grid-space velocity and injected into nearby cells using a radial smoothstep falloff. The injection radius scales with grid resolution, and both the density amount and velocity multiplier are user-adjustable. Touch input on mobile follows the same path via translated touch coordinates."
+      },
+      {
+        "title": "Idle and Active Modes",
+        "body": "When the pointer leaves the canvas or stops moving for 3 seconds, the simulation transitions to idle mode: density decays faster and subtle ambient currents inject faint wisps at random positions to keep the fluid visually alive. When the pointer returns, decay parameters lerp back to active values, preserving density longer for vivid trails."
+      },
+      {
+        "title": "Rendering Pipeline",
+        "body": "The density field is rendered by sampling each grid cell through a colour palette gradient — a series of colour stops that map density concentration (0–1) to RGB values. The resulting ImageData is written at grid resolution and then scaled up to canvas size with bilinear smoothing, producing a soft, organic look without per-pixel simulation cost."
+      }
+    ],
+    "whatItProves": [
+      "A full Navier-Stokes fluid solver — diffusion, advection, pressure projection — runs at 60fps in the browser on a 256×256 grid using only CPU and Canvas 2D. No WebGPU, no WebGL, no WASM. The bottleneck is the Jacobi iteration count (60 passes per frame across two solve steps), which remains tractable at this resolution because Float64Array arithmetic on modern JavaScript engines is fast enough for real-time simulation.",
+      "The experiment also demonstrates that Jos Stam's unconditionally stable semi-Lagrangian advection scheme — originally published for offline VFX — translates directly to interactive use. The simulation never blows up regardless of pointer speed or parameter values, which is the core property that makes it suitable for a public-facing demo where users control the input."
+    ]
   },
   {
     "id": "3",
