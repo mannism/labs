@@ -1,7 +1,7 @@
 {
   "siteName": "Labs by Diana",
   "title": "Labs by Diana Ismail — Agentic AI Builder",
-  "description": "Speculative interface by Diana Ismail — agentic AI builder. Live playground for AI, creative coding, and canvas animation. All production-grade.",
+  "description": "Speculative interface by Diana Ismail — agentic AI builder. Live experiments in AI, creative coding, and canvas animation. All production-grade.",
   "keywords": [
     "Diana Ismail",
     "agentic AI builder",
@@ -11,7 +11,7 @@
     "canvas animation",
     "generative art",
     "digital twin",
-    "AI playground",
+    "AI experiments",
     "Next.js",
     "Claude Code",
     "OpenAI",
@@ -28,6 +28,6 @@
     "imageUrl": "https://labs.dianaismail.me/opengraph-image",
     "imageWidth": 1200,
     "imageHeight": 630,
-    "imageAlt": "Labs by Diana — Speculative interface and AI playground. Built by Diana Ismail, agentic AI builder."
+    "imageAlt": "Labs by Diana — Speculative interface and AI experiments. Built by Diana Ismail, agentic AI builder."
   }
 }

@@ -60,7 +60,7 @@ export function ExperimentsLanding() {
             textTransform: "uppercase",
           }}
         >
-          PLAYGROUND // WEBGPU.COMPUTE
+          EXPERIMENTS // WEBGPU.COMPUTE
         </p>
 
         {/* Headline */}
