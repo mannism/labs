@@ -8,6 +8,13 @@
 
 import { useCallback } from "react";
 
+/** Threshold presets for audio activation sensitivity. */
+const THRESHOLD_PRESETS = [
+  { label: "LOW", value: 0.02 },
+  { label: "DEFAULT", value: 0.04 },
+  { label: "HIGH", value: 0.07 },
+] as const;
+
 /** Props for the experiment control panel. */
 interface ControlPanelProps {
   /** Whether the microphone is currently active. */
@@ -18,6 +25,10 @@ interface ControlPanelProps {
   sensitivity: number;
   /** Called when the user adjusts sensitivity. */
   onSensitivityChange: (value: number) => void;
+  /** Current audio activation threshold. */
+  threshold: number;
+  /** Called when the user changes the threshold preset. */
+  onThresholdChange: (value: number) => void;
   /** Current number of particles being rendered. */
   particleCount: number;
   /** Current frames per second. */
@@ -33,6 +44,8 @@ export function ControlPanel({
   onToggle,
   sensitivity,
   onSensitivityChange,
+  threshold,
+  onThresholdChange,
   particleCount,
   fps,
   permissionDenied,
@@ -175,6 +188,65 @@ export function ControlPanel({
           aria-valuenow={Math.round(sensitivity * 100)}
           aria-valuetext={`${Math.round(sensitivity * 100)} percent`}
         />
+      </div>
+
+      {/* Threshold toggle */}
+      <div style={{ marginBottom: "var(--v2-space-sm)" }}>
+        <p
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--exp-glass-text-muted)",
+            letterSpacing: "var(--v2-letter-spacing-wide)",
+            textTransform: "uppercase",
+            margin: "0 0 4px 0",
+          }}
+        >
+          THRESHOLD
+        </p>
+        <div
+          style={{
+            display: "flex",
+            gap: "4px",
+          }}
+          role="radiogroup"
+          aria-label="Audio activation threshold"
+        >
+          {THRESHOLD_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              onClick={() => onThresholdChange(preset.value)}
+              role="radio"
+              aria-checked={threshold === preset.value}
+              style={{
+                flex: 1,
+                padding: "4px 0",
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "10px",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                color:
+                  threshold === preset.value
+                    ? "var(--v2-text-primary)"
+                    : "var(--exp-glass-text-muted)",
+                background:
+                  threshold === preset.value
+                    ? "var(--v2-accent)"
+                    : "transparent",
+                border: `1px solid ${
+                  threshold === preset.value
+                    ? "var(--v2-accent)"
+                    : "var(--exp-glass-border)"
+                }`,
+                borderRadius: "2px",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats row — particle count and FPS */}

@@ -351,7 +351,8 @@ function updateParticles(
   sceneRefs: SceneRefs,
   features: AudioFeatures,
   sensitivity: number,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  threshold: number
 ): void {
   const {
     positionAttribute,
@@ -368,7 +369,7 @@ function updateParticles(
   const elapsed = clock.getElapsedTime();
 
   const loudness = features.loudness;
-  const audioActive = loudness > 0.05;
+  const audioActive = loudness > threshold;
   const bandEnergies = computeBandEnergies(features.frequencyData);
   const sens = sensitivity * (reducedMotion ? 0.3 : 1.0);
 
@@ -608,6 +609,7 @@ export function VoiceParticleCanvas() {
 
   const [isActive, setIsActive] = useState(false);
   const [sensitivity, setSensitivity] = useState(0.7);
+  const [threshold, setThreshold] = useState(0.04);
   const [particleCount, setParticleCount] = useState(0);
   const [fps, setFps] = useState(0);
   const [permissionDenied, setPermissionDenied] = useState(false);
@@ -680,7 +682,8 @@ export function VoiceParticleCanvas() {
       sceneRefs,
       featuresRef.current,
       sensitivity,
-      reducedMotionRef.current
+      reducedMotionRef.current,
+      threshold
     );
     updateTerrain(
       sceneRefs,
@@ -815,6 +818,8 @@ export function VoiceParticleCanvas() {
         onToggle={() => void handleToggle()}
         sensitivity={sensitivity}
         onSensitivityChange={setSensitivity}
+        threshold={threshold}
+        onThresholdChange={setThreshold}
         particleCount={particleCount}
         fps={fps}
         permissionDenied={permissionDenied}
