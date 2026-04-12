@@ -1,3 +1,8 @@
+## [2.15.1] - 2026-04-12
+
+### Content
+* Add Article 21: "A Playbook for Multi-Project AI Teams" — series part 3, practitioner governance guide with three-file foundation, five failure modes, and health checklist
+
 ## [2.15.0] - 2026-04-12
 
 ### Feature
