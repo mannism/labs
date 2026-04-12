@@ -1,3 +1,8 @@
+## [2.13.3] - 2026-04-12
+
+### Feature
+* Integrate Vera's experiment descriptions — concept statements, How It Works sections, and What This Proves sections rendered below the canvas on experiment detail pages
+
 ## [2.13.2] - 2026-04-12
 
 ### Feature
