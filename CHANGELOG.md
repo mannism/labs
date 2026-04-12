@@ -1,3 +1,13 @@
+## [2.15.0] - 2026-04-12
+
+### Feature
+* Sort project cards by recency (newest first) — projects by `lastUpdated`, articles by `createdDate`
+* Independent stable numbering — MODULE_ by id (oldest=001), ARTICLE_ by published date (oldest=001)
+* Article section bodies render paragraph breaks (`\n\n` splits into separate `<p>` elements)
+
+### Content
+* Break up wall-of-text paragraphs across all existing article sections (articles 18, 19, 20)
+
 ## [2.14.2] - 2026-04-12
 
 ### Fix

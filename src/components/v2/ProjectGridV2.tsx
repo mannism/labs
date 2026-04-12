@@ -42,7 +42,8 @@ const containerVariants = {
 function buildGridItems(
   projects: Project[],
   onSelect: (p: Project) => void,
-  proximityData: CardProximityData[]
+  proximityData: CardProximityData[],
+  stableNumbers: Map<string, string>
 ): { items: React.ReactNode[]; cellCount: number } {
   const items: React.ReactNode[] = [];
   const COLS = 3;
@@ -83,7 +84,7 @@ function buildGridItems(
       >
         <ProjectCardV2
           project={project}
-          index={idx}
+          stableNumber={stableNumbers.get(project.id) ?? String(idx + 1).padStart(3, "0")}
           size={isHighlighted ? "large" : "default"}
           onClick={() => onSelect(project)}
           proximity={prox}
@@ -152,14 +153,41 @@ export function ProjectGridV2({
     }
   }, []);
 
-  /* Sort by order field (ascending), filter hidden projects */
+  /* Sort by recency (newest first): projects by lastUpdated, articles by createdDate */
   const visibleProjects = useMemo(
     () =>
       (projectsData as Project[])
         .filter((p) => p.display !== false)
-        .sort((a, b) => (a.order ?? 999) - (b.order ?? 999)),
+        .sort((a, b) => {
+          const dateA = a.type === "article" ? a.createdDate : a.lastUpdated;
+          const dateB = b.type === "article" ? b.createdDate : b.lastUpdated;
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return dateB.localeCompare(dateA);
+        }),
     []
   );
+
+  /**
+   * Stable numbering: articles numbered by createdDate oldest-first (ARTICLE_001 = oldest),
+   * modules numbered by id oldest-first (MODULE_001 = lowest id).
+   * Computed from full visible set so numbers don't shift when filtering by category.
+   */
+  const stableNumbers = useMemo(() => {
+    const all = (projectsData as Project[]).filter((p) => p.display !== false);
+    const articles = all
+      .filter((p) => p.type === "article")
+      .sort((a, b) => (a.createdDate ?? "").localeCompare(b.createdDate ?? ""));
+    const modules = all
+      .filter((p) => p.type !== "article")
+      .sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+    const map = new Map<string, string>();
+    articles.forEach((a, i) => map.set(a.id, String(i + 1).padStart(3, "0")));
+    modules.forEach((m, i) => map.set(m.id, String(i + 1).padStart(3, "0")));
+    return map;
+  }, []);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(visibleProjects.map((p) => p.category)))],
@@ -199,7 +227,8 @@ export function ProjectGridV2({
   const { items: gridItems } = buildGridItems(
     filteredProjects,
     onSelectProject,
-    cardData
+    cardData,
+    stableNumbers
   );
 
   return (
