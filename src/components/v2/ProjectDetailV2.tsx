@@ -46,14 +46,16 @@ export function ProjectDetailV2({
     }
   }, [project.id]);
 
-  /** Derive the display index from the sorted visible projects list */
+  /** Stable numbering: articles by createdDate oldest-first, modules by id oldest-first */
   const moduleIndex = useMemo(() => {
-    const visible = (projectsData as Project[])
-      .filter((p) => p.display !== false)
-      .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
-    const idx = visible.findIndex((p) => p.id === project.id);
+    const all = (projectsData as Project[]).filter((p) => p.display !== false);
+    const isArticle = project.type === "article";
+    const peers = isArticle
+      ? all.filter((p) => p.type === "article").sort((a, b) => (a.createdDate ?? "").localeCompare(b.createdDate ?? ""))
+      : all.filter((p) => p.type !== "article").sort((a, b) => parseInt(a.id) - parseInt(b.id));
+    const idx = peers.findIndex((p) => p.id === project.id);
     return String((idx >= 0 ? idx : 0) + 1).padStart(3, "0");
-  }, [project.id]);
+  }, [project.id, project.type]);
 
   return (
     <motion.div
@@ -224,17 +226,20 @@ function ArticleLayout({ project }: { project: Project }) {
             >
               {section.title.replace(/ /g, "_")}
             </p>
-            <p
-              style={{
-                fontFamily: "var(--v2-font-body)",
-                fontSize: "var(--v2-font-size-base)",
-                color: "var(--v2-text-secondary)",
-                lineHeight: 1.85,
-                margin: 0,
-              }}
-            >
-              {renderWithCodeHighlights(section.body)}
-            </p>
+            {section.body.split("\n\n").map((para, pi) => (
+              <p
+                key={pi}
+                style={{
+                  fontFamily: "var(--v2-font-body)",
+                  fontSize: "var(--v2-font-size-base)",
+                  color: "var(--v2-text-secondary)",
+                  lineHeight: 1.85,
+                  margin: pi === 0 ? 0 : "var(--v2-space-lg) 0 0 0",
+                }}
+              >
+                {renderWithCodeHighlights(para)}
+              </p>
+            ))}
           </div>
         ))}
 

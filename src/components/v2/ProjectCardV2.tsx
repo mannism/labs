@@ -24,19 +24,20 @@ import { CardProximityData } from "./useProximityField";
  */
 export function ProjectCardV2({
   project,
-  index,
+  stableNumber,
   size = "default",
   onClick,
   proximity,
 }: {
   project: Project;
-  index: number;
+  /** Pre-computed stable number (e.g. "001") — articles by createdDate, modules by id */
+  stableNumber: string;
   size?: "large" | "default";
   onClick?: () => void;
   /** Proximity Pulse data from useProximityField — desktop only */
   proximity?: CardProximityData;
 }) {
-  const moduleNumber = String(index + 1).padStart(3, "0");
+  const moduleNumber = stableNumber;
   const isActive = project.status.toLowerCase() === "active";
   const isLarge = size === "large";
   const isArticle = project.type === "article";
