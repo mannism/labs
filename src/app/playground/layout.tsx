@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { ExperimentsShell } from "@/components/experiments/ExperimentsShell";
+import { ExperimentsShell } from "@/components/playground/ExperimentsShell";
 
 /**
- * Experiments layout — shared wrapper for /experiments/ routes.
- * Renders NavbarV2 (with EXPERIMENTS link active), WebGPU provider,
+ * Playground layout — shared wrapper for /playground/ routes.
+ * Renders NavbarV2 (with PLAYGROUND link active), WebGPU provider,
  * and FooterV2. Children are the landing page or individual experiment pages.
  */
 
 export const metadata: Metadata = {
-  title: "Experiments | Labs by Diana",
+  title: "Playground | Labs by Diana",
   description:
     "Technical experiments exploring emerging browser capabilities. WebGPU compute shaders, real-time simulations, and interactive visualizations.",
 };

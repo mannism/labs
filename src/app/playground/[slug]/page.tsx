@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import experimentsData from "@/data/experiments.json";
 import type { Experiment } from "@/types/experiment";
-import { ExperimentDetail } from "@/components/experiments/ExperimentDetail";
+import { ExperimentDetail } from "@/components/playground/ExperimentDetail";
 
 /**
  * Individual experiment page — reads from experiments.json by slug.
@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!experiment) return {};
 
   return {
-    title: `${experiment.title} | Experiments | Labs by Diana`,
+    title: `${experiment.title} | Playground | Labs by Diana`,
     description: experiment.description,
     keywords: experiment.tags,
   };

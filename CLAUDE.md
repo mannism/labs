@@ -33,13 +33,13 @@ The app has two layers:
 - **Article type entries:** Projects with `type: "article"` render a full-width editorial layout (`ArticleLayout`) with titled prose sections and a sticky right sidebar for key takeaways (collapses below content on mobile). Article cards in the grid show an `ARTICLE_` prefix and dashed chartreuse top border. Standard project entries default to `type: "project"` and render the sidebar+content `ProjectLayout`.
 - **Per-project SEO:** Each `/module/[slug]` page generates unique keywords (from `project.tags`), JSON-LD structured data (`SoftwareApplication` for projects, `Article` for articles), and a dynamic OG social preview image via `opengraph-image.tsx` in the `[slug]` directory.
 
-### Experiments layer (`src/app/experiments/`, `src/components/experiments/`)
+### Playground layer (`src/app/playground/`, `src/components/playground/`)
 - **Data source:** `src/data/experiments.json` — same pattern as `projects.json`. Typed by `src/types/experiment.ts`.
-- **Route structure:** `/experiments/` (landing grid) and `/experiments/[slug]` (individual experiment pages). Both are App Router pages with a shared layout.
+- **Route structure:** `/playground/` (landing grid) and `/playground/[slug]` (individual experiment pages). Both are App Router pages with a shared layout.
 - **CSS tokens:** `--exp-*` custom properties defined in `globals.css` under `html.v2` — status colours, dark glass overlay, and canvas background.
-- **WebGPU capability:** `WebGPUProvider` (context) wraps the experiments layout. Components use `useWebGPU()` to conditionally render fallbacks. `WebGPUBanner` shows an amber info bar when unsupported.
-- **Experiment pages will use `next/dynamic` with `ssr: false`** for Three.js / WebGPU canvas components — scaffolded but not yet wired.
-- **NavbarV2 EXPERIMENTS link:** Uses `usePathname()` to highlight with a chartreuse underline when active. "L A B S" is now a `<Link>` back to `/`.
+- **WebGPU capability:** `WebGPUProvider` (context) wraps the playground layout. Components use `useWebGPU()` to conditionally render fallbacks. `WebGPUBanner` shows an amber info bar when unsupported.
+- **Experiment pages use `next/dynamic` with `ssr: false`** for Three.js / WebGPU / Canvas 2D components.
+- **NavbarV2 PLAYGROUND link:** Uses `usePathname()` to highlight with a chartreuse underline when active. "L A B S" is now a `<Link>` back to `/`.
 
 ### Chat engine layer (`src/lib/twin/`)
 - **`config.ts` is the single env var entry point.** All modules import from `config.ts` — never call `process.env` directly anywhere else.

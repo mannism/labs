@@ -6,14 +6,14 @@ import packageJson from "../../../package.json";
 
 /**
  * NavbarV2 — Speculative Interface top navigation.
- * "L A B S" letterspaced logo left, "EXPERIMENTS" + "PORTFOLIO" links right.
+ * "L A B S" letterspaced logo left, "PLAYGROUND" + "PORTFOLIO" links right.
  * Chartreuse 2px top accent line. Clean white surface, no glassmorphism.
  * Version badge in monospace. All text is uppercase for clinical feel.
- * Active route (e.g. /experiments) gets a chartreuse underline.
+ * Active route (e.g. /playground) gets a chartreuse underline.
  */
 export function NavbarV2() {
   const pathname = usePathname();
-  const isExperimentsActive = pathname?.startsWith("/experiments");
+  const isExperimentsActive = pathname?.startsWith("/playground");
 
   return (
     <nav
@@ -71,7 +71,7 @@ export function NavbarV2() {
         {/* Right: experiments + portfolio links */}
         <div className="flex items-center gap-6">
           <Link
-            href="/experiments"
+            href="/playground"
             style={{
               fontFamily: "var(--v2-font-mono)",
               fontSize: "var(--v2-font-size-xs)",
@@ -97,7 +97,7 @@ export function NavbarV2() {
               }
             }}
           >
-            EXPERIMENTS
+            PLAYGROUND
           </Link>
           <a
             href="https://dianaismail.me"

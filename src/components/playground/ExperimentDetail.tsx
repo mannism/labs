@@ -142,7 +142,7 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
           <li aria-hidden="true">/</li>
           <li>
             <Link
-              href="/experiments"
+              href="/playground"
               style={{
                 color: "var(--v2-text-tertiary)",
                 textDecoration: "none",
@@ -155,7 +155,7 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
                 (e.currentTarget.style.color = "var(--v2-text-tertiary)")
               }
             >
-              EXPERIMENTS
+              PLAYGROUND
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -427,7 +427,7 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         }}
       >
         <Link
-          href="/experiments"
+          href="/playground"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -447,7 +447,7 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             (e.currentTarget.style.color = "var(--v2-text-tertiary)")
           }
         >
-          &larr; BACK TO EXPERIMENTS
+          &larr; BACK TO PLAYGROUND
         </Link>
       </section>
     </>
