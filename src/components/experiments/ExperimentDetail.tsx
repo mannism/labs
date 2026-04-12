@@ -70,6 +70,16 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  "gesture-fluid": dynamic(
+    () =>
+      import("./gesture-fluid/GestureFluidCanvas").then(
+        (mod) => mod.GestureFluidCanvas
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
 /** Map input types to their descriptive requirement text. */
