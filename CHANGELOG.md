@@ -1,3 +1,8 @@
+## [2.13.2] - 2026-04-12
+
+### Feature
+* Add audio threshold toggle (LOW/DEFAULT/HIGH) to Voice Particle Instrument control panel
+
 ## [2.13.0] - 2026-04-12
 
 ### Feature
