@@ -339,8 +339,6 @@ function buildSpatialHash(state: SimState): void {
     cellStart,
     cellCount,
     agentOrder,
-    width,
-    height,
   } = state;
   const totalCells = hashCols * hashRows;
 
@@ -641,7 +639,7 @@ function stepReactionDiffusion(
         b * 4;
 
       const abb = a * b * b;
-      let newA = a + DIFFUSE_A * lapA - abb + feedRate * (1.0 - a);
+      const newA = a + DIFFUSE_A * lapA - abb + feedRate * (1.0 - a);
       let newB = b + DIFFUSE_B * lapB + abb - (feedRate + killRate) * b;
 
       /** Seed chemical B from trail density — inject where agents walk. */
@@ -796,10 +794,13 @@ export function CrowdFlowCanvas() {
   });
   const [fps, setFps] = useState(0);
   const [agentCountDisplay, setAgentCountDisplay] = useState(0);
+  const [isActiveDisplay, setIsActiveDisplay] = useState(false);
 
   /** Refs to avoid stale closures in the animation loop. */
   const paramsRef = useRef(params);
-  paramsRef.current = params;
+  useEffect(() => {
+    paramsRef.current = params;
+  }, [params]);
 
   /** FPS tracking. */
   const frameCountRef = useRef(0);
@@ -874,8 +875,14 @@ export function CrowdFlowCanvas() {
     []
   );
 
-  /** Main animation loop. */
-  const animate = useCallback(() => {
+  /** Main animation loop — stored in a ref to avoid the temporal dead zone
+   *  lint error from referencing `animate` inside its own useCallback. */
+  const animateRef = useRef<() => void>(() => {});
+
+  /** Update the animation callback ref — kept outside useCallback to avoid
+   *  the temporal dead zone lint error. Wrapped in useEffect to satisfy
+   *  the react-hooks/refs rule (no ref writes during render). */
+  useEffect(() => { animateRef.current = () => {
     const sim = simStateRef.current;
     const canvas = canvasRef.current;
     if (!sim || !canvas) return;
@@ -925,12 +932,13 @@ export function CrowdFlowCanvas() {
     if (now - lastFpsTimeRef.current >= 1000) {
       setFps(frameCountRef.current);
       setAgentCountDisplay(sim.activeAgentCount);
+      setIsActiveDisplay(sim.isActive);
       frameCountRef.current = 0;
       lastFpsTimeRef.current = now;
     }
 
-    animationFrameRef.current = requestAnimationFrame(animate);
-  }, []);
+    animationFrameRef.current = requestAnimationFrame(() => animateRef.current());
+  }; });
 
   /** Initialize simulation on mount. */
   useEffect(() => {
@@ -950,7 +958,7 @@ export function CrowdFlowCanvas() {
     setAgentCountDisplay(sim.activeAgentCount);
 
     lastFpsTimeRef.current = performance.now();
-    animationFrameRef.current = requestAnimationFrame(animate);
+    animationFrameRef.current = requestAnimationFrame(() => animateRef.current());
 
     /** Handle container resize. */
     const resizeObserver = new ResizeObserver((entries) => {
@@ -980,7 +988,7 @@ export function CrowdFlowCanvas() {
       cancelAnimationFrame(animationFrameRef.current);
       simStateRef.current = null;
     };
-  }, [animate]);
+  }, []);
 
   /** Handle control panel parameter changes. */
   const handleParamChange = useCallback(
@@ -1058,7 +1066,7 @@ export function CrowdFlowCanvas() {
         onReset={handleReset}
         agentCount={agentCountDisplay}
         fps={fps}
-        isActive={simStateRef.current?.isActive ?? false}
+        isActive={isActiveDisplay}
       />
     </div>
   );
