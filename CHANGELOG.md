@@ -1,3 +1,8 @@
+## [2.15.2] - 2026-04-12
+
+### Chore
+* Add collapse/expand toggle to all 3 playground experiment control panels for improved mobile usability — panels auto-collapse on viewports under 768px, show condensed stats in header, and stretch full-width with reduced padding on mobile
+
 ## [2.15.1] - 2026-04-12
 
 ### Content
