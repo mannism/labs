@@ -307,6 +307,107 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         )}
       </section>
 
+      {/* Explanation section — concept, how it works, what it proves */}
+      {(experiment.conceptStatement || experiment.howItWorks || experiment.whatItProves) && (
+        <section
+          className="max-w-7xl mx-auto w-full px-6"
+          style={{ padding: "var(--v2-space-3xl) 1.5rem" }}
+        >
+          <div style={{ maxWidth: "720px" }}>
+            {/* Concept statement */}
+            {experiment.conceptStatement && (
+              <p
+                style={{
+                  fontFamily: "var(--v2-font-body)",
+                  fontSize: "var(--v2-font-size-base)",
+                  color: "var(--v2-text-secondary)",
+                  lineHeight: 1.7,
+                  margin: "0 0 var(--v2-space-2xl) 0",
+                }}
+              >
+                {experiment.conceptStatement}
+              </p>
+            )}
+
+            {/* How It Works */}
+            {experiment.howItWorks && experiment.howItWorks.length > 0 && (
+              <>
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-mono)",
+                    fontSize: "var(--v2-font-size-xs)",
+                    color: "var(--v2-text-tertiary)",
+                    letterSpacing: "var(--v2-letter-spacing-wide)",
+                    textTransform: "uppercase",
+                    margin: "0 0 var(--v2-space-sm) 0",
+                  }}
+                >
+                  HOW IT WORKS
+                </p>
+                {experiment.howItWorks.map((section) => (
+                  <div key={section.title} style={{ marginBottom: "var(--v2-space-lg)" }}>
+                    <h3
+                      style={{
+                        fontFamily: "var(--v2-font-display)",
+                        fontSize: "var(--v2-font-size-base)",
+                        fontWeight: 600,
+                        color: "var(--v2-text-primary)",
+                        margin: "0 0 var(--v2-space-xs) 0",
+                      }}
+                    >
+                      {section.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontFamily: "var(--v2-font-body)",
+                        fontSize: "var(--v2-font-size-sm)",
+                        color: "var(--v2-text-secondary)",
+                        lineHeight: 1.7,
+                        margin: 0,
+                      }}
+                    >
+                      {section.body}
+                    </p>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* What This Experiment Proves */}
+            {experiment.whatItProves && experiment.whatItProves.length > 0 && (
+              <>
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-mono)",
+                    fontSize: "var(--v2-font-size-xs)",
+                    color: "var(--v2-text-tertiary)",
+                    letterSpacing: "var(--v2-letter-spacing-wide)",
+                    textTransform: "uppercase",
+                    margin: "var(--v2-space-2xl) 0 var(--v2-space-sm) 0",
+                  }}
+                >
+                  WHAT THIS PROVES
+                </p>
+                {experiment.whatItProves.map((paragraph, idx) => (
+                  <p
+                    key={idx}
+                    style={{
+                      fontFamily: "var(--v2-font-body)",
+                      fontSize: "var(--v2-font-size-sm)",
+                      color: "var(--v2-text-secondary)",
+                      lineHeight: 1.7,
+                      margin: `0 0 ${idx < experiment.whatItProves!.length - 1 ? "var(--v2-space-md)" : "0"} 0`,
+                    }}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Back link */}
       <section
         className="max-w-7xl mx-auto w-full px-6"

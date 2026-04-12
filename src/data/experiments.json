@@ -8,7 +8,30 @@
     "status": "live",
     "inputType": "Microphone",
     "experimentNumber": "EXP_001",
-    "collection": "webgpu"
+    "collection": "webgpu",
+    "conceptStatement": "150,000 GPU-instanced particles respond to your microphone in real time. Frequency bands from the audio signal drive particle groups in different directions and colours — bass down, treble up, mids left and right — turning your voice into a visible, physical force. The experiment maps the Web Audio API directly to per-particle physics on the GPU.",
+    "howItWorks": [
+      {
+        "title": "Audio Pipeline",
+        "body": "When you grant microphone access, the browser captures your audio stream and feeds it through a Web Audio AnalyserNode running a Fast Fourier Transform at 1024 samples. That FFT splits your audio into 512 frequency bins — a real-time snapshot of how much energy exists at each pitch, updated every frame. The raw frequency data is normalised and passed to the GPU as a uniform array, which means the shader reads fresh audio data every frame without recompilation."
+      },
+      {
+        "title": "Band-Directional Physics",
+        "body": "The 512 bins are grouped into four bands: bass (0-375 Hz), low-mid (375 Hz-1.9 kHz), high-mid (1.9-6 kHz), and treble (6 kHz and above). Each band drives a directional force on a different subset of the 150K particles. Bass energy pushes particles downward and turns them red. Low-mid pushes left, colouring them chartreuse. High-mid pushes right in cyan. Treble drives particles upward and fades them to white. The result is that a spoken sentence, a clap, and a whistle each produce visually distinct formations — you can see the spectral shape of the sound."
+      },
+      {
+        "title": "Dual Mode System",
+        "body": "Without audio input, the particles hold a calm breathing sphere — a slow sine-wave oscillation that keeps the scene alive without being distracting. The moment the microphone detects signal above a threshold, the system transitions to active mode: per-band forces override the idle oscillation and the sphere explodes into a directional storm. When audio drops back below the threshold, particles gradually return to the sphere formation."
+      },
+      {
+        "title": "Terrain Deformation",
+        "body": "Below the particle field, a subdivided plane mesh acts as a terrain surface. Its vertex positions are displaced in real time by the same FFT data — each vertex samples a frequency bin based on its grid position, so the mesh ripples and deforms in sync with the audio. The terrain provides a grounded visual anchor while the particles move freely above it."
+      }
+    ],
+    "whatItProves": [
+      "This is a GPU instancing stress test running in the browser. 150,000 individually animated particles — each with its own position, velocity, colour, and physics response — render at 60fps on commodity hardware using WebGL2 instanced buffer geometry. No compute shaders, no WebGPU, no native code. The bottleneck in browser-based particle systems has historically been the CPU-to-GPU data bridge; this experiment keeps all per-particle state on the GPU and only sends the audio uniform data (2KB per frame) across the bridge each tick.",
+      "It also demonstrates that the Web Audio API's AnalyserNode is fast enough to drive real-time visual feedback at animation-loop speeds — a capability that matters for any application mapping audio to visuals, from music tools to accessibility interfaces. The experiment runs entirely client-side with no server dependencies."
+    ]
   },
   {
     "id": "2",
@@ -30,6 +53,29 @@
     "status": "beta",
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_003",
-    "collection": "webgpu"
+    "collection": "webgpu",
+    "conceptStatement": "10,000 autonomous agents run a flocking algorithm, leaving density trails on a grid as they move. Those trails feed a Gray-Scott reaction-diffusion system — a cellular automaton that transforms raw crowd density data into emergent organic structures resembling coral, lichen, and chemical wavefronts. The result is a crowd simulation that visualises density not as a heatmap but as a living pattern.",
+    "howItWorks": [
+      {
+        "title": "Agent Simulation",
+        "body": "Each of the 10,000 agents follows a Boids flocking algorithm: three rules governing separation (avoid collisions), alignment (match neighbours' heading), and cohesion (steer toward the local centre of mass). A spatial hash grid ensures each agent only checks nearby neighbours, keeping the computation tractable. The result is smooth, biologically plausible group movement across the canvas."
+      },
+      {
+        "title": "Trail System",
+        "body": "As agents move, they deposit density values onto a 2D grid. Each grid cell accumulates deposits from nearby agents and decays over time, creating a fading trail map that records where agents have been and how densely they travelled. High-traffic corridors light up; empty zones fade to zero. This trail grid is the bridge between the agent simulation and the reaction-diffusion system — it converts discrete agent positions into a continuous density field."
+      },
+      {
+        "title": "Reaction-Diffusion",
+        "body": "The trail grid's density values seed a Gray-Scott reaction-diffusion model. Gray-Scott simulates two virtual chemicals — an activator and an inhibitor — that diffuse across the grid at different rates. Where agents deposit trails, the activator concentration rises. The inhibitor responds, and the interplay between diffusion rates, feed rate, and kill rate produces self-organising patterns: spots, stripes, branching coral structures, labyrinthine networks. The specific pattern depends on the Gray-Scott parameters, which are tuned so that crowd density produces organic structures rather than uniform blobs."
+      },
+      {
+        "title": "Interactive Manipulation",
+        "body": "Clicking creates obstacles that agents must navigate around, reshaping flow corridors and producing new trail concentrations. The feedback loop is visible in real time: place an obstacle, watch agents reroute, see new trails form, watch the trails bloom into coral-like patterns over the next few seconds."
+      }
+    ],
+    "whatItProves": [
+      "This demonstrates multiple coupled simulation systems running in the browser. Three distinct passes — agent flocking, trail accumulation, and reaction-diffusion — run sequentially each frame, reading and writing shared data structures. That pipeline pattern is the foundation for any serious simulation work in the browser: fluid dynamics, crowd modelling, procedural generation, physics solvers.",
+      "The Boids algorithm requires each of 10,000 agents to read positions from nearby neighbours every frame — a workload that spatial hashing makes tractable on the CPU. Combined with the reaction-diffusion system, the experiment sustains three coupled simulations at 60fps, entirely client-side, with no WASM or native plugins."
+    ]
   }
 ]

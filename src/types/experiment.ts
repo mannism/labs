@@ -21,4 +21,10 @@ export interface Experiment {
   experimentNumber: string;
   /** Grouping collection (e.g. "webgpu"). */
   collection: string;
+  /** Short concept statement — what it is and what it proves. */
+  conceptStatement?: string;
+  /** How It Works — detailed explanation paragraphs (array of {title, body}). */
+  howItWorks?: { title: string; body: string }[];
+  /** What This Experiment Proves — technical significance. */
+  whatItProves?: string[];
 }
