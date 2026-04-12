@@ -51,11 +51,11 @@ const OBSTACLE_RADIUS = 30;
 /** Max obstacles allowed. */
 const MAX_OBSTACLES = 20;
 
-/** Interaction timeout before returning to idle (ms). */
-const IDLE_TIMEOUT_MS = 5_000;
-
-/** Parameter lerp speed — fraction per frame toward target. */
-const PARAM_LERP_SPEED = 0.03;
+/** Obstacle visual styling. */
+const OBSTACLE_BORDER_WIDTH = 2;
+const OBSTACLE_FILL = "rgba(255, 255, 255, 0.12)";
+const OBSTACLE_STROKE = "rgba(200, 255, 0, 0.6)";
+const OBSTACLE_STROKE_INNER = "rgba(200, 255, 0, 0.15)";
 
 /* -------------------------------------------------------------------------- */
 /*                              Type definitions                              */
@@ -126,18 +126,6 @@ interface SimState {
   obstacles: Obstacle[];
   /** Active agent count (may differ from array length if user adjusts). */
   activeAgentCount: number;
-  /** Current interpolated parameters (lerp toward target). */
-  currentParams: {
-    agentSpeed: number;
-    rdFeedRate: number;
-    rdKillRate: number;
-    trailPersistence: number;
-    trailDecayIdle: number;
-    rdFeedIdle: number;
-  };
-  /** Interaction state for idle/active transition. */
-  lastInteractionTime: number;
-  isActive: boolean;
   /** Animation frame elapsed time tracking. */
   lastFrameTime: number;
 }
@@ -307,16 +295,6 @@ function createSimState(
     hashRows,
     obstacles: [],
     activeAgentCount: agentCount,
-    currentParams: {
-      agentSpeed: 0.3,
-      rdFeedRate: 0.01,
-      rdKillRate: 0.062,
-      trailPersistence: 0.92,
-      trailDecayIdle: 0.92,
-      rdFeedIdle: 0.01,
-    },
-    lastInteractionTime: 0,
-    isActive: false,
     lastFrameTime: performance.now(),
   };
 }
@@ -709,15 +687,25 @@ function render(
   ctx.drawImage(ctx.canvas, 0, 0, gridSize, gridSize, 0, 0, width, height);
   ctx.restore();
 
-  /** Render obstacles as semi-transparent circles. */
+  /** Render obstacles as clearly visible circles with chartreuse border. */
   for (let o = 0; o < obstacles.length; o++) {
     const obs = obstacles[o]!;
+    /** Inner fill — subtle glass effect. */
     ctx.beginPath();
     ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.fillStyle = OBSTACLE_FILL;
     ctx.fill();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-    ctx.lineWidth = 1;
+    /** Inner glow ring. */
+    ctx.beginPath();
+    ctx.arc(obs.x, obs.y, obs.radius - 4, 0, Math.PI * 2);
+    ctx.strokeStyle = OBSTACLE_STROKE_INNER;
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    /** Outer border — chartreuse, clearly visible. */
+    ctx.beginPath();
+    ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = OBSTACLE_STROKE;
+    ctx.lineWidth = OBSTACLE_BORDER_WIDTH;
     ctx.stroke();
   }
 
@@ -736,41 +724,9 @@ function render(
 /*                        Parameter interpolation                            */
 /* -------------------------------------------------------------------------- */
 
-/** Idle-mode parameter targets. */
-const IDLE_PARAMS = {
-  agentSpeed: 0.3,
-  rdFeedRate: 0.01,
-  trailPersistence: 0.92,
-};
-
-/** Active-mode parameter targets (overridden by user controls). */
-function getActiveParams(params: SimParams) {
-  return {
-    agentSpeed: params.agentSpeed,
-    rdFeedRate: params.rdFeedRate,
-    trailPersistence: params.trailPersistence,
-  };
-}
-
-/**
- * Lerp current simulation parameters toward idle or active targets
- * based on interaction state.
- */
-function lerpParams(state: SimState, params: SimParams): void {
-  const now = performance.now();
-  const timeSinceInteraction = now - state.lastInteractionTime;
-  const shouldBeActive = timeSinceInteraction < IDLE_TIMEOUT_MS;
-
-  state.isActive = shouldBeActive;
-
-  const target = shouldBeActive ? getActiveParams(params) : IDLE_PARAMS;
-  const cp = state.currentParams;
-
-  cp.agentSpeed += (target.agentSpeed - cp.agentSpeed) * PARAM_LERP_SPEED;
-  cp.rdFeedRate += (target.rdFeedRate - cp.rdFeedRate) * PARAM_LERP_SPEED;
-  cp.trailPersistence +=
-    (target.trailPersistence - cp.trailPersistence) * PARAM_LERP_SPEED;
-}
+/* No idle/active mode — crowd flow is always running. Agents always move,
+ * trails always accumulate, RD always grows. User params control everything
+ * directly. Obstacles reshape flow, they don't "activate" the simulation. */
 
 /* -------------------------------------------------------------------------- */
 /*                             Main component                                 */
@@ -794,7 +750,6 @@ export function CrowdFlowCanvas() {
   });
   const [fps, setFps] = useState(0);
   const [agentCountDisplay, setAgentCountDisplay] = useState(0);
-  const [isActiveDisplay, setIsActiveDisplay] = useState(false);
 
   /** Refs to avoid stale closures in the animation loop. */
   const paramsRef = useRef(params);
@@ -818,18 +773,9 @@ export function CrowdFlowCanvas() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  /** Mark interaction for idle/active transition. */
-  const markInteraction = useCallback(() => {
-    const sim = simStateRef.current;
-    if (sim) {
-      sim.lastInteractionTime = performance.now();
-    }
-  }, []);
-
   /** Handle canvas click — place obstacle. */
   const handleCanvasPointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
-      markInteraction();
       const sim = simStateRef.current;
       const canvas = canvasRef.current;
       if (!sim || !canvas) return;
@@ -864,7 +810,7 @@ export function CrowdFlowCanvas() {
         sim.obstacles.push({ x, y, radius: OBSTACLE_RADIUS });
       }
     },
-    [markInteraction]
+    []
   );
 
   /** Suppress context menu on canvas for right-click obstacle removal. */
@@ -898,15 +844,13 @@ export function CrowdFlowCanvas() {
     const maxAgents = mobile ? AGENT_COUNT_MOBILE : AGENT_COUNT_DESKTOP;
     sim.activeAgentCount = Math.min(currentParams.agentCount, maxAgents);
 
-    /** Lerp simulation parameters toward idle or active targets. */
-    lerpParams(sim, currentParams);
-
+    /** Use user params directly — no idle/active mode. Crowd always flows. */
     const effectiveSpeed = reducedMotion
-      ? sim.currentParams.agentSpeed * 0.5
-      : sim.currentParams.agentSpeed;
+      ? currentParams.agentSpeed * 0.5
+      : currentParams.agentSpeed;
     const effectiveFeed = reducedMotion
-      ? IDLE_PARAMS.rdFeedRate
-      : sim.currentParams.rdFeedRate;
+      ? 0.02
+      : currentParams.rdFeedRate;
 
     /** 1. Build spatial hash. */
     buildSpatialHash(sim);
@@ -915,7 +859,7 @@ export function CrowdFlowCanvas() {
     updateBoids(sim, effectiveSpeed);
 
     /** 3. Update trail system. */
-    updateTrails(sim, sim.currentParams.trailPersistence);
+    updateTrails(sim, currentParams.trailPersistence);
 
     /** 4. Run reaction-diffusion steps. */
     for (let step = 0; step < sim.rdSteps; step++) {
@@ -932,7 +876,6 @@ export function CrowdFlowCanvas() {
     if (now - lastFpsTimeRef.current >= 1000) {
       setFps(frameCountRef.current);
       setAgentCountDisplay(sim.activeAgentCount);
-      setIsActiveDisplay(sim.isActive);
       frameCountRef.current = 0;
       lastFpsTimeRef.current = now;
     }
@@ -993,15 +936,14 @@ export function CrowdFlowCanvas() {
   /** Handle control panel parameter changes. */
   const handleParamChange = useCallback(
     (key: keyof SimParams, value: number | boolean | string) => {
-      markInteraction();
+
       setParams((prev) => ({ ...prev, [key]: value }));
     },
-    [markInteraction]
+    []
   );
 
   /** Reset simulation to defaults. */
   const handleReset = useCallback(() => {
-    markInteraction();
     const sim = simStateRef.current;
     if (!sim) return;
 
@@ -1033,7 +975,7 @@ export function CrowdFlowCanvas() {
       showAgents: true,
       palette: "coral",
     });
-  }, [markInteraction]);
+  }, []);
 
   return (
     <div
@@ -1066,7 +1008,7 @@ export function CrowdFlowCanvas() {
         onReset={handleReset}
         agentCount={agentCountDisplay}
         fps={fps}
-        isActive={isActiveDisplay}
+        isActive={true}
       />
     </div>
   );
