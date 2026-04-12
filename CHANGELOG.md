@@ -1,3 +1,9 @@
+## [2.13.4] - 2026-04-12
+
+### Fix
+* Crowd Flow always running — removed idle/active mode system. Agents flow continuously, RD patterns always grow. Obstacles redirect flow, not "activate" the simulation.
+* Obstacles now clearly visible with chartreuse border and inner glow
+
 ## [2.13.3] - 2026-04-12
 
 ### Feature
