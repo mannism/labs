@@ -1,3 +1,8 @@
+## [2.14.2] - 2026-04-12
+
+### Fix
+* Fix stale `/experiments/` routes missed in Playground rename: experiment card links, Permissions-Policy header source, and CSP negative lookahead now point to `/playground/`
+
 ## [2.14.1] - 2026-04-12
 
 ### Refactor

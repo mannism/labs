@@ -30,9 +30,9 @@ const nextConfig: NextConfig = {
     ];
 
     return [
-      // Experiment routes — microphone enabled, worker-src allows blob: for Three.js
+      // Playground routes — microphone enabled, worker-src allows blob: for Three.js
       {
-        source: "/experiments/:path*",
+        source: "/playground/:path*",
         headers: [
           ...sharedHeaders,
           // Allow microphone access for audio-driven experiments
@@ -47,9 +47,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // All other routes — strict permissions policy (excludes /experiments/ which has its own headers above)
+      // All other routes — strict permissions policy (excludes /playground/ which has its own headers above)
       {
-        source: "/((?!experiments).*)",
+        source: "/((?!playground).*)",
         headers: [
           ...sharedHeaders,
           // Disable permission-sensitive browser features
