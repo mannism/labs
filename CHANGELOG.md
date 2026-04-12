@@ -1,3 +1,8 @@
+## [2.14.0] - 2026-04-12
+
+### Feature
+* Gesture Fluid Wall (EXP_002) — Canvas 2D Eulerian fluid simulation using Jos Stam's Stable Fluids algorithm. Pointer-driven velocity and density injection with radial smoothstep falloff. Full Navier-Stokes solver: diffusion (20 Jacobi iterations), semi-Lagrangian advection with bilinear interpolation, pressure projection (40 Jacobi iterations). Idle mode with ambient wisps, active mode with vivid trails. Control panel: viscosity, diffusion, density injection, velocity scale, 4 colour palettes (Ink, Fire, Neon, Mono), clear button, FPS counter, grid resolution readout. Default ink palette uses dark ocean blues. Desktop: 256x256 grid, 60fps. Mobile: 128x128 grid. Respects prefers-reduced-motion.
+
 ## [2.13.4] - 2026-04-12
 
 ### Fix
