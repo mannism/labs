@@ -21,9 +21,6 @@ const BOOT_STORAGE_KEY = "labs-boot-played";
 /** Typing speed in characters per second */
 const CHARS_PER_SECOND = 40;
 
-/** Delay between dots appearing (ms) */
-const DOT_INTERVAL = 50;
-
 /** How many visible (non-hidden) projects exist */
 const MODULE_COUNT = (projectsData as Project[]).filter(
   (p) => p.display !== false

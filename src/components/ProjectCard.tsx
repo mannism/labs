@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { GithubIcon } from "@/components/icons/GithubIcon";
 import { trackEvent } from "@/lib/analytics";
 
 /* Re-export Project type from canonical location for backward compatibility */
@@ -92,7 +93,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                             className="card-icon-btn"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Github className="w-4 h-4" />
+                            <GithubIcon className="w-4 h-4" />
                         </a>
                     )}
                     {project.demoUrl && project.demoUrl !== "#" && (

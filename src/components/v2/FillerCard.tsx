@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useReducedMotion } from "./useReducedMotion";
 
 /**
@@ -11,16 +11,17 @@ import { useReducedMotion } from "./useReducedMotion";
  */
 export function FillerCard() {
   const prefersReduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  const style = useRef<"glitch" | "diagnostic">("glitch");
+  const [cardStyle, setCardStyle] = useState<"glitch" | "diagnostic" | null>(
+    null
+  );
 
   useEffect(() => {
-    style.current = Math.random() > 0.5 ? "glitch" : "diagnostic";
-    setMounted(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe random initialization
+    setCardStyle(Math.random() > 0.5 ? "glitch" : "diagnostic");
   }, []);
 
   /* Render an empty dark placeholder on server to avoid hydration mismatch */
-  if (!mounted) {
+  if (!cardStyle) {
     return (
       <div
         style={{
@@ -34,7 +35,7 @@ export function FillerCard() {
     );
   }
 
-  return style.current === "glitch" ? (
+  return cardStyle === "glitch" ? (
     <GlitchCard reduced={prefersReduced} />
   ) : (
     <DiagnosticCard reduced={prefersReduced} />
@@ -155,8 +156,7 @@ function GlitchCard({ reduced }: { reduced: boolean }) {
 /* --- Style B: System Diagnostic Card --- */
 
 function DiagnosticCard({ reduced }: { reduced: boolean }) {
-  const startOffset = useMemo(() => Math.floor(Math.random() * 50000), []);
-  const [uptime, setUptime] = useState(startOffset);
+  const [uptime, setUptime] = useState(() => Math.floor(Math.random() * 50000));
   const [memAlloc, setMemAlloc] = useState(randomMem());
   const [procLoad, setProcLoad] = useState(randomLoad());
   const [hexLines, setHexLines] = useState<string[]>(() =>
