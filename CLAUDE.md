@@ -66,6 +66,26 @@ The app has two layers:
 - All external links must carry `rel="noopener noreferrer"`.
 - API routes validate input length and enforce rate limiting before touching OpenAI or Redis. Maintain these guards on any new routes.
 
+### OWASP Security Checklist (mandatory on every release)
+Full cross-project checklist: `Owner Inbox/research/security-audit-cross-project.md`
+
+**Labs-specific smoke tests (Quinn runs on every release):**
+| Test | Expected |
+|------|----------|
+| Chat rate limit — >10 messages rapid succession | 429 |
+| SSE injection — HTML/script tags in chat input | Streamed output escaped |
+| `<script>` in LLM output | Rendered as text, not executed |
+| Security headers check | HSTS, X-Frame-Options, CSP, X-Content-Type-Options |
+| CORS from disallowed origin | Not echoed |
+| Trigger 500 error | No stack traces, no Redis/OpenAI internals |
+| `npm audit --production` | Zero high/critical |
+| View source — no server secrets | No API keys in client bundle |
+
+### CI Security (mandatory)
+- **Dependabot** enabled (`.github/dependabot.yml`)
+- **npm audit** step in CI: `npm audit --production --audit-level=high`
+- **Quarterly review:** Sable runs OWASP ZAP against staging first Monday of each quarter
+
 ---
 
 ## Code Quality
