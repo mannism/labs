@@ -669,8 +669,9 @@ export function VoiceParticleCanvas() {
     featuresRef.current.rhythm = rhythm;
   }, [analyserRef]);
 
-  /** Main render loop. */
-  const animate = useCallback(() => {
+  /** Ref-stable render loop body — always reads latest closures via refs. */
+  const animateRef = useRef<(() => void) | undefined>(undefined);
+  animateRef.current = () => {
     const sceneRefs = sceneRefsRef.current;
     if (!sceneRefs) return;
 
@@ -703,6 +704,7 @@ export function VoiceParticleCanvas() {
 
     /** FPS counter — update once per second */
     frameCountRef.current++;
+    // eslint-disable-next-line react-hooks/purity -- runs inside rAF callback, not during render
     const now = performance.now();
     if (now - lastFpsTimeRef.current >= 1000) {
       setFps(frameCountRef.current);
@@ -710,8 +712,13 @@ export function VoiceParticleCanvas() {
       lastFpsTimeRef.current = now;
     }
 
-    animationFrameRef.current = requestAnimationFrame(animate);
-  }, [extractFeatures, sensitivity]);
+    animationFrameRef.current = requestAnimationFrame(loop);
+  };
+
+  /** Stable rAF callback that delegates to the mutable ref. */
+  const loop = useCallback(() => {
+    animateRef.current?.();
+  }, []);
 
   /** Initialize Three.js scene on mount. */
   useEffect(() => {
@@ -733,7 +740,7 @@ export function VoiceParticleCanvas() {
     setParticleCount(sceneRefs.positionAttribute.count);
 
     lastFpsTimeRef.current = performance.now();
-    animationFrameRef.current = requestAnimationFrame(animate);
+    animationFrameRef.current = requestAnimationFrame(loop);
 
     /** Handle container resize */
     const resizeObserver = new ResizeObserver((entries) => {
@@ -756,7 +763,7 @@ export function VoiceParticleCanvas() {
       (sceneRefs.terrain.material as THREE.MeshStandardMaterial).dispose();
       sceneRefsRef.current = null;
     };
-  }, [animate]);
+  }, [loop]);
 
   /** Toggle microphone on/off — only requests permission on user interaction. */
   const handleToggle = useCallback(async () => {

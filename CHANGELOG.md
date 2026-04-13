@@ -1,3 +1,12 @@
+## [2.15.4] - 2026-04-13
+
+### Chore
+* Upgrade all dependencies to latest: Next.js 16.2.3, React 19.2.5, Three.js 0.183.2, lucide-react 1.8.0, openai 6.34.0, framer-motion 12.38.0, and all dev dependencies
+* Replace `Github` icon (removed in lucide-react v1) with custom `GithubIcon` SVG component
+* Fix all new eslint-config-next lint errors: `set-state-in-effect`, `refs`, `purity`, unused imports
+* Refactor `useReducedMotion` to use `useSyncExternalStore` (React 19 idiomatic pattern)
+* Refactor VoiceParticleCanvas animation loop to ref-based pattern (eliminates self-referencing useCallback)
+
 ## [2.15.2] - 2026-04-12
 
 ### Chore

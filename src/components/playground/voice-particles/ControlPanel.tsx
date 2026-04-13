@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 const THRESHOLD_PRESETS = [
   { label: "LOW", value: 0.02 },
@@ -33,13 +33,9 @@ export function ControlPanel({
   permissionDenied,
   isSupported,
 }: ControlPanelProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      setIsCollapsed(true);
-    }
-  }, []);
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
 
   const handleSensitivityChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

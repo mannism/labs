@@ -183,6 +183,7 @@ export function useProximityField({
 
   /* Ensure cardData length stays in sync with cardCount */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- conditional no-op sync when cardCount changes
     setCardData((prev) => {
       if (prev.length === cardCount) return prev;
       return Array.from({ length: cardCount }, (_, i) =>

@@ -1,6 +1,6 @@
 # Diana Ismail Labs
 
-**Version:** 2.15.3
+**Version:** 2.15.4
 
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine powering a floating digital twin chat widget and a Telegram bot.
 
@@ -33,7 +33,7 @@ A clinical, forward-looking aesthetic built on pale blue-grey surfaces with char
 | Styling | Tailwind CSS v4 + CSS custom properties |
 | Animations | Framer Motion + HTML5 Canvas |
 | Typography | Space Grotesk, Geist Mono (self-hosted via `next/font`) |
-| Icons | Lucide React |
+| Icons | Lucide React + custom SVG icons (`src/components/icons/`) |
 | AI | OpenAI API |
 | Session store | Redis (ioredis) |
 | Deployment | Docker (multi-stage, Node 22 Alpine) |
@@ -73,6 +73,8 @@ src/
 ├── components/
 │   ├── AppShell.tsx            # Root orchestrator: SignalField, SystemBoot, Datamosh, LayoutShellV2, ChatWidget
 │   ├── ChatWidget.tsx          # Floating AI chat: SSE streaming, typewriter, Ghost Type header, Telegram linking
+│   ├── icons/
+│   │   └── GithubIcon.tsx         # Custom GitHub SVG icon (lucide-react v1 removed brand icons)
 │   ├── experiments/
 │   │   ├── ExperimentsShell.tsx   # Client layout: WebGPUProvider + NavbarV2 + FooterV2
 │   │   ├── ExperimentsLanding.tsx # Hero + card grid with stagger-fade entrance
@@ -96,7 +98,7 @@ src/
 │       ├── renderWithCodeHighlights.tsx # Inline code highlighting for bracket/backtick patterns
 │       ├── useTextScramble.ts  # Ghost Type hook — procedural text scramble
 │       ├── useProximityField.ts # Proximity Pulse hook — cursor-driven magnetic field for grid cards
-│       └── useReducedMotion.ts # Detects prefers-reduced-motion for animation gating
+│       └── useReducedMotion.ts # Detects prefers-reduced-motion via useSyncExternalStore
 ├── lib/twin/
 │   ├── config.ts               # All env vars — single import point
 │   ├── engine.ts               # Core chat orchestration: context injection, OpenAI calls, memory

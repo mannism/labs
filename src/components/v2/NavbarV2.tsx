@@ -64,7 +64,7 @@ export function NavbarV2() {
               letterSpacing: "0.04em",
             }}
           >
-            // SYSTEM.USER.DIANA_ISMAIL
+            {"// SYSTEM.USER.DIANA_ISMAIL"}
           </span>
         </div>
 

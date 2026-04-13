@@ -79,6 +79,7 @@ export function useTextScramble(
 
     /* Reduced motion — show final text immediately */
     if (prefersReduced) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- early-exit initialization
       setDisplayText(text);
       setIsComplete(true);
       return;

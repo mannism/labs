@@ -2,8 +2,9 @@
 
 import { useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Github } from "lucide-react";
-import { Project, ArticleSection } from "@/types/project";
+import { ArrowUpRight } from "lucide-react";
+import { GithubIcon } from "@/components/icons/GithubIcon";
+import { Project } from "@/types/project";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
 import { useTextScramble } from "./useTextScramble";
@@ -689,7 +690,7 @@ function ProjectLayout({
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                <Github className="w-3.5 h-3.5" /> VIEW SOURCE
+                <GithubIcon className="w-3.5 h-3.5" /> VIEW SOURCE
               </a>
             )}
           </div>

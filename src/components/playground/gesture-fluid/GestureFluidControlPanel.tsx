@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 type FluidPaletteId = "ink" | "fire" | "neon" | "mono";
 
@@ -58,13 +58,9 @@ export function GestureFluidControlPanel({
   fps,
   isActive,
 }: GestureFluidControlPanelProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      setIsCollapsed(true);
-    }
-  }, []);
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
 
   const makeSliderHandler = useCallback(
     (key: keyof FluidParams) => (e: React.ChangeEvent<HTMLInputElement>) => {

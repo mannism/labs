@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
 
@@ -46,7 +46,9 @@ export function DatamoshTransition({
 
   /** Stable ref for onComplete to avoid re-triggering the effect */
   const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  });
 
   /** Detect mobile viewport */
   useEffect(() => {
@@ -63,7 +65,7 @@ export function DatamoshTransition({
   /** Start/reset the animation sequence when active changes */
   useEffect(() => {
     if (!active) {
-      setPhase("idle");
+      setPhase("idle"); // eslint-disable-line react-hooks/set-state-in-effect -- state machine reset
       return;
     }
 
