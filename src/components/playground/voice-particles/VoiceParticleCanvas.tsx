@@ -532,8 +532,9 @@ function useAudioAnalyser() {
   const streamRef = useRef<MediaStream | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
-  /** Start microphone capture and connect to analyser. */
-  const start = useCallback(async (): Promise<boolean> => {
+  /** Start microphone capture and connect to analyser.
+   *  Returns "ok" on success, or an error key for the ControlPanel message. */
+  const start = useCallback(async (): Promise<"ok" | "unsupported" | "denied"> => {
     try {
       /* navigator.mediaDevices is undefined on non-secure origins (not
          localhost and not HTTPS). Guard explicitly so the error message
@@ -542,7 +543,7 @@ function useAudioAnalyser() {
         console.warn(
           "[VoiceParticles] getUserMedia unavailable — page must be served over HTTPS or localhost."
         );
-        return false;
+        return "unsupported";
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -566,10 +567,10 @@ function useAudioAnalyser() {
       streamRef.current = stream;
       sourceRef.current = source;
 
-      return true;
+      return "ok";
     } catch (err) {
       console.warn("[VoiceParticles] Microphone access failed:", err);
-      return false;
+      return "denied";
     }
   }, []);
 
@@ -612,7 +613,7 @@ export function VoiceParticleCanvas() {
   const [threshold, setThreshold] = useState(0.04);
   const [particleCount, setParticleCount] = useState(0);
   const [fps, setFps] = useState(0);
-  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [micError, setMicError] = useState<"denied" | "unsupported" | null>(null);
   const [isSupported, setIsSupported] = useState(true);
 
   const { analyserRef, start: startAudio, stop: stopAudio } = useAudioAnalyser();
@@ -770,7 +771,7 @@ export function VoiceParticleCanvas() {
     if (isActive) {
       stopAudio();
       setIsActive(false);
-      setPermissionDenied(false);
+      setMicError(null);
 
       /** Reset audio features to idle state */
       featuresRef.current = {
@@ -780,12 +781,12 @@ export function VoiceParticleCanvas() {
         frequencyData: new Uint8Array(FFT_SIZE / 2),
       };
     } else {
-      const success = await startAudio();
-      if (success) {
+      const result = await startAudio();
+      if (result === "ok") {
         setIsActive(true);
-        setPermissionDenied(false);
+        setMicError(null);
       } else {
-        setPermissionDenied(true);
+        setMicError(result);
       }
     }
   }, [isActive, startAudio, stopAudio]);
@@ -829,7 +830,7 @@ export function VoiceParticleCanvas() {
         onThresholdChange={setThreshold}
         particleCount={particleCount}
         fps={fps}
-        permissionDenied={permissionDenied}
+        micError={micError}
         isSupported={isSupported}
       />
     </div>

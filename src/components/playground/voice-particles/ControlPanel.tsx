@@ -17,7 +17,7 @@ interface ControlPanelProps {
   onThresholdChange: (value: number) => void;
   particleCount: number;
   fps: number;
-  permissionDenied: boolean;
+  micError: "denied" | "unsupported" | null;
   isSupported: boolean;
 }
 
@@ -30,7 +30,7 @@ export function ControlPanel({
   onThresholdChange,
   particleCount,
   fps,
-  permissionDenied,
+  micError,
   isSupported,
 }: ControlPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(
@@ -174,7 +174,7 @@ export function ControlPanel({
           {isActive ? "STOP MIC" : "START MIC"}
         </button>
 
-        {permissionDenied && (
+        {micError && (
           <p
             style={{
               fontFamily: "var(--v2-font-mono)",
@@ -185,8 +185,9 @@ export function ControlPanel({
             }}
             role="alert"
           >
-            MICROPHONE ACCESS FAILED. ALLOW MIC IN BROWSER SETTINGS OR
-            CHECK THAT THE PAGE IS SERVED OVER HTTPS / LOCALHOST.
+            {micError === "unsupported"
+              ? "MICROPHONE NOT AVAILABLE IN THIS BROWSER. TRY CHROME OR SAFARI."
+              : "MICROPHONE ACCESS DENIED. TAP THE LOCK ICON IN YOUR BROWSER ADDRESS BAR TO ALLOW MIC ACCESS, THEN TRY AGAIN."}
           </p>
         )}
 
