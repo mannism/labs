@@ -1,3 +1,9 @@
+## [2.15.5] - 2026-04-14
+
+### Fix
+* Make NavbarV2 sticky so it remains visible on scroll (z-index 40, below ChatWidget at 45)
+* Clarify content alignment pattern in ExperimentsShell — child sections use `max-w-7xl mx-auto px-6` to match the navbar container
+
 ## [2.15.4] - 2026-04-13
 
 ### Chore

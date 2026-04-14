@@ -24,7 +24,9 @@ export function ExperimentsShell({ children }: { children: ReactNode }) {
       >
         <NavbarV2 />
 
-        {/* Page content — full-width so individual pages control their own max-width */}
+        {/* Page content — full-width wrapper so experiment canvases can bleed edge-to-edge.
+            Child sections must apply `max-w-7xl mx-auto px-6` to align with the navbar.
+            See ExperimentsLanding and ExperimentDetail for the pattern. */}
         <div style={{ flex: 1 }}>{children}</div>
 
         <FooterV2 />

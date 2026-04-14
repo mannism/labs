@@ -18,6 +18,11 @@ export function NavbarV2() {
   return (
     <nav
       style={{
+        /* Sticky positioning — stays visible on scroll. z-index 40 keeps it
+           below the ChatWidget (z-index 45) but above page content. */
+        position: "sticky",
+        top: 0,
+        zIndex: 40,
         /* WCAG: purely decorative accent line — no information conveyed. Exempt per 1.4.11. */
         borderTop: "2px solid var(--v2-accent)",
         borderBottom: "1px solid var(--v2-border)",
