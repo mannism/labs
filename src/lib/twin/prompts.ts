@@ -74,6 +74,9 @@ const CREATIVE_CODING_KEYWORDS = [
     "canvas", "signal field", "ghost type", "datamosh",
     "proximity pulse", "system boot", "speculative interface",
     "labs v2", "chartreuse", "particle",
+    "voice particle", "gesture fluid", "crowd flow",
+    "fluid simulation", "boids", "reaction-diffusion",
+    "playground", "webgpu", "navier-stokes", "navier stokes",
 ];
 
 // ── Cache types ───────────────────────────────────────────────────────────────

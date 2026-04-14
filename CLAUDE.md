@@ -44,7 +44,7 @@ The app has two layers:
 ### Chat engine layer (`src/lib/twin/`)
 - **`config.ts` is the single env var entry point.** All modules import from `config.ts` — never call `process.env` directly anywhere else.
 - **`engine.ts` owns the full message flow:** rate limit → history → context injection → OpenAI → summarize → save. Do not scatter these steps across other modules.
-- **Tiered context injection:** Always-on context (7 files) is injected every request. On-demand context (2 files) is injected only when keywords match. Do not promote on-demand files to always-on without considering token cost.
+- **Tiered context injection:** Always-on context (9 files) is injected every request. On-demand context (4 files) is injected only when keywords match. Do not promote on-demand files to always-on without considering token cost.
 - **`memory.ts` fails closed for rate limiting, open for OTP.** Rate limit errors block the request (safe default). OTP errors allow through (OTP won't work anyway without Redis). Preserve this asymmetry.
 - **Redis singleton in `redis.ts`:** One ioredis instance per process. `enableOfflineQueue: true` (commands queue during async connection window — do not set to `false`). All Redis calls are wrapped in try-catch in `memory.ts`.
 - **Context markdown files get individual commits.** Changes to `src/data/twin/` (context files, `System-prompt.md`, `summarise-prompt.md`) must be committed separately from code changes, for clear prompt/context history tracking.
