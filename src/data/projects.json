@@ -112,8 +112,8 @@
       "Migrating from NextAuth to Better Auth while preserving existing bcrypt-with-pepper password hashes required a custom Drizzle adapter that remaps field names (full_name to name, created_on to createdAt) and a migration script that backfills the new account table from existing user rows — any mismatch silently locks users out because Better Auth checks the account table first.",
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve OKLch to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on OKLch throughout."
     ],
-    "version": "3.11.0",
-    "lastUpdated": "2026-04-08"
+    "version": "3.11.2",
+    "lastUpdated": "2026-04-13"
   },
   {
     "id": "13",
@@ -141,8 +141,8 @@
       "Markers must appear at predictable positions in the stream; if the model embeds them mid-sentence or omits them under ambiguous prompts, the UI silently skips the action.",
       "Schedule conflict detection with a 5-minute gap buffer was silently removed to maximise session density — a tradeoff that means 'dense schedule' returns back-to-back sessions with zero transition time, and the two generation paths (client-side vs. API) now enforce different constraints."
     ],
-    "version": "2.3.4",
-    "lastUpdated": "2026-03-22"
+    "version": "2.3.5",
+    "lastUpdated": "2026-04-13"
   },
   {
     "id": "14",
@@ -188,8 +188,8 @@
       "Tailwind CSS v4's `oklch()` colour space breaks html2canvas's CSS parser. Rather than patching stylesheets (getComputedStyle reads resolved values, not raw text), the fix pre-renders each Recharts SVG to a PNG data URL via `XMLSerializer` + offscreen canvas, then swaps it in the `onclone` callback so html2canvas never inspects an SVG element.",
       "SSRF protection via hostname regex must cover the full private IP space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, plus `::1`) — missing a single octet range leaves fetch-based server-side requests open to internal network scanning."
     ],
-    "version": "2.10.1",
-    "lastUpdated": "2026-04-09"
+    "version": "2.10.10",
+    "lastUpdated": "2026-04-14"
   },
   {
     "id": "15",
