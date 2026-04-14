@@ -1,3 +1,9 @@
+## [2.15.6] - 2026-04-14
+
+### Fix
+* Fix vertical alignment between PLAYGROUND and PORTFOLIO nav links (matching box model)
+* Add auto-hide navbar on scroll — hides on scroll down, reveals on scroll up with smooth transition
+
 ## [2.15.5] - 2026-04-14
 
 ### Fix

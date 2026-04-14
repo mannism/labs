@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import packageJson from "../../../package.json";
@@ -15,6 +16,34 @@ export function NavbarV2() {
   const pathname = usePathname();
   const isExperimentsActive = pathname?.startsWith("/playground");
 
+  /* Auto-hide on scroll: hide when scrolling down, show when scrolling up.
+     Always visible near the top of the page (< 60px). Uses a 10px delta
+     threshold to ignore micro-scrolls from touch inertia or rounding. */
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const SCROLL_DELTA_THRESHOLD = 10;
+    const TOP_THRESHOLD = 60;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+
+      if (currentY < TOP_THRESHOLD) {
+        setHidden(false);
+      } else if (currentY - lastScrollY.current > SCROLL_DELTA_THRESHOLD) {
+        setHidden(true);
+      } else if (lastScrollY.current - currentY > SCROLL_DELTA_THRESHOLD) {
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <nav
       style={{
@@ -27,6 +56,8 @@ export function NavbarV2() {
         borderTop: "2px solid var(--v2-accent)",
         borderBottom: "1px solid var(--v2-border)",
         background: "var(--v2-bg-surface)",
+        transform: hidden ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 0.3s ease",
       }}
     >
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -117,6 +148,8 @@ export function NavbarV2() {
               transition: "color 0.2s ease",
               letterSpacing: "0.04em",
               textTransform: "uppercase",
+              paddingBottom: "2px",
+              borderBottom: "2px solid transparent",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "var(--v2-text-primary)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--v2-text-secondary)")}
