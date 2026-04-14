@@ -1,3 +1,8 @@
+## [2.15.7] - 2026-04-14
+
+### Fix
+* Replace developer-oriented microphone error message with user-friendly copy — distinguish "denied" vs "unsupported" browser
+
 ## [2.15.6] - 2026-04-14
 
 ### Fix
