@@ -27,7 +27,7 @@ Engineering & Development (Modern):
   - Languages: TypeScript 5/6, JavaScript, Python, HTML/CSS, PHP
   - Frameworks: Next.js 16, React 19, Express.js, FastAPI
   - Styling: Tailwind CSS 4, CSS custom properties, OKLch colour tokens
-  - Animation: Framer Motion, Canvas API, requestAnimationFrame
+  - Animation: Framer Motion, Canvas API, requestAnimationFrame, Three.js, WebGPU
   - State/Data: TanStack Query, Drizzle ORM, Zustand
   - Auth: Better Auth, NextAuth.js
   - AI SDKs: OpenAI API, Anthropic API, Vercel AI SDK, Gemini API
