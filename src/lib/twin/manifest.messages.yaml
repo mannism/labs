@@ -1,0 +1,45 @@
+name: twin-messages
+purpose: Single source of truth for all user-facing strings in the Digital Twin — error messages, command replies, and media placeholders.
+owner: nix
+status: active
+
+depends_on:
+  # No dependencies — intentionally a leaf module to prevent import cycles.
+
+depended_on_by:
+  - module: src/lib/twin/engine.ts
+    how: imports MSG_STORAGE_OFFLINE, MSG_RATE_LIMITED, MSG_AI_ERROR for engine error paths
+  - module: src/app/api/chat/stream/route.ts
+    how: imports MSG_TOO_LONG for input length validation error response
+  - module: src/app/api/link/route.ts
+    how: imports MSG_LINK_SUCCESS, MSG_LINK_INVALID, MSG_OTP_RATE_LIMITED for OTP link responses
+  - module: src/app/api/telegram/route.ts
+    how: imports all Telegram command replies and media placeholders
+
+exports:
+  # Media placeholders (Telegram non-text messages)
+  - MEDIA_PHOTO
+  - MEDIA_VIDEO
+  - MEDIA_AUDIO
+  - MEDIA_DOCUMENT
+  # Telegram command replies
+  - MSG_WELCOME
+  - MSG_SYNC_SUCCESS
+  - MSG_CONTACT
+  - MSG_PAIRING_UNAVAILABLE
+  # Input validation
+  - MSG_TOO_LONG
+  # OTP linking (web)
+  - MSG_LINK_SUCCESS
+  - MSG_LINK_INVALID
+  - MSG_OTP_RATE_LIMITED
+  # Engine / system errors
+  - MSG_API_KEY_MISSING
+  - MSG_AI_ERROR
+  - MSG_STORAGE_OFFLINE
+  - MSG_RATE_LIMITED
+
+notes: |
+  Do not inline user-visible strings in route handlers or engine code — add them here.
+  This keeps copy changes isolated to a single file and independently reviewable,
+  consistent with the convention that src/data/twin/ markdown files use separate commits.
