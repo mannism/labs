@@ -1,0 +1,30 @@
+name: api-cors
+purpose: CORS header utilities for the Digital Twin API routes — enforces the dianaismail.me subdomain allowlist and returns preflight responses.
+owner: nix
+status: active
+
+depends_on:
+  # No dependencies — pure header logic with no imports.
+
+depended_on_by:
+  - module: src/app/api/chat/stream/route.ts
+    how: calls corsHeaders() on every response and corsPreflightResponse() for OPTIONS preflight
+  - module: src/app/api/chat/history/route.ts
+    how: calls corsHeaders() on every response and corsPreflightResponse() for OPTIONS preflight
+  - module: src/app/api/link/route.ts
+    how: calls corsHeaders() on every response and corsPreflightResponse() for OPTIONS preflight
+
+exports:
+  - corsHeaders              # (origin: string | null) => HeadersInit
+  - corsPreflightResponse    # (origin: string | null) => Response (204 No Content)
+
+notes: |
+  Allowed origins: any *.dianaismail.me subdomain and localhost on any port.
+  If origin is not in the allowlist, Access-Control-Allow-Origin is set to ""
+  (browsers block the response — not a hard 403, but effectively denied).
+
+  The Telegram webhook route (/api/telegram) does NOT use CORS — it is called by
+  Telegram servers, not browsers. Do not add CORS to that route.
+
+  Origin regex: /^https?:\/\/(localhost:\d+|(.*\.)?dianaismail\.me)$/
+  Mirrors the allowlist from the Python twin server (telegram-digital-twin/main.py).
