@@ -1,0 +1,37 @@
+name: twin-config
+purpose: Single env-var entry point for the Digital Twin chat engine — reads process.env once at module load and exports typed constants.
+owner: nix
+status: active
+
+depends_on:
+  # No internal dependencies — intentionally leaf module so every other twin module
+  # can import from here without creating cycles.
+
+depended_on_by:
+  - module: src/lib/twin/engine.ts
+    how: imports OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL_SUMMARY, SUMMARISATION_THRESHOLD via `import * as config`
+  - module: src/lib/twin/memory.ts
+    how: imports RATE_LIMIT_COUNT, RATE_LIMIT_WINDOW via `import * as config`
+  - module: src/lib/twin/redis.ts
+    how: imports REDIS_URL via named import
+  - module: src/lib/twin/telegram.ts
+    how: imports TELEGRAM_TOKEN via named import
+  - module: src/app/api/telegram/route.ts
+    how: imports TELEGRAM_WEBHOOK_SECRET, LABS_URL via named imports
+
+exports:
+  - OPENAI_API_KEY
+  - OPENAI_MODEL
+  - OPENAI_MODEL_SUMMARY
+  - REDIS_URL
+  - RATE_LIMIT_COUNT
+  - RATE_LIMIT_WINDOW
+  - SUMMARISATION_THRESHOLD
+  - TELEGRAM_TOKEN
+  - TELEGRAM_WEBHOOK_SECRET
+  - LABS_URL
+
+notes: |
+  All other modules in src/lib/twin/ must import env vars from this file — never
+  call process.env directly elsewhere. This is enforced by convention (not lint rule).
+  Adding a new env var: add it here with a ?? fallback, then import from here.
