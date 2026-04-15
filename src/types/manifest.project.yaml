@@ -1,0 +1,42 @@
+name: types-project
+purpose: TypeScript interface definitions for project and article entries — the shared contract between projects.json, the data loader, UI components, and API/metadata routes.
+owner: nix
+status: active
+
+depends_on:
+  # No dependencies — pure TypeScript type declarations.
+
+depended_on_by:
+  - module: src/lib/projects.ts
+    how: imports Project to type the exported projects array
+  - module: src/app/module/[slug]/page.tsx
+    how: imports Project for slug resolution and page props typing
+  - module: src/app/module/[slug]/opengraph-image.tsx
+    how: imports Project to type the resolved project for OG image generation
+  - module: src/app/module/[slug]/ModuleDetailClient.tsx
+    how: imports Project as prop type for the client detail view
+  - module: src/app/sitemap.ts
+    how: imports Project to type the sitemap data array
+  - module: src/components/AppShell.tsx
+    how: imports Project to type drawer state
+  - module: src/components/ProjectCard.tsx
+    how: imports Project as prop type
+  - module: src/components/v2/ProjectCardV2.tsx
+    how: imports Project as prop type
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: imports Project for filtered grid logic and callback signatures
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: imports Project as prop type for the detail panel
+
+exports:
+  - Project          # interface — full schema for a project or article entry in projects.json
+  - ArticleSection   # interface — a titled prose section within an article-type entry
+
+notes: |
+  Do not duplicate this interface — it is the single source of truth.
+  The `type` discriminant ("project" | "article") drives layout selection in
+  ModuleDetailClient.tsx (ArticleLayout vs ProjectLayout).
+
+  Optional fields (version, lastUpdated, createdDate, highlight, articleSections) are
+  populated by the GitHub Actions sync workflow or the data loader. Components must
+  render gracefully when these fields are absent.
