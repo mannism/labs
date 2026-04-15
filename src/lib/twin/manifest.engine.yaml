@@ -1,0 +1,47 @@
+name: twin-engine
+purpose: Orchestrates the full Digital Twin message flow — rate limit, history retrieval, context injection, OpenAI call, summarization, and history persistence — for both streaming (web) and non-streaming (Telegram) paths.
+owner: nix
+status: active
+
+depends_on:
+  - module: src/lib/twin/config.ts
+    why: reads OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL_SUMMARY, SUMMARISATION_THRESHOLD
+  - module: src/lib/twin/memory.ts
+    why: rate limit checks, history get/append/save, and ChatHistory type
+  - module: src/lib/twin/prompts.ts
+    why: builds the system prompt and on-demand context injections per turn
+  - module: src/lib/twin/messages.ts
+    why: user-facing error strings for all failure paths
+  - module: src/lib/twin/redis.ts
+    why: Redis availability guard — both entry points abort early if getRedisClient() returns null
+  - package: openai
+    version: ">=4.x"
+    why: OpenAI Node SDK for chat completions (streaming and non-streaming variants)
+
+depended_on_by:
+  - module: src/app/api/chat/stream/route.ts
+    how: calls processUserMessageStream() and pipes the async generator into a ReadableStream for SSE delivery
+  - module: src/app/api/telegram/route.ts
+    how: calls processUserMessage() (non-streaming) and sends responseText via the Telegram Bot API
+
+exports:
+  - processUserMessage         # non-streaming path — returns { status, responseText }
+  - processUserMessageStream   # async generator yielding SSE-formatted strings
+
+notes: |
+  Two entry points:
+    - processUserMessageStream: streaming path for web ChatWidget via /api/chat/stream.
+      Yields: {"type":"chunk","text":"..."}, {"type":"done"}, {"type":"error","text":"..."}.
+    - processUserMessage: non-streaming path for Telegram (Telegram cannot consume SSE).
+
+  Both paths share the same pre-flight order:
+    0. Redis guard (abort if getRedisClient() is null)
+    1. Rate limit check (before loading history — cheaper abort if blocked)
+    2. History retrieval
+    3. OpenAI message construction via buildApiMessages()
+    4. OpenAI call
+    5. summarizeMemory() — fires when history.messages.length >= SUMMARISATION_THRESHOLD
+    6. saveChatHistory()
+
+  sanitizeInput() strips prompt-injection patterns before anything else.
+  This function is private — callers must not sanitize; the engine handles it.
