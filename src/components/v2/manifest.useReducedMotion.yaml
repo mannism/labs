@@ -1,0 +1,50 @@
+name: use-reduced-motion
+purpose: React hook that subscribes to the prefers-reduced-motion media query and returns a boolean — the canonical cross-app implementation for disabling or simplifying animations.
+owner: nix
+status: active
+
+depends_on:
+  # No dependencies — uses only React hooks (useState, useEffect) and the Web Media Queries API.
+
+depended_on_by:
+  # v2 component layer
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: calls useReducedMotion() to disable Framer Motion stagger entrance variants
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: calls useReducedMotion() to simplify entrance animations in the detail panel
+  - module: src/components/v2/SignalField.tsx
+    how: calls useReducedMotion() to pause the canvas animation loop
+  - module: src/components/v2/ScanLine.tsx
+    how: calls useReducedMotion() to disable the scan-line sweep animation
+  - module: src/components/v2/SystemBoot.tsx
+    how: calls useReducedMotion() to skip the boot-sequence text animation
+  - module: src/components/v2/FooterV2.tsx
+    how: calls useReducedMotion() to skip the footer entrance animation
+  - module: src/components/v2/FillerCard.tsx
+    how: calls useReducedMotion() to disable the pulse animation on filler cells
+  - module: src/components/v2/DatamoshTransition.tsx
+    how: calls useReducedMotion() to skip the datamosh glitch transition
+  - module: src/components/v2/useTextScramble.ts
+    how: composes useReducedMotion() to skip the Ghost Type scramble effect
+  # playground component layer
+  - module: src/components/playground/ExperimentsLanding.tsx
+    how: calls useReducedMotion() to disable stagger-fade entrance on the experiment grid
+  - module: src/components/playground/StatusIndicator.tsx
+    how: calls useReducedMotion() to disable the pulsing animation on status badges
+  - module: src/components/playground/ExperimentCard.tsx
+    how: calls useReducedMotion() to disable hover lift and entrance animations
+
+exports:
+  - useReducedMotion   # () => boolean
+
+notes: |
+  This hook crosses the v2/playground component boundary — do not duplicate the
+  matchMedia logic inline in any component. All new animated components must use
+  this hook and respect the returned value.
+
+  SSR-safe: returns false on first render (window is undefined server-side) then
+  subscribes to the media query on mount and updates reactively when the user's
+  OS preference changes.
+
+  WCAG 2.1 AA compliance: every Framer Motion animation and CSS animation with
+  motion implications must be gated by this hook.

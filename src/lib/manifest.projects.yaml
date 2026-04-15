@@ -1,0 +1,44 @@
+name: lib-projects
+purpose: Canonical project data loader — reads projects.json, resolves the Labs entry version from package.json, and exports the typed project array.
+owner: nix
+status: active
+
+depends_on:
+  - module: src/types/project.ts
+    why: Project interface used to type the exported array
+  - module: src/data/projects.json
+    why: source of truth for all project entries
+  - module: package.json (root)
+    why: Labs entry version (slug "labs") is sourced from package.json.version to stay in sync with releases without a self-referencing GitHub API workflow
+
+depended_on_by:
+  - module: src/app/layout.tsx
+    how: imports projects for metadata keywords and JSON-LD structured data generation
+  - module: src/app/sitemap.ts
+    how: imports projects to generate dynamic sitemap entries for /module/[slug] routes
+  - module: src/app/llms.txt/route.ts
+    how: imports projects to generate the LLM-readable project listing
+  - module: src/app/module/[slug]/page.tsx
+    how: imports projects to resolve slug to a Project for the detail page and metadata
+  - module: src/app/module/[slug]/opengraph-image.tsx
+    how: imports projects to generate the per-project OG image
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: imports projectsData for the filtered bento grid display
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: imports projects for project detail population
+  - module: src/components/v2/SystemBoot.tsx
+    how: imports projects for boot-sequence project count display
+
+exports:
+  - default   # Project[] — all projects with Labs version resolved from package.json
+
+notes: |
+  The Labs entry (slug: "labs") has its version field overridden at runtime from
+  package.json.version. All other entries pass through unchanged from projects.json.
+
+  Some components (ProjectCardV2, AppShell) import from src/data/projects.json directly
+  and bypass this loader — they do not need the Labs version override. Only consumers
+  that display version data for the Labs entry need this module.
+
+  Never edit version or lastUpdated in projects.json by hand — the GitHub Actions
+  sync workflow (sync-project-versions.yml) overwrites them on its next run.

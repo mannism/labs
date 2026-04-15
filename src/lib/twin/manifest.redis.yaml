@@ -1,0 +1,31 @@
+name: twin-redis
+purpose: Provides a lazily-initialized ioredis singleton for the Digital Twin — one connection per process, shared across all route handler invocations.
+owner: nix
+status: active
+
+depends_on:
+  - module: src/lib/twin/config.ts
+    why: reads REDIS_URL to configure the connection
+  - package: ioredis
+    version: ">=5.x"
+    why: Redis client; chosen for its offline-queue support that prevents "Stream isn't writeable" errors on first request when ioredis connects asynchronously
+
+depended_on_by:
+  - module: src/lib/twin/memory.ts
+    how: calls getRedisClient() at the top of every exported async function to get the shared client
+  - module: src/lib/twin/engine.ts
+    how: calls getRedisClient() in the Redis availability guard at the start of both processUserMessage and processUserMessageStream
+
+exports:
+  - getRedisClient   # () => Redis | null
+
+notes: |
+  enableOfflineQueue is left at its default (true) — commands queue during the initial
+  TCP handshake rather than throwing. Setting it to false caused "Stream isn't writeable"
+  errors on the first request; do not change this.
+
+  maxRetriesPerRequest: 1 — commands retry once on a dropped connection, then fail
+  and bubble to memory.ts's try-catch wrappers rather than retrying indefinitely.
+
+  getRedisClient() returns null if initialization fails — callers must handle null
+  as "Redis unavailable" rather than throwing.

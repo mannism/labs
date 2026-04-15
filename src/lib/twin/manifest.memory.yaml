@@ -1,0 +1,45 @@
+name: twin-memory
+purpose: All Redis interactions for the Digital Twin — chat history persistence, sliding-window rate limiting, and OTP pairing code generation and verification.
+owner: nix
+status: active
+
+depends_on:
+  - module: src/lib/twin/redis.ts
+    why: acquires the Redis singleton client for all read/write operations
+  - module: src/lib/twin/config.ts
+    why: reads RATE_LIMIT_COUNT and RATE_LIMIT_WINDOW for the sliding-window algorithm
+
+depended_on_by:
+  - module: src/lib/twin/engine.ts
+    how: calls checkRateLimit(), getChatHistory(), appendMessage(), saveChatHistory(), and uses ChatHistory type in buildApiMessages
+  - module: src/app/api/chat/history/route.ts
+    how: calls getChatHistory() to return message history to the ChatWidget
+  - module: src/app/api/link/route.ts
+    how: calls checkOtpRateLimit() and verifyPairingCode() for the OTP link flow
+  - module: src/app/api/telegram/route.ts
+    how: calls generatePairingCode() and linkTelegramToWeb() for the /connect command
+
+exports:
+  - ChatHistory            # interface
+  - checkRateLimit
+  - checkOtpRateLimit
+  - verifyPairingCode
+  - generatePairingCode
+  - linkTelegramToWeb
+  - getChatHistory
+  - saveChatHistory
+  - appendMessage
+
+notes: |
+  Failure policy asymmetry — intentional and must be preserved:
+    - checkRateLimit: fails CLOSED (returns false) on Redis error. Blocks the request
+      rather than allowing unlimited messages without a functional rate limiter.
+    - checkOtpRateLimit: fails OPEN (returns true) on Redis error. OTP pairing won't
+      work without Redis anyway, so blocking only hurts legitimate users.
+
+  Session aliasing: getChatHistory and saveChatHistory resolve aliases first so a
+  Telegram chat linked via linkTelegramToWeb reads and writes the same Redis key as
+  the web session, enabling full cross-platform history sharing.
+
+  appendMessage is synchronous (mutates the in-memory ChatHistory struct) — callers
+  must call saveChatHistory() after the full exchange to persist.

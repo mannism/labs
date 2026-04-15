@@ -1,0 +1,28 @@
+name: lib-analytics
+purpose: Thin wrapper around the global gtag function injected by @next/third-parties — provides a type-safe trackEvent utility for client components.
+owner: nix
+status: active
+
+depends_on:
+  - package: "@next/third-parties"
+    version: ">=14.x"
+    why: injects window.gtag via the GoogleAnalytics component in app/layout.tsx; this module is the typed call site for that global
+
+depended_on_by:
+  - module: src/components/ChatWidget.tsx
+    how: calls trackEvent() to record chat open, message send, and Telegram link events
+  - module: src/components/ProjectCard.tsx
+    how: calls trackEvent() to record demo and GitHub link clicks on project cards
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: calls trackEvent() to record detail drawer interactions
+
+exports:
+  - trackEvent   # (action: string, params: Record<string, string>) => void
+
+notes: |
+  Guards with typeof window !== "undefined" — safe to import in any client component
+  without an SSR guard at the call site. No-ops silently if gtag is not loaded
+  (e.g. blocked by ad blocker).
+
+  Never make business logic conditional on trackEvent succeeding — analytics calls
+  are fire-and-forget.
