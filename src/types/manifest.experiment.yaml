@@ -1,0 +1,31 @@
+name: types-experiment
+purpose: TypeScript type definitions for experiment entries — the shared contract between experiments.json, playground UI components, and the playground routing layer.
+owner: nix
+status: active
+
+depends_on:
+  # No dependencies — pure TypeScript type declarations.
+
+depended_on_by:
+  - module: src/app/playground/[slug]/page.tsx
+    how: imports Experiment to type the resolved experiment for the detail page
+  - module: src/components/playground/ExperimentsLanding.tsx
+    how: imports Experiment to type the experiments array cast from JSON
+  - module: src/components/playground/ExperimentDetail.tsx
+    how: imports Experiment as prop type for the detail view
+  - module: src/components/playground/ExperimentCard.tsx
+    how: imports Experiment as prop type and ExperimentStatus for status-driven styling
+  - module: src/components/playground/StatusIndicator.tsx
+    how: imports ExperimentStatus to type the status prop
+
+exports:
+  - ExperimentStatus   # type alias — "live" | "beta" | "concept"
+  - Experiment         # interface — full schema for an experiment entry in experiments.json
+
+notes: |
+  ExperimentStatus drives visual treatment (color, pulse animation) in StatusIndicator
+  and ExperimentCard — the three values map to CSS token classes defined in globals.css
+  under html.v2 (--exp-status-live, --exp-status-beta, --exp-status-concept).
+
+  Adding a new experiment: JSON-only change to src/data/experiments.json — no type
+  changes required unless adding new fields to the schema.
