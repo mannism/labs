@@ -90,6 +90,7 @@ Full cross-project checklist: `Owner Inbox/research/security-audit-cross-project
 
 ## Code Quality
 
+- All PRs must include comprehension gate answers — see `.claude/rules/pr-review.md`.
 - Do not duplicate the `Project` interface — it is exported from `src/types/project.ts` and imported wherever needed.
 - Keep components focused. `ProjectGridV2` owns filtering state and category tabs. Individual cards are stateless display components.
 - Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
