@@ -71,6 +71,24 @@ function getPreviewPattern(slug: string): string {
         "radial-gradient(2px 2px at 80% 75%, #22C55E 100%, transparent)",
       ].join(", ");
 
+    case "routines-repo-audit":
+      /* Terminal-style pattern: horizontal lines of dots suggesting log output,
+         chartreuse accent line at top to suggest a running process. */
+      return [
+        /* Chartreuse top accent stripe */
+        "linear-gradient(to right, #C8FF00 0%, #C8FF00 100%) 0 0 / 100% 2px no-repeat",
+        /* Dim log-line rows */
+        "linear-gradient(to right, rgba(75,85,99,0.6) 0%, rgba(75,85,99,0.6) 45%, transparent 45%) 20px 24px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0.5) 8%, transparent 8%) 20px 36px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(75,85,99,0.5) 0%, rgba(75,85,99,0.5) 60%, transparent 60%) 20px 48px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(245,158,11,0.5) 0%, rgba(245,158,11,0.5) 38%, transparent 38%) 20px 60px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(75,85,99,0.4) 0%, rgba(75,85,99,0.4) 52%, transparent 52%) 20px 72px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(34,197,94,0.4) 0%, rgba(34,197,94,0.4) 22%, transparent 22%) 20px 84px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(75,85,99,0.3) 0%, rgba(75,85,99,0.3) 70%, transparent 70%) 20px 96px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(248,113,113,0.4) 0%, rgba(248,113,113,0.4) 28%, transparent 28%) 20px 108px / 200px 1px no-repeat",
+        "linear-gradient(to right, rgba(200,255,0,0.6) 0%, rgba(200,255,0,0.6) 55%, transparent 55%) 20px 144px / 200px 1px no-repeat",
+      ].join(", ");
+
     default:
       return "none";
   }

@@ -1,3 +1,13 @@
+## [2.16.0] - 2026-04-18
+
+### Feature
+* Add EXP_004 — Routines Repo Audit experiment: Anthropic Routines-powered nightly Claude Code session that audits 6 repos for stale manifests, CI failures, open Dependabot PRs, uncommitted worktrees, and stale branches, then posts a Slack summary
+* Add `.claude/routines/nightly-repo-audit.md` — canonical routine prompt for configuration at claude.ai/code/routines
+* Add `AuditTerminal` component — typewriter-animated terminal display showing a representative audit run (respects `prefers-reduced-motion`)
+* Register `routines-repo-audit` slug in `ExperimentDetail` dynamic import map
+* Add CSS preview pattern for `routines-repo-audit` card in `ExperimentCard`
+* Add `None` input type to `INPUT_LABELS` map in `ExperimentDetail`
+
 ## [2.15.10] - 2026-04-18
 
 ### Docs
