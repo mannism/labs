@@ -1,0 +1,71 @@
+name: twin
+purpose: Digital Twin chat engine — OpenAI-powered conversational AI with Redis session persistence and cross-platform (web + Telegram) support
+owner: sable
+status: active
+
+depends_on:
+  - package: openai
+    why: LLM inference — streaming and non-streaming chat completions
+  - package: ioredis
+    why: session persistence, rate limiting, OTP pairing codes
+  - module: src/data/twin/
+    why: context markdown files injected into LLM system prompt
+
+depended_on_by:
+  - module: src/app/api/chat/stream/route.ts
+    how: calls processUserMessageStream() for SSE chat
+  - module: src/app/api/chat/history/route.ts
+    how: calls getChatHistory() to retrieve session
+  - module: src/app/api/telegram/route.ts
+    how: calls processUserMessage(), generatePairingCode(), linkTelegramToWeb()
+  - module: src/app/api/link/route.ts
+    how: calls checkOtpRateLimit(), verifyPairingCode()
+
+exports:
+  - "processUserMessage(chatId, rawText, iface?) — non-streaming chat (Telegram)"
+  - "processUserMessageStream(chatId, rawText, iface?) — SSE streaming chat (web)"
+  - "checkRateLimit(chatId) — sliding-window rate limiter"
+  - "checkOtpRateLimit(ip) — OTP attempt rate limiter"
+  - "verifyPairingCode(code) — one-time OTP verification"
+  - "generatePairingCode(chatId) — creates 8-digit OTP with 600s TTL"
+  - "linkTelegramToWeb(telegramChatId, webSessionId) — session alias"
+  - "getChatHistory(chatId) — retrieves session from Redis"
+  - "saveChatHistory(chatId, data) — persists session to Redis"
+  - "appendMessage(data, role, content) — in-memory history append"
+  - "ChatHistory interface"
+  - "MSG_* string constants — all user-facing messages"
+  - "Config constants (OPENAI_MODEL, REDIS_URL, RATE_LIMIT_*, etc.)"
+
+notes: |
+  Internal structure: config.ts (env vars), engine.ts (orchestration), memory.ts (Redis),
+  messages.ts (user-facing strings), prompts.ts (system prompt builder), redis.ts (singleton),
+  telegram.ts (Telegram Bot API client).
+
+  config.ts is the single env var entry point — never call process.env elsewhere.
+  engine.ts owns the full message flow — do not scatter steps across other modules.
+  memory.ts fails closed for rate limiting, open for OTP. Preserve this asymmetry.
+  Context markdown files in src/data/twin/ get individual commits.
+
+contracts:
+  rate_limits: "5 messages per 60s per chatId (sliding window); 10 OTP attempts per 10min per IP"
+  cache_ttl: "chat sessions: 30-day rolling TTL; OTP codes: 600s TTL; rate limit windows: 60s"
+  retry_policy: "no retries — single attempt to OpenAI, single attempt to Redis; failures return safe error messages"
+  timeouts: "OpenAI streaming/non-streaming: default SDK timeout (~10min); Redis: ioredis default (no custom timeout)"
+
+failure_modes:
+  - trigger: Redis unavailable
+    impact: rate limiting blocks all requests (fails closed); chat history returns empty; OTP pairing fails
+    behavior: graceful degradation — returns MSG_STORAGE_OFFLINE to user
+  - trigger: OpenAI API error or timeout
+    impact: no AI response generated
+    behavior: graceful degradation — returns MSG_AI_ERROR to user, logs error
+  - trigger: OpenAI summarization fails
+    impact: conversation history grows unbounded until next successful summarization
+    behavior: silent failure — logs error, leaves history unchanged, continues
+  - trigger: Telegram delivery failure
+    impact: user doesn't receive bot reply
+    behavior: silent failure — logged in telegram.ts, does not crash the request
+
+performance:
+  expected_latency: "streaming first-token: 200-800ms; full non-streaming response: 1-5s; Redis ops: <10ms"
+  resource_constraints: "one Redis connection per process (singleton); OpenAI concurrency limited by API key tier"
