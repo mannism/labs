@@ -68,7 +68,7 @@ The app has two layers:
 - API routes validate input length and enforce rate limiting before touching OpenAI or Redis. Maintain these guards on any new routes.
 
 ### OWASP Security Checklist (mandatory on every release)
-Full cross-project checklist: `Owner Inbox/research/security-audit-cross-project.md`
+Full cross-project checklist: `Owner-Inbox/research/security-audit-cross-project.md`
 
 **Labs-specific smoke tests (Quinn runs on every release):**
 | Test | Expected |
