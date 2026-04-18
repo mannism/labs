@@ -48,6 +48,7 @@ The app has two layers:
 - **`memory.ts` fails closed for rate limiting, open for OTP.** Rate limit errors block the request (safe default). OTP errors allow through (OTP won't work anyway without Redis). Preserve this asymmetry.
 - **Redis singleton in `redis.ts`:** One ioredis instance per process. `enableOfflineQueue: true` (commands queue during async connection window — do not set to `false`). All Redis calls are wrapped in try-catch in `memory.ts`.
 - **Context markdown files get individual commits.** Changes to `src/data/twin/` (context files, `System-prompt.md`, `summarise-prompt.md`) must be committed separately from code changes, for clear prompt/context history tracking.
+- **Twin context sync:** After editing any file in `src/data/twin/context/`, copy the changed files to `/Users/mann/Documents/GitHub/telegram-digital-twin/data/context/`. Labs is the source of truth — Digital Twin repo must stay in sync.
 
 ---
 
