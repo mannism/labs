@@ -1,3 +1,9 @@
+## [2.15.9] - 2026-04-18
+
+### Docs
+* Add PR comprehension gate checklist (`.claude/rules/pr-review.md`) with core + extended questions
+* Reference comprehension gate in CLAUDE.md Code Quality section
+
 ## [2.15.7] - 2026-04-14
 
 ### Fix
