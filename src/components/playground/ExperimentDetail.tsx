@@ -80,6 +80,17 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_004: Routines Repo Audit — terminal replay, no WebGPU/Three.js required */
+  "routines-repo-audit": dynamic(
+    () =>
+      import("./routines-repo-audit/AuditTerminal").then(
+        (mod) => mod.AuditTerminal
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
 /** Map input types to their descriptive requirement text. */
@@ -87,6 +98,7 @@ const INPUT_LABELS: Record<string, string> = {
   Microphone: "REQUIRES MICROPHONE ACCESS",
   Camera: "REQUIRES CAMERA ACCESS",
   "Mouse / Touch": "MOUSE OR TOUCH INPUT",
+  None: "NO INPUT REQUIRED — READ ONLY",
 };
 
 export function ExperimentDetail({ experiment }: { experiment: Experiment }) {

@@ -100,5 +100,43 @@
       "This demonstrates multiple coupled simulation systems running in the browser. Three distinct passes — agent flocking, trail accumulation, and reaction-diffusion — run sequentially each frame, reading and writing shared data structures. That pipeline pattern is the foundation for any serious simulation work in the browser: fluid dynamics, crowd modelling, procedural generation, physics solvers.",
       "The Boids algorithm requires each of 10,000 agents to read positions from nearby neighbours every frame — a workload that spatial hashing makes tractable on the CPU. Combined with the reaction-diffusion system, the experiment sustains three coupled simulations at 60fps, entirely client-side, with no WASM or native plugins."
     ]
+  },
+  {
+    "id": "4",
+    "slug": "routines-repo-audit",
+    "title": "Routines Repo Audit",
+    "description": "Anthropic Routines powers a nightly Claude Code session that audits 6 repos for stale manifests, CI failures, open Dependabot PRs, uncommitted worktrees, and stale branches — then posts a structured summary to Slack.",
+    "tags": ["Anthropic Routines", "Claude Code", "GitHub API", "Slack", "Agent Ops"],
+    "status": "live",
+    "inputType": "None",
+    "experimentNumber": "EXP_004",
+    "collection": "agent-ops",
+    "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of Diana's 6 repos against 5 health signals — manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene — then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
+    "howItWorks": [
+      {
+        "title": "Anthropic Routines as the Scheduler",
+        "body": "Routines are saved Claude Code configurations — a prompt, a set of repos, environment variables, and triggers — that run on Anthropic-managed cloud infrastructure. This routine uses a schedule trigger set to 02:00 SGT (18:00 UTC) nightly. The session starts without a human in the loop, runs autonomously, and posts its results to Slack before the working day begins. The routine is configured once at claude.ai/code/routines; the prompt file lives in .claude/routines/ in the labs repo as the source-of-truth reference."
+      },
+      {
+        "title": "Manifest Integrity Check",
+        "body": "Each repo uses manifest.yaml files to document module boundaries, dependencies, and exports (a convention established across Diana's agent team). The routine reads every manifest.yaml it finds and cross-references the depends_on and depended_on_by fields against the actual manifests present in the repo. It also checks that every path listed in exports exists on disk. Any reference that resolves to nothing is flagged. Deprecated modules skip cross-reference checks — stale references there are expected."
+      },
+      {
+        "title": "CI, Dependabot, and Branch Signals",
+        "body": "The GitHub API provides the last workflow run status for each repo's default branch — a pass or fail in one API call. Dependabot PRs are fetched from the open PR list, filtered by user.login, and sorted by age in days. Branches are listed and filtered for anything outside main/master with a last-commit date older than 14 days. Each check wraps its API call in error handling — a rate limit or unreachable repo logs a failure in the output rather than silently skipping the check."
+      },
+      {
+        "title": "Worktree Detection",
+        "body": "Claude Code creates git worktrees for agent sessions working on the same repo in parallel. These worktrees are prefixed with .claude/worktrees/ and should be cleaned up after each session. The routine runs git worktree list on each cloned repo and flags any non-primary worktree as a potentially stale agent artifact. This is the routine's way of auditing the auditors — checking that the automation that generates work is cleaning up after itself."
+      },
+      {
+        "title": "Slack Output",
+        "body": "The session posts to a dedicated #agent-fleet-health Slack channel using an incoming webhook URL stored as an environment variable in the Routines cloud environment. The message uses a fixed format: per-repo status lines with pass/warn icons, bullet-level detail for each issue, and a summary count at the bottom. If the Slack POST fails, the full message is printed to the session log so nothing is silently lost."
+      }
+    ],
+    "whatItProves": [
+      "Routines are the scheduling layer Diana has been approximating manually. The same patterns that drove the agent team — manifest conventions, explicit dependency graphs, worktree isolation — become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
+      "This is agent auditing agents at its simplest: a Claude Code session that checks whether the Claude Code sessions that ran earlier left the codebase in a clean state. The feedback loop closes nightly without a human in the loop. The Slack message is the handoff to human attention — only the repos that need it, only the issues that matter."
+    ]
   }
 ]
