@@ -1,0 +1,51 @@
+name: api
+purpose: API route layer — chat streaming, history retrieval, Telegram webhook, and OTP linking, with shared CORS policy
+owner: sable
+status: active
+
+depends_on:
+  - module: src/lib/twin/
+    why: all business logic for chat, memory, and pairing
+  - module: src/app/api/cors.ts
+    why: shared CORS headers for cross-origin ChatWidget requests
+
+depended_on_by:
+  - module: src/components/ChatWidget.tsx
+    how: fetches /api/chat/stream (SSE) and /api/chat/history
+  - module: external (Telegram Bot API)
+    how: Telegram sends webhook POST to /api/telegram
+
+exports:
+  - "GET/POST /api/chat/stream — SSE chat endpoint"
+  - "GET /api/chat/history — session retrieval"
+  - "POST /api/telegram — Telegram webhook handler"
+  - "POST /api/link — OTP pairing verification"
+  - "corsHeaders(origin) — CORS header utility"
+  - "corsPreflightResponse(origin) — OPTIONS preflight handler"
+
+notes: |
+  All routes validate input length and enforce rate limiting before touching OpenAI or Redis.
+  CORS allows *.dianaismail.me and localhost:* — see cors.ts regex.
+  Telegram route validates X-Telegram-Bot-Api-Secret-Token header.
+  All routes return safe, user-friendly error messages from twin/messages.ts.
+
+contracts:
+  rate_limits: "chat: 5 msg/60s per session (enforced by twin/memory); OTP: 10 attempts/10min per IP"
+  cache_ttl: "none at API layer — caching handled by twin/memory (Redis)"
+  retry_policy: "no retries — routes return error response on first failure"
+  timeouts: "input length limit: 4000 chars; no custom route-level timeout (uses Next.js defaults)"
+
+failure_modes:
+  - trigger: missing or invalid OPENAI_API_KEY
+    impact: all chat requests fail
+    behavior: error propagation — returns 500 with MSG_API_KEY_MISSING
+  - trigger: invalid CORS origin
+    impact: browser blocks response
+    behavior: graceful degradation — Access-Control-Allow-Origin set to empty string
+  - trigger: Telegram webhook secret mismatch
+    impact: webhook request rejected
+    behavior: error propagation — returns 401
+
+performance:
+  expected_latency: "SSE first byte: 200-800ms; history GET: <50ms; link POST: <50ms; telegram POST: 1-5s"
+  resource_constraints: "SSE connections held open for duration of OpenAI stream"
