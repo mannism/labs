@@ -19,3 +19,4 @@ All PRs must answer these questions before merge. Include answers as a numbered 
 
 - Agent-generated PRs: agent includes answers in the PR description.
 - Unanswered questions block merge.
+- If any gate answer reveals behavior not captured in the module's `manifest.yaml`, update the manifest in this PR.
