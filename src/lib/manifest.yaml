@@ -1,0 +1,43 @@
+name: lib
+purpose: Shared utilities — project data loader and analytics event tracker
+owner: nix
+status: active
+
+depends_on:
+  - module: src/types/project.ts
+    why: typed Project interface for data loading
+  - module: src/data/projects.json
+    why: raw project entries
+  - package: package.json
+    why: resolves Labs self-version from package metadata
+
+depended_on_by:
+  - module: src/components/v2/SystemBoot.tsx
+    how: imports projects array for boot sequence
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: imports projects array and trackEvent
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: imports projects array for grid rendering
+  - module: src/app/module/[slug]/page.tsx
+    how: imports projects for static params and page data
+  - module: src/app/module/[slug]/opengraph-image.tsx
+    how: imports projects for OG image data
+  - module: src/app/sitemap.ts
+    how: imports projects for sitemap URLs
+  - module: src/app/llms.txt/route.ts
+    how: imports projects for LLM-readable index
+  - module: src/app/layout.tsx
+    how: imports projects for root layout metadata
+  - module: src/components/ProjectCard.tsx
+    how: imports trackEvent for click analytics
+  - module: src/components/ChatWidget.tsx
+    how: imports trackEvent for chat analytics
+
+exports:
+  - "default projects (Project[])"
+  - "trackEvent(action, params)"
+
+notes: |
+  projects.ts resolves the Labs entry version from package.json at import time.
+  analytics.ts is a thin wrapper around window.gtag — fires Google Analytics events.
+  Both are pure utilities with no external network calls at import time.
