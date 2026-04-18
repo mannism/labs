@@ -1,3 +1,9 @@
+## [2.15.10] - 2026-04-18
+
+### Docs
+* Add module manifests for 6 qualifying modules: types, lib, data, twin, api, v2-hooks
+* Add MODULES.md index with qualification table
+
 ## [2.15.9] - 2026-04-18
 
 ### Docs

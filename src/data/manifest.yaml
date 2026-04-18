@@ -1,0 +1,39 @@
+name: data
+purpose: Static JSON data files — project entries, experiment entries, SEO metadata, and twin context
+owner: nix
+status: active
+
+depends_on: []
+
+depended_on_by:
+  - module: src/lib/projects.ts
+    how: imports projects.json as raw project data
+  - module: src/app/layout.tsx
+    how: imports seo.json for root metadata (title, description, OG)
+  - module: src/app/module/[slug]/page.tsx
+    how: imports seo.json for per-page SEO metadata
+  - module: src/app/sitemap.ts
+    how: imports seo.json for siteUrl
+  - module: src/app/llms.txt/route.ts
+    how: imports seo.json for site metadata
+  - module: src/app/manifest.ts
+    how: imports seo.json for PWA manifest
+  - module: src/app/robots.ts
+    how: imports seo.json for robots.txt sitemap URL
+  - module: src/components/playground/ExperimentsLanding.tsx
+    how: imports experiments.json for landing grid
+  - module: src/app/playground/[slug]/page.tsx
+    how: imports experiments.json for experiment page data
+  - module: src/lib/twin/engine.ts
+    how: reads twin/ markdown files for context injection
+
+exports:
+  - projects.json
+  - experiments.json
+  - seo.json
+  - twin/ (context markdown files)
+
+notes: |
+  projects.json version and lastUpdated fields are auto-populated by the
+  sync-project-versions.yml GitHub Actions workflow — do not edit by hand.
+  twin/ context files must be committed separately from code changes.

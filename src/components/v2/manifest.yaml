@@ -1,0 +1,33 @@
+name: v2-hooks
+purpose: Shared React hooks for the v2 component layer — motion preferences and text scramble animation
+owner: nix
+status: active
+
+depends_on:
+  - package: react
+    why: useSyncExternalStore for SSR-safe media query subscription; useState/useEffect/useRef for animation
+
+depended_on_by:
+  - module: src/components/playground/ExperimentCard.tsx
+    how: calls useReducedMotion() to disable card animations
+  - module: src/components/playground/StatusIndicator.tsx
+    how: calls useReducedMotion() to disable pulse animation
+  - module: src/components/playground/ExperimentsLanding.tsx
+    how: calls useReducedMotion() and useTextScramble() for landing page effects
+  - module: src/components/ChatWidget.tsx
+    how: calls useReducedMotion() and useTextScramble() for chat UI effects
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: calls useReducedMotion() for grid animations
+  - module: src/components/v2/HeroV2.tsx
+    how: calls useTextScramble() for hero heading effect
+  - module: src/components/v2/useTextScramble.ts
+    how: calls useReducedMotion() internally
+
+exports:
+  - "useReducedMotion() — returns boolean for prefers-reduced-motion"
+  - "useTextScramble(text, options?) — procedural text scramble animation hook"
+
+notes: |
+  useReducedMotion uses useSyncExternalStore with a server snapshot of false — SSR-safe.
+  useTextScramble supports once-per-session gating via sessionStorage key.
+  Both hooks are client-only but handle SSR gracefully.

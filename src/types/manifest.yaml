@@ -1,0 +1,51 @@
+name: types
+purpose: TypeScript interfaces for Project and Experiment entities used across the entire app
+owner: nix
+status: active
+
+depends_on: []
+
+depended_on_by:
+  - module: src/lib/projects.ts
+    how: imports Project interface for typed data loading
+  - module: src/components/v2/SystemBoot.tsx
+    how: imports Project for boot sequence rendering
+  - module: src/components/v2/ProjectDetailV2.tsx
+    how: imports Project for detail drawer rendering
+  - module: src/components/ProjectCard.tsx
+    how: imports Project for card rendering
+  - module: src/components/v2/ProjectGridV2.tsx
+    how: imports Project for grid filtering and rendering
+  - module: src/components/v2/ProjectCardV2.tsx
+    how: imports Project for v2 card rendering
+  - module: src/app/module/[slug]/page.tsx
+    how: imports Project for dynamic route page generation
+  - module: src/app/module/[slug]/opengraph-image.tsx
+    how: imports Project for OG image generation
+  - module: src/app/module/[slug]/ModuleDetailClient.tsx
+    how: imports Project for client-side module detail
+  - module: src/app/sitemap.ts
+    how: imports Project for sitemap generation
+  - module: src/components/AppShell.tsx
+    how: imports Project for app shell rendering
+  - module: src/components/playground/ExperimentCard.tsx
+    how: imports Experiment for card rendering
+  - module: src/components/playground/StatusIndicator.tsx
+    how: imports ExperimentStatus for status badge
+  - module: src/components/playground/ExperimentsLanding.tsx
+    how: imports Experiment for landing grid
+  - module: src/components/playground/ExperimentDetail.tsx
+    how: imports Experiment for detail rendering
+  - module: src/app/playground/[slug]/page.tsx
+    how: imports Experiment for experiment page generation
+
+exports:
+  - interface Project
+  - interface ArticleSection
+  - type ExperimentStatus
+  - interface Experiment
+
+notes: |
+  Contains two type files: project.ts (Project, ArticleSection) and experiment.ts (Experiment, ExperimentStatus).
+  Project is the most widely imported interface in the codebase (11+ consumers).
+  Do not duplicate these interfaces — this is the single source of truth.
