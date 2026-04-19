@@ -32,9 +32,9 @@ jobs:
 
           const PROJECTS_PATH = "src/data/projects.json";
 
-          // Labs is excluded — it cannot reliably sync itself because every push
-          // (including this workflow's own commit) updates pushed_at, creating a
-          // race condition with the semantic-release workflow.
+          // Labs is excluded — its version is maintained by semantic-release in .releaserc.json
+          // (patched in the prepareCmd step). Adding Labs to REPO_MAP would create a pushed_at
+          // loop since this workflow's own commits update the repo timestamp.
           const REPO_MAP = {
             "Diana's Digital Twin": "mannism/telegram-digital-twin",
             "CV/JD Matcher & Application Tool": "mannism/FitCheckerApp",

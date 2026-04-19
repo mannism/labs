@@ -30,14 +30,14 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "sed -i 's/\\*\\*Version:\\*\\* [0-9][0-9.]*/\\*\\*Version:\\*\\* ${nextRelease.version}/' README.md && npm version ${nextRelease.version} --no-git-tag-version --allow-same-version"
+        "prepareCmd": "npm version ${nextRelease.version} --no-git-tag-version --allow-same-version && node -e \"const fs=require('fs');const f='src/data/projects.json';const p=JSON.parse(fs.readFileSync(f,'utf8'));const i=p.findIndex(x=>x.slug==='labs');if(i!==-1){p[i].version='${nextRelease.version}';p[i].lastUpdated=new Date().toISOString().slice(0,10);fs.writeFileSync(f,JSON.stringify(p,null,2)+'\\n')}\""
       }
     ],
     [
       "@semantic-release/git",
       {
-        "assets": ["README.md", "package.json"],
-        "message": "chore(release): sync README to v${nextRelease.version} [skip ci]"
+        "assets": ["package.json", "src/data/projects.json"],
+        "message": "chore(release): v${nextRelease.version} [skip ci]"
       }
     ],
     "@semantic-release/github"
