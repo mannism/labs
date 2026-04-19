@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 LABS_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LOG_DIR="$HOME/.claude/logs"
