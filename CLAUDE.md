@@ -101,39 +101,24 @@ Full cross-project checklist: `Owner-Inbox/research/security-audit-cross-project
 ## Git Workflow
 
 ### Branching
-One branch per task: `<type>/<short-description>-v<new-version>`
+One branch per task: `<type>/<short-description>`
 
-| Type | When to use | Version bump |
-|------|-------------|--------------|
-| `feature/` | New functionality | Minor: `1.0.0 → 1.1.0` |
-| `bugfix/` | Bug fixes | Patch: `1.0.0 → 1.0.1` |
-| `refactor/` | Code restructuring | Patch: `1.0.0 → 1.0.1` |
-| `chore/` | Config, deps, tooling | Patch: `1.0.0 → 1.0.1` |
-
-**Examples:**
-- `feature/add-search-v1.2.0`
-- `bugfix/fix-drawer-scroll-v1.1.4`
+| Type | When to use |
+|------|-------------|
+| `feature/` | New functionality |
+| `bugfix/` | Bug fixes |
+| `refactor/` | Code restructuring |
+| `chore/` | Config, deps, tooling |
 
 ### Commits
-Format: `[v<new-version>] <type>: <what was done>`
+Standard Conventional Commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `perf:`, `test:`, `ci:`
 
-**Examples:**
-- `[v1.2.0] feature: add keyword search to project grid`
-- `[v1.1.4] bugfix: restore body scroll on drawer close`
+### Versioning
+semantic-release handles versioning, CHANGELOG, tags, and GitHub Releases automatically on merge to `main` — no manual bumps, no manual changelog entries, no manual tags.
 
-### Versioning steps (manual, on every commit)
-1. Bump `"version"` in `package.json` to the new version
-2. Add an entry to `CHANGELOG.md` under `## [x.y.z] - YYYY-MM-DD`
-3. Tag the commit: `git tag v<version>`
-4. Update code comments in any changed files to reflect new behavior
-5. Update `README.md` if the change affects usage, setup, features, or configuration
+The Labs entry in `src/data/projects.json` (`version` and `lastUpdated`) is patched automatically by semantic-release in the `prepareCmd` step of `.releaserc.json`. All other project entries in `projects.json` are maintained by the nightly sync workflow (`.github/workflows/sync-project-versions.yml`).
 
 ### Merge to main
 **Never push or merge directly to `main`.** Only merge when explicitly requested.
-
-### Automated GitHub Releases (semantic-release)
-On every merge to `main`, semantic-release automatically creates a GitHub Release using the commit history since the last tag. It does **not** bump `package.json`, update `CHANGELOG.md`, or push tags — those are done manually as part of the versioning steps above.
-
-**Override: This project uses manual versioning steps. semantic-release only creates GitHub Releases.**
 
 Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
