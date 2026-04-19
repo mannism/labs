@@ -64,7 +64,7 @@
       "Cross-platform session pairing (web to Telegram and back) works through Redis aliasing — an OTP code or deep link creates a permanent `alias:{telegramChatId}` pointer to the shared session hash, so both interfaces read and write the same conversation history.",
       "Input sanitisation strips control characters, role-switching keywords (`system:`, `assistant:`), and XML tag injections before every LLM call — applied at the boundary, not in-flight, paired with length limits (4000 chars web, 1000 Telegram)."
     ],
-    "version": "2.3.2",
+    "version": "2.3.3",
     "lastUpdated": "2026-04-19"
   },
   {
@@ -112,7 +112,7 @@
       "Migrating from NextAuth to Better Auth while preserving existing bcrypt-with-pepper password hashes required a custom Drizzle adapter that remaps field names (`full_name` to `name`, `created_on` to `createdAt`) and a migration script that backfills the new account table from existing user rows — any mismatch silently locks users out because Better Auth checks the account table first.",
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve `oklch()` to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on `oklch()` throughout."
     ],
-    "version": "3.11.5",
+    "version": "3.11.6",
     "lastUpdated": "2026-04-19"
   },
   {
@@ -188,7 +188,7 @@
       "Tailwind CSS v4's `oklch()` colour space breaks `html2canvas`'s CSS parser. Rather than patching stylesheets (`getComputedStyle` reads resolved values, not raw text), the fix pre-renders each Recharts SVG to a PNG data URL via `XMLSerializer` + offscreen canvas, then swaps it in the `onclone` callback so `html2canvas` never inspects an SVG element.",
       "SSRF protection via hostname regex must cover the full private IP space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, plus `::1`) — missing a single octet range leaves fetch-based server-side requests open to internal network scanning."
     ],
-    "version": "2.10.15",
+    "version": "2.10.16",
     "lastUpdated": "2026-04-19"
   },
   {
