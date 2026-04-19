@@ -1,7 +1,5 @@
 # Diana Ismail Labs
 
-![version](https://img.shields.io/github/package-json/v/mannism/labs)
-
 A Next.js 16 portfolio showcasing proof-of-concept projects and experiments in Agentic AI, full-stack development, and creative technology — with a built-in AI chat engine powering a floating digital twin chat widget and a Telegram bot.
 
 ## Design System: "Speculative Interface" (v2)
