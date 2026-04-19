@@ -9,11 +9,17 @@
  * timestamp so incremental runs only parse new entries.
  *
  * Design decisions:
- * - Outputs to stdout so n8n can pipe directly without temp files
+ * - Outputs JSON to stdout for debugging/inspection
+ * - Writes aggregated data directly to Notion Usage Tracking database
  * - Skips files whose first record doesn't match expected schema (logs warning)
  * - Aggregates only "assistant" type records — these carry token usage
  * - Cache write/read tokens are included in cost estimates at their respective rates
  * - <synthetic> and alias model IDs (e.g. "sonnet") are normalized to their tier
+ *
+ * Environment:
+ *   NOTION_API_KEY — required for Notion writes
+ *   NOTION_USAGE_DB_ID — required, the Usage Tracking database ID
+ *   DRY_RUN=1 — optional, skip Notion writes and just output JSON
  */
 
 import * as fs from "fs";
@@ -406,10 +412,65 @@ function buildDayAggregates(
   return results;
 }
 
+// ─── Notion integration ──────────────────────────────────────────────────────
+
+const NOTION_API_BASE = "https://api.notion.com/v1";
+const NOTION_VERSION = "2022-06-28";
+
+/** Writes a single day's aggregate to the Notion Usage Tracking database */
+async function writeToNotion(
+  day: DayAggregate,
+  notionKey: string,
+  dbId: string
+): Promise<void> {
+  const response = await fetch(`${NOTION_API_BASE}/pages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${notionKey}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION,
+    },
+    body: JSON.stringify({
+      parent: { database_id: dbId },
+      properties: {
+        Date: { title: [{ text: { content: day.date } }] },
+        "Opus Tokens In": { number: day.opusTokensIn },
+        "Opus Tokens Out": { number: day.opusTokensOut },
+        "Sonnet Tokens In": { number: day.sonnetTokensIn },
+        "Sonnet Tokens Out": { number: day.sonnetTokensOut },
+        "Haiku Tokens In": { number: day.haikuTokensIn },
+        "Haiku Tokens Out": { number: day.haikuTokensOut },
+        "Total Tokens": { number: day.totalTokens },
+        "Opus Sessions": { number: day.opusSessions },
+        "Sonnet Sessions": { number: day.sonnetSessions },
+        "Haiku Sessions": { number: day.haikuSessions },
+        "Estimated Cost USD": { number: day.estimatedCostUsd },
+        "Model Split": { rich_text: [{ text: { content: day.modelSplitPct } }] },
+        "Pipeline Status": { select: { name: day.pipelineStatus } },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Notion write failed for ${day.date} (${response.status}): ${errText}`);
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
   const projectsDir = path.join(os.homedir(), ".claude", "projects");
+  const isDryRun = process.env["DRY_RUN"] === "1";
+  const notionKey = process.env["NOTION_API_KEY"] ?? "";
+  const notionDbId = process.env["NOTION_USAGE_DB_ID"] ?? "";
+
+  if (!isDryRun && (!notionKey || !notionDbId)) {
+    process.stderr.write(
+      "[usage-parser] ERROR: NOTION_API_KEY and NOTION_USAGE_DB_ID required (or set DRY_RUN=1)\n"
+    );
+    process.exit(1);
+  }
 
   // Read high-water mark (null = first run, backfill all history)
   const since = readHwm();
@@ -469,7 +530,34 @@ async function main(): Promise<void> {
       `${totalTokens.toLocaleString()} tokens, ~$${totalCost.toFixed(4)} estimated\n`
   );
 
-  // Update HWM only after successful aggregation
+  // Write to Notion
+  if (!isDryRun) {
+    let notionSuccesses = 0;
+    let notionFailures = 0;
+
+    for (const day of aggregates) {
+      try {
+        await writeToNotion(day, notionKey, notionDbId);
+        notionSuccesses++;
+      } catch (err) {
+        notionFailures++;
+        process.stderr.write(`[usage-parser] WARN: ${String(err)}\n`);
+      }
+    }
+
+    process.stderr.write(
+      `[usage-parser] Notion: ${notionSuccesses} rows written, ${notionFailures} failed\n`
+    );
+
+    if (notionFailures > 0 && notionSuccesses === 0) {
+      process.stderr.write("[usage-parser] ERROR: all Notion writes failed, HWM not updated\n");
+      process.exit(1);
+    }
+  } else {
+    process.stderr.write("[usage-parser] DRY_RUN: skipping Notion writes\n");
+  }
+
+  // Update HWM only after successful processing
   if (latestTs !== null) {
     try {
       writeHwm(latestTs);

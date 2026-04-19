@@ -2,96 +2,83 @@
 
 ## Overview
 
-Three-part pipeline that parses Claude Code JSONL session logs, aggregates daily usage by model tier, estimates costs, and writes records to a Notion database via a daily n8n workflow.
+Local pipeline that parses Claude Code JSONL session logs, aggregates daily usage by model tier, estimates costs, and writes records directly to a Notion database. Runs daily at 3:00am via macOS launchd.
 
 ## Architecture
 
 ```
 ~/.claude/projects/**/*.jsonl
-        ↓
-  index.ts (parser)           — runs via n8n Execute Command node
-        ↓
-  stdout: JSON array           — one object per day
-        ↓
-  n8n Code node               — splits into items
-        ↓
-  n8n Notion node             — creates page per day in Usage Tracking DB
-        ↓
+        |
+  index.ts (parser + Notion writer)
+        |
   Notion: Usage Tracking DB
 ```
 
-Error path: any failure → Slack #claude alert.
+Scheduled by launchd (`com.dianaismail.usage-parser`), runs at 3:00am daily. If the machine is asleep, launchd fires the job on wake. The high-water mark ensures no data is lost.
 
 ---
 
-## Part 1: Parser (done, committed)
+## Files
 
-File: `scripts/usage-parser/index.ts`
+| File | Purpose |
+|------|---------|
+| `index.ts` | Parser + Notion writer |
+| `run.sh` | Shell wrapper — loads .env, runs parser, logs output |
+| `.env` | Notion API key and database ID (gitignored) |
 
-**Test run:**
+## Logs
+
+- `~/.claude/logs/usage-parser-stdout.json` — last run's JSON output
+- `~/.claude/logs/usage-parser-stderr.log` — last run's progress/errors
+- `~/.claude/logs/usage-parser-launchd.out` — launchd stdout
+- `~/.claude/logs/usage-parser-launchd.err` — launchd stderr
+
+## High-Water Mark
+
+Stored at `~/.claude/usage-hwm.json`. Delete this file to trigger a full re-backfill of all historical data.
+
+---
+
+## Manual Run
+
 ```bash
 cd /Users/mann/Documents/GitHub/labs
+
+# Dry run (no Notion writes)
+DRY_RUN=1 npx tsx scripts/usage-parser/index.ts
+
+# Full run
+source scripts/usage-parser/.env
+export NOTION_API_KEY NOTION_USAGE_DB_ID
 npx tsx scripts/usage-parser/index.ts
 ```
 
-- Outputs JSON array to stdout, progress/errors to stderr
-- High-water mark at `~/.claude/usage-hwm.json` — delete to re-backfill
-- Skips files with schema mismatches (logs warning, doesn't crash)
+## launchd Management
 
----
-
-## Part 2: Notion Database Setup
-
-**Prerequisites:**
-1. Create a Notion internal integration at [notion.so/my-integrations](https://www.notion.so/my-integrations)
-2. Connect it to the "Command Center" page (open page → Share → Connections → add integration)
-3. Copy the integration token
-
-**Run:**
 ```bash
-NOTION_API_KEY=secret_xxx npx tsx scripts/usage-parser/setup-notion-db.ts
-```
+# Check status
+launchctl list | grep usage-parser
 
-This creates the "Usage Tracking" database under Command Center and outputs:
-```
-NOTION_USAGE_DB_ID=<database-id>
-```
+# Unload (stop scheduling)
+launchctl unload ~/Library/LaunchAgents/com.dianaismail.usage-parser.plist
 
-Add `NOTION_USAGE_DB_ID` to:
-- Labs `.env` file (for local reference)
-- n8n environment variables: n8n UI → Settings → Variables → add `NOTION_USAGE_DB_ID`
+# Reload (after plist changes)
+launchctl unload ~/Library/LaunchAgents/com.dianaismail.usage-parser.plist
+launchctl load ~/Library/LaunchAgents/com.dianaismail.usage-parser.plist
+
+# Manual trigger (test)
+launchctl start com.dianaismail.usage-parser
+```
 
 ---
 
-## Part 3: n8n Workflow Setup
+## Notion Database
 
-**Prerequisites:**
-1. n8n running at `http://localhost:5678` (docker-compose in `~/Documents/docker/n8n/`)
-2. Notion credential configured in n8n:
-   - n8n UI → Credentials → New → Notion API
-   - Name it exactly: **"Notion (Usage Tracking)"**
-   - Paste the integration token
-3. Slack credential in n8n:
-   - n8n UI → Credentials → New → Slack OAuth2 API
-   - Name it: **"Slack (Diana Labs)"**
-4. n8n API key:
-   - n8n UI → Settings → API → Create API Key
-5. `NOTION_USAGE_DB_ID` set in n8n Variables (Settings → Variables)
+- **Name:** Usage Tracking
+- **Location:** Command Center
+- **ID:** `3471040c-1cf4-81ff-9784-cbb12bf1abe3`
 
-**Run:**
-```bash
-N8N_API_KEY=xxx npx tsx scripts/usage-parser/create-n8n-workflow.ts
-```
-
-Or create the workflow manually in n8n using `n8n-workflow-sdk.js` as reference.
-
-**Workflow:** `Daily Claude Usage Tracking`
-- Trigger: `0 19 * * *` UTC (03:00 SGT)
-- On error: Slack alert to #claude
-
----
-
-## Pricing reference
+## Pricing Reference
 
 Costs are estimated using Anthropic published rates (as of April 2026):
 
@@ -101,4 +88,4 @@ Costs are estimated using Anthropic published rates (as of April 2026):
 | Sonnet 4.6 | $3/MTok | $15/MTok | $6/MTok | $0.30/MTok |
 | Haiku 4.5 | $1/MTok | $5/MTok | $2/MTok | $0.10/MTok |
 
-All cost figures in the DB are **estimated** — actual billing may differ due to batch discounts, volume tiers, or model-specific overrides.
+All cost figures are **estimated** — actual billing may differ due to subscription plans, batch discounts, or volume tiers.
