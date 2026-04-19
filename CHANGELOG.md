@@ -1,3 +1,8 @@
+## [2.16.2] - 2026-04-20
+
+### Chore
+* Add backtick formatting to all technical terms in `projects.json` — code identifiers, file paths, config patterns, hook names, and manifest fields now render as inline `<code>` elements via `renderWithCodeHighlights`
+
 ## [2.16.0] - 2026-04-18
 
 ### Feature
