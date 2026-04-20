@@ -31,3 +31,36 @@ notes: |
   useReducedMotion uses useSyncExternalStore with a server snapshot of false — SSR-safe.
   useTextScramble supports once-per-session gating via sessionStorage key.
   Both hooks are client-only but handle SSR gracefully.
+
+contracts:
+  - name: useReducedMotion return type
+    type: schema_contract
+    value: "boolean — always returns false on server, live media query result on client"
+    notes: Consumers must not derive render-blocking logic from this value; animation only
+  - name: useTextScramble options shape
+    type: schema_contract
+    value: "{ once?: boolean; speed?: number } — all fields optional"
+    notes: Extending options must maintain backward compatibility; no required fields added
+  - name: sessionStorage key format
+    type: schema_contract
+    value: "scramble-done-{text-hash} — internal, not stable API"
+    notes: Key is implementation detail; consumers must not read or clear it directly
+
+failure_modes:
+  - trigger: window.matchMedia not available (SSR or non-browser env)
+    impact: useReducedMotion returns false (motion enabled) — safe default
+    type: graceful
+  - trigger: sessionStorage unavailable (private browsing, storage quota)
+    impact: useTextScramble falls back to running every mount — no crash, animation reruns
+    type: graceful
+  - trigger: React version missing useSyncExternalStore
+    impact: useReducedMotion throws at import — entire hook layer fails to load
+    type: propagated
+
+performance:
+  - metric: useReducedMotion re-render cost
+    expected: "Single subscription; re-renders only on media query change — O(1)"
+    notes: useSyncExternalStore avoids unnecessary renders on unrelated state changes
+  - metric: useTextScramble animation frame budget
+    expected: "N/A — runs requestAnimationFrame loops; no formal budget enforced"
+    notes: Controlled by speed option; consumers should respect prefers-reduced-motion via useReducedMotion

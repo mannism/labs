@@ -41,3 +41,36 @@ notes: |
   projects.ts resolves the Labs entry version from package.json at import time.
   analytics.ts is a thin wrapper around window.gtag — fires Google Analytics events.
   Both are pure utilities with no external network calls at import time.
+
+contracts:
+  - name: projects array shape
+    type: schema_contract
+    value: "Project[] — typed against src/types/project.ts; order matches projects.json order"
+    notes: Consumers must not mutate the exported array; treat as read-only reference
+  - name: trackEvent signature
+    type: schema_contract
+    value: "trackEvent(action: string, params: Record<string, string>) => void"
+    notes: params values must be strings — GA4 does not accept numeric or boolean event params without coercion
+  - name: gtag availability
+    type: schema_contract
+    value: "window.gtag injected by @next/third-parties — present only in browser after hydration"
+    notes: trackEvent silently no-ops on server; no retry or queue mechanism
+
+failure_modes:
+  - trigger: package.json missing or version field absent
+    impact: projects array still exports but Labs entry has undefined version; no crash
+    type: graceful
+  - trigger: window.gtag not injected (ad blocker, script load failure)
+    impact: trackEvent silently no-ops — events are lost, not queued
+    type: silent
+  - trigger: projects.json parse error or schema mismatch
+    impact: TypeScript cast fails at runtime — projects array may contain malformed entries; downstream renders can throw
+    type: propagated
+
+performance:
+  - metric: projects array initialization
+    expected: "< 1ms — synchronous JSON parse at module load time; no I/O"
+    notes: Cost paid once at cold start; subsequent imports return cached module reference
+  - metric: trackEvent latency
+    expected: "N/A — fire-and-forget; GA4 handles its own batching and upload"
+    notes: No timeout or retry; event delivery not guaranteed

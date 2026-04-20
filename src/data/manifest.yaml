@@ -37,3 +37,40 @@ notes: |
   projects.json version and lastUpdated fields are auto-populated by the
   sync-project-versions.yml GitHub Actions workflow — do not edit by hand.
   twin/ context files must be committed separately from code changes.
+
+contracts:
+  - name: projects.json schema
+    type: schema_contract
+    value: "Project[] — fields: slug, title, version, lastUpdated, status, tags, description, url, articleSections[]"
+    notes: version and lastUpdated are CI-managed; all other fields are hand-authored. Schema validated at compile time via TypeScript import
+  - name: experiments.json schema
+    type: schema_contract
+    value: "Experiment[] — fields: slug, title, status, tags, description, launchedAt"
+    notes: status must be one of ExperimentStatus union values; mismatches are caught by TypeScript but not at JSON parse time
+  - name: seo.json shape
+    type: schema_contract
+    value: "{ siteUrl: string; title: string; description: string; ogImage: string }"
+    notes: siteUrl used in sitemap and robots — must be a fully-qualified URL with no trailing slash
+  - name: twin/ file encoding
+    type: schema_contract
+    value: "UTF-8 markdown files; read by engine.ts via fs.readFile"
+    notes: File names are the context keys; do not rename without updating engine.ts references
+
+failure_modes:
+  - trigger: projects.json or experiments.json contains invalid JSON
+    impact: Module import fails at build time — Next.js build breaks; site cannot deploy
+    type: propagated
+  - trigger: seo.json siteUrl missing trailing-slash guard
+    impact: sitemap.ts and robots.ts generate malformed URLs — silent SEO regression
+    type: silent
+  - trigger: twin/ markdown file missing or unreadable
+    impact: engine.ts throws on readFile — twin context injection fails; ChatWidget falls back to no-context mode
+    type: graceful
+
+performance:
+  - metric: JSON file parse time
+    expected: "< 5ms per file at build time — files are small (< 50KB each)"
+    notes: All reads are synchronous Next.js static imports; no runtime I/O after build
+  - metric: twin/ file read latency
+    expected: "N/A at build time; runtime reads via fs.readFile are disk-local — expect < 10ms"
+    notes: engine.ts reads twin files on demand; no caching layer — repeated reads hit disk

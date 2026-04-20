@@ -49,3 +49,40 @@ notes: |
   Contains two type files: project.ts (Project, ArticleSection) and experiment.ts (Experiment, ExperimentStatus).
   Project is the most widely imported interface in the codebase (11+ consumers).
   Do not duplicate these interfaces — this is the single source of truth.
+
+contracts:
+  - name: Project interface shape
+    type: schema_contract
+    value: "slug, title, version, lastUpdated, status, tags[], description, url, articleSections[]"
+    notes: All fields typed strictly — no optional fields may be removed without updating all 11+ consumers. Adding optional fields is backward compatible
+  - name: Experiment interface shape
+    type: schema_contract
+    value: "slug, title, status (ExperimentStatus), tags[], description, launchedAt"
+    notes: ExperimentStatus is a string union — additions are non-breaking; removals break StatusIndicator
+  - name: ArticleSection interface shape
+    type: schema_contract
+    value: "heading: string; body: string"
+    notes: Used in Project.articleSections[]; shape must remain stable across CMS and rendering consumers
+  - name: Type-only exports
+    type: schema_contract
+    value: "N/A — all exports are TypeScript types/interfaces; zero runtime footprint"
+    notes: This module emits no JavaScript — it is erased at compile time. Any runtime check on these types must use type guards
+
+failure_modes:
+  - trigger: Interface field renamed or removed without updating consumers
+    impact: TypeScript build fails across all 16 consumers — site cannot deploy
+    type: propagated
+  - trigger: ExperimentStatus union value removed
+    impact: StatusIndicator receives unhandled value — falls back to default styling or throws; depends on consumer's exhaustive check
+    type: propagated
+  - trigger: Type file deleted or moved without path alias update
+    impact: All 16 consumers fail to compile — full build break
+    type: propagated
+
+performance:
+  - metric: Compile-time cost
+    expected: "N/A — type-only module; erased at emit. No runtime cost."
+    notes: TypeScript structural typing means interface checks are compile-time only
+  - metric: Import resolution
+    expected: "N/A — resolved by TypeScript compiler; zero runtime overhead"
+    notes: No tree-shaking concern — this module produces no bundle output
