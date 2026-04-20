@@ -247,8 +247,8 @@
       "The parent nav's `backdrop-blur` creates a CSS stacking context that traps `position: fixed` children — a portal to `document.body` was the clean escape.",
       "The AI Context Panel caches generated summaries in `sessionStorage` keyed by content hash — revisits within the same session skip the LLM call entirely, reducing token usage and latency without requiring backend state."
     ],
-    "version": "2.0.0",
-    "lastUpdated": "2026-04-01"
+    "version": "2.4.3",
+    "lastUpdated": "2026-04-19"
   },
   {
     "id": "17",
@@ -277,7 +277,9 @@
       "Instagram's Graph API enforces a two-stage publish flow — create a media container, then poll a separate status endpoint until processing completes before calling publish. The container can sit in 'IN_PROGRESS' for up to 60 seconds depending on image size, so the client needs a polling loop with a hard timeout, not a single fire-and-forget request.",
       "Puppeteer must wait for `networkidle0` before capturing the screenshot to ensure Google Fonts have fully loaded — without this, the first render of a template captures system fallback fonts, producing a visually different graphic than intended. The wait adds ~2 seconds per render but eliminates font flash entirely.",
       "Cloudflare R2's S3-compatible API satisfies Instagram's requirement that image URLs be publicly accessible at publish time — but R2 public URLs are bucket-scoped, not signed, so every uploaded image is permanently public. For a personal content pipeline this is acceptable; for multi-tenant use it would require signed URLs with expiry, which R2 does not natively support."
-    ]
+    ],
+    "version": "1.0.0",
+    "lastUpdated": "2026-04-19"
   },
   {
     "id": "18",
