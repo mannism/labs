@@ -113,7 +113,7 @@
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve `oklch()` to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on `oklch()` throughout."
     ],
     "version": "3.11.6",
-    "lastUpdated": "2026-04-19"
+    "lastUpdated": "2026-04-20"
   },
   {
     "id": "13",
@@ -248,7 +248,7 @@
       "The AI Context Panel caches generated summaries in `sessionStorage` keyed by content hash — revisits within the same session skip the LLM call entirely, reducing token usage and latency without requiring backend state."
     ],
     "version": "2.4.3",
-    "lastUpdated": "2026-04-19"
+    "lastUpdated": "2026-04-20"
   },
   {
     "id": "17",
