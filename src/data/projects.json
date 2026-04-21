@@ -336,7 +336,10 @@
       "`AGENT.md` files are the highest-leverage intervention — they cost nothing, require no tooling changes, and immediately improve subagent output quality by constraining scope, defining escalation rules, and eliminating the ambiguity that causes generic responses.",
       "Context compaction is lossy and the loss is silent. There's no error when a key decision gets compressed away — the model just starts making contradictory choices. Writing decisions to files (not conversation) is the only reliable defence, because files survive compaction and are re-read on demand.",
       "The gap between 'AI that can do anything' and 'AI that does the right thing' is organisational design. The same model that produces mediocre output as a generic assistant produces focused, high-quality work when given a clear role, defined boundaries, and structured handoff protocols."
-    ]
+    ],
+    "seriesTitle": "Agentic Workflow",
+    "sequenceNumber": 1,
+    "wordCount": 763
   },
   {
     "id": "20",
@@ -392,7 +395,10 @@
       "Every rule you write for an AI agent competes for the same finite attention budget. LLM reasoning degrades around 3,000 tokens of instructions -- not from context limits but from cognitive load. The design discipline is subtraction: remove rules that do not constrain behaviour, and the remaining rules carry more weight per token.",
       "Implicit overrides break silently and surface as inconsistent agent behaviour across projects. Explicit override declarations -- one line stating the deviation, scoped to the project -- eliminate rule conflicts at the cost of a single sentence per exception. The Terraform model (state the override, not just the new value) is more reliable than the ESLint model (last config wins) for LLM instruction-following.",
       "The difference between rules that work and rules that don't is verifiability. \"Handle errors properly\" occupies tokens without constraining behaviour. \"Wrap every external call in try/catch; non-critical failures log and continue\" is a concrete instruction an agent can follow and a reviewer can check. If a rule cannot be verified, it is noise -- and noise degrades everything around it."
-    ]
+    ],
+    "seriesTitle": "Agentic Workflow",
+    "sequenceNumber": 3,
+    "wordCount": 1228
   },
   {
     "id": "19",
@@ -449,7 +455,10 @@
       "The gap between one project and fourteen is not the AI model -- it is the governance. The same agents that produced focused, high-quality work on a single project made contradictory decisions across five repositories until a rule cascade, cross-project decision log, and standardised folder structure constrained their scope.",
       "Two `CLAUDE.md` files answering two different questions outperform one file trying to answer both. Separating \"how do we write code here\" from \"what is this project and who works on it\" eliminates the 400-line mega-document failure mode and ensures each context loads only what the agent needs for the task at hand.",
       "Standardised folder structure is the cheapest high-leverage intervention in multi-project agent governance. It costs an afternoon to implement, requires no tooling changes, and immediately eliminates the onboarding tax that agents pay every time they enter an unfamiliar planning directory -- which, across fourteen projects and dozens of daily sessions, compounds into the difference between a system that scales and one that doesn't."
-    ]
+    ],
+    "seriesTitle": "Agentic Workflow",
+    "sequenceNumber": 2,
+    "wordCount": 1296
   },
   {
     "id": "21",
@@ -510,7 +519,10 @@
       "The gap between enterprise governance frameworks and practitioner needs is the entire implementation layer. Published playbooks address risk taxonomies and compliance monitoring. They do not address how to write a `CLAUDE.md`, how to structure rules across repositories, or how to onboard an agent to a codebase. The three-file foundation -- global baseline, project conventions, conditional scoped rules -- is the minimum viable governance system, and it can be set up in an afternoon.",
       "Five failure modes appear consistently when scaling AI-assisted development: monolithic prompts, review bottlenecks, technical debt accumulation, security blind spots, and skipping fundamentals. Governance does not prevent these -- it encodes the engineering practices that counteract them, so the countermeasures persist across sessions, agents, and projects rather than depending on whoever happens to be paying attention.",
       "Governance without measurement degrades silently. Five proxy metrics -- PR rejection rate, onboarding time-to-first-useful-output, rule revision frequency, agent-generated incident count, and review cycle time -- provide the feedback loop that no published framework includes. If you are not measuring whether your rules are working, you are maintaining a system on faith."
-    ]
+    ],
+    "seriesTitle": "Agentic Workflow",
+    "sequenceNumber": 4,
+    "wordCount": 1586
   },
   {
     "id": "23",
@@ -572,6 +584,7 @@
       "Dark code is not a quality problem — it is a comprehension problem. A codebase full of AI-generated code can be well-structured, well-tested, and still unintelligible at 2am because the reasoning behind it lives in a closed context window, not in the repository. The three-layer framework does not improve code quality; it transfers the comprehension that existed in the agent's session into the codebase itself, where it can survive a session ending, a team change, or a production incident.",
       "Asking an agent to answer \"what fails silently?\" before merging is not a review step — it is a diagnostic. If the agent cannot answer it, the work is not finished. The comprehension gate functions as a forcing function for thinking through failure modes at the moment of maximum context, not retrospectively when something has already broken. The most valuable PR gate answers are the ones that reveal something the reviewer did not know was there.",
       "Manifest writing is a dark code audit in disguise. The act of documenting a module's failure modes, `contracts`, and `performance` constraints forces the documenter to know those things. Every time a `failure_modes` field gets filled with \"unknown\" or left blank, it marks a specific module as a dark code risk. The manifest is not the output — the knowledge it requires to write is the output."
-    ]
+    ],
+    "wordCount": 2330
   }
 ]
