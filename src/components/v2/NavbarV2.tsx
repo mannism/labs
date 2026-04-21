@@ -83,7 +83,7 @@ export function NavbarV2() {
             suppressHydrationWarning
             style={{
               fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
+              fontSize: "var(--v2-font-size-sm)",
               color: "var(--v2-text-tertiary)",
               letterSpacing: "0.02em",
             }}
@@ -95,7 +95,7 @@ export function NavbarV2() {
             className="hidden md:inline"
             style={{
               fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
+              fontSize: "var(--v2-font-size-sm)",
               color: "var(--v2-text-tertiary)",
               letterSpacing: "0.04em",
             }}
@@ -110,7 +110,7 @@ export function NavbarV2() {
             href="/playground"
             style={{
               fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
+              fontSize: "var(--v2-font-size-sm)",
               fontWeight: 500,
               color: isExperimentsActive
                 ? "var(--v2-text-primary)"
@@ -141,7 +141,7 @@ export function NavbarV2() {
             rel="noopener noreferrer"
             style={{
               fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
+              fontSize: "var(--v2-font-size-sm)",
               fontWeight: 500,
               color: "var(--v2-text-secondary)",
               textDecoration: "none",

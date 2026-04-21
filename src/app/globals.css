@@ -118,7 +118,7 @@ html.v2 {
   --v2-accent-muted: rgba(200, 255, 0, 0.15);
   --v2-text-primary: #1A1D23;
   --v2-text-secondary: #5C6370;
-  --v2-text-tertiary: #717985;
+  --v2-text-tertiary: #545B67;
   --v2-border: rgba(0, 0, 0, 0.08);
   --v2-border-hover: rgba(0, 0, 0, 0.15);
   --v2-border-accent: #C8FF00;
@@ -130,7 +130,7 @@ html.v2 {
   --v2-font-display: var(--font-space-grotesk);
   --v2-font-body: var(--font-space-grotesk);
   --v2-font-mono: var(--font-geist-mono);
-  --v2-font-size-xs: 0.6875rem;
+  --v2-font-size-xs: 0.75rem;
   --v2-font-size-sm: 0.8125rem;
   --v2-font-size-base: 0.9375rem;
   --v2-font-size-lg: 1.125rem;
