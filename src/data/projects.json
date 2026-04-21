@@ -586,5 +586,58 @@
       "Manifest writing is a dark code audit in disguise. The act of documenting a module's failure modes, `contracts`, and `performance` constraints forces the documenter to know those things. Every time a `failure_modes` field gets filled with \"unknown\" or left blank, it marks a specific module as a dark code risk. The manifest is not the output — the knowledge it requires to write is the output."
     ],
     "wordCount": 2330
+  },
+  {
+    "id": "24",
+    "slug": "what-i-built-before-karpathy-named-it",
+    "order": 11,
+    "createdDate": "2026-04-22",
+    "title": "What I Built Before Karpathy Named It",
+    "shortDescription": "In April 2026, Andrej Karpathy published a note on \"LLM-Wiki\" — a system where AI agents maintain a centralised knowledge base. This article documents the same system, built months earlier across six production repositories and twelve agents, for the simplest possible reason: agents kept losing continuity between sessions, and nobody had finished the tools to solve it yet.",
+    "detailedDescription": "Every project in this portfolio was built by a twelve-agent AI team running inside Claude Code. Those agents lose all memory when a session ends. No built-in persistence, no shared state, no graph database. The solution that emerged — months before Karpathy gave it a name — is four kinds of text files, each with a specific purpose and a maintenance discipline attached. CLAUDE.md carries the ambient rules every agent reads at session start. manifest.yaml documents what each module guarantees, requires, and breaks when it fails. MEMORY.md persists cross-session knowledge — feedback, project state, references — in a curated index that stays under thirty entries. Handoff documents bridge the gap between sessions, capturing decisions too fresh to harden into permanent rules.\n\nThe system is file-based and manual in ways that more sophisticated architectures point past. There is no semantic query across MEMORY.md. There is no real-time consistency checking between manifests and code. The staleness check is a nightly cron job, not a background process. But it works — durably enough to run at twelve-agent scale across six production repositories. This article documents what was built, how it works, and the honest gap between what exists and what the next generation of tooling will replace.",
+    "category": "Research",
+    "status": "Active",
+    "display": true,
+    "highlight": false,
+    "type": "article",
+    "tags": [
+      "Claude Code",
+      "Agentic AI",
+      "LLM-Wiki",
+      "Knowledge Persistence",
+      "CLAUDE.md",
+      "manifest.yaml",
+      "MEMORY.md",
+      "Session Handoff"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "articleSections": [
+      {
+        "title": "CLAUDE.md: The Ambient Context Layer",
+        "body": "Every project gets two CLAUDE.md files. The global one — `~/.claude/CLAUDE.md` — lives outside any single repo and defines how my twelve agents work across all six projects. It's roughly 120 lines: model tiering rules, security baselines, git workflow conventions, session compaction thresholds, agent coordination protocols. The per-project CLAUDE.md lives in the repository root and answers a narrower question: how do we build here?\n\nThe critical move is that agents read CLAUDE.md at session start. Not as documentation they should be familiar with. As executable context they load before writing anything. They read the rules, understand the constraints, and factor them into their decisions before implementation begins.\n\nThe system is bidirectional. Agents write to CLAUDE.md when they discover something that affects how future agents should operate. When Nix discovered that worktree agents lose their working directory during context compaction, she documented the three-point mitigation directly into the global file: grant Bash permission, anchor the CWD first, use absolute paths — with a reference to the platform bug (`anthropics/claude-code#22945`). That entry stays live. Every agent that touches worktrees reads it in context.\n\nThe Labs CLAUDE.md goes deeper. It documents the chat engine's failure asymmetry: rate limiting fails closed (if Redis is down, reject the message with a 429); OTP handling fails open (if Redis is down, let the request through — OTP won't work but nothing crashes). It names the exact modules that own these decisions (`engine.ts`, `memory.ts`, `redis.ts`). It explains why certain Redis calls are wrapped in try-catch while summarisation failures log and continue. That's not a tutorial. That's the operational knowledge of how the system behaves under pressure.\n\nThe file reads dense. The grammar is compressed. There's no table of contents because agents navigate by search, not by structure. It's written to be consumed by AI, not browsed by humans."
+      },
+      {
+        "title": "manifest.yaml: The Module Contract Layer",
+        "body": "Every substantial module — anything with a clear boundary and multiple consumers — carries a `manifest.yaml` file at its root. The schema is deliberate and spare: `name`, `purpose`, `owner`, `status`, `depends_on` (with explicit `why`), `depended_on_by` (with explicit `how`), `exports`, `contracts`, `failure_modes`, `performance`.\n\nThe failure modes field matters most. In the chat engine, the rate limiter has documented failure modes at the trigger level: \"Redis unavailable while handling rate limit check → request rejected with 429 (fails closed).\" The OTP validator has the opposite: \"Redis unavailable while validating OTP → request allowed through (fails open).\" These aren't implementation details. They're architectural intentions. Any future change to those modules would break if it didn't preserve this asymmetry — and the manifest calls it out explicitly, in two sentences, in a location where a developer knows to look before touching the code.\n\nNix owns manifest updates across all my repos. When she adds an export, updates a dependency, or discovers a new failure mode, the manifest updates in the same PR. Stale manifests are worse than none — a developer trusting a manifest that describes yesterday's behaviour will introduce a real bug. The maintenance rule is non-negotiable: if the manifest isn't current, the PR is blocked."
+      },
+      {
+        "title": "MEMORY.md: The Cross-Session Persistence Layer",
+        "body": "Conversation context closes. Projects persist. I need knowledge about how I work and how this team works to survive that boundary.\n\nEvery project has a `MEMORY.md` index — a curated set of observations, corrected approaches, and reference pointers. Four types: user (my role and preferences), feedback (how I've asked agents to change approach), project (current state, why, and by when), reference (where to find things in external systems). The index stays under thirty entries, each under 150 characters. If the index gets longer, it stops serving its purpose. An agent scanning thirty entries looking for relevance isn't finding context — they're reading documentation that failed to compress.\n\nFeedback memories are the most valuable because they embed reasoning. They lead with the rule itself, then `Why:` (the reasoning at the time the rule was formed), then `How to apply:` (when this rule does and doesn't hold). I built this structure because a rule without its original reasoning becomes brittle when circumstances change. When the situation evolves, an agent can reason about whether the rule still applies instead of blindly following a ghost of earlier intent.\n\nThe global MEMORY.md contains entries like: \"projects.json content-only changes are chore + patch bump, not feature + minor\" with the reasoning attached: \"discovered that separating content updates from code changes makes semantic-release cleaner and keeps the changelog focused on actual code work.\" A future agent reading that can evaluate whether the rule still fits the team's needs, instead of treating it as law."
+      },
+      {
+        "title": "Handoff Documents: The Session Boundary Layer",
+        "body": "CLAUDE.md is the stable instruction set. Handoff documents are the shock absorbers.\n\nBefore ending a session, I write a handoff that contains: what was completed, what's blocked and why, what the next session needs to know, what decisions are too fresh to have hardened into CLAUDE.md yet. Mid-course corrections. Experimental rules. Things that are true now but might shift. The distinction is sharp: CLAUDE.md lives long, handoff documents bridge the gap between sessions. They allow decisions made at maximum context density to transfer without cluttering the permanent rules."
+      },
+      {
+        "title": "The Honest Gap",
+        "body": "This system is file-based and manual in ways Karpathy's framing points past. His architecture sketches graph-based retrieval, semantic search, automated staleness detection. I don't have those. There's no semantic query across my MEMORY.md — an agent reads the index linearly. There's no real-time consistency checking between manifests and code. The staleness check is a nightly cron job, not a background process. My system depends on discipline: readable code, agents that think before writing, code reviewers that catch the gap between what was promised and what was shipped.\n\nThis is what you build when you solve the problem empirically, in production, without access to infrastructure that doesn't exist yet at accessible cost. It works. It's durable enough to run at twelve-agent scale across six projects. It's also fragile in the ways that matter: it requires thought, not just structure.\n\nBut that gap is the point worth naming. I didn't build this because I was ahead of the curve. I built it because agents kept losing context between sessions, and documents are the medium through which humans and AI coordinate when the better tools don't exist yet. Karpathy gave me language for what I was already doing. The system itself — the four files, the maintenance disciplines, the decision to write for AI readability before human browsability — came first, from the weight of production continuity.\n\nThe knowledge base that's useful to an agent is not the knowledge base that looks impressive in a diagram. It's the one that survives a session ending and hands off everything the next session needs to not repeat work or break coherence. That's what these four files do."
+      }
+    ],
+    "keyLearnings": [
+      "Four kinds of text files — `CLAUDE.md`, `manifest.yaml`, `MEMORY.md`, and handoff documents — each with a specific purpose and maintenance discipline, are sufficient to maintain coherence across twelve agents and six repositories. The system is file-based and manual in ways that more sophisticated architectures point past, but it works because it solves the actual production problem: what survives a session ending.",
+      "The knowledge base that's useful to an agent is not the one that looks impressive in a diagram — it's the one that hands off everything the next session needs to not repeat work or break coherence. Writing for AI readability before human browsability is a design choice that compounds over months of production use.",
+      "The gap between file-based persistence and graph-based retrieval is the honest frontier. No semantic query, no automated staleness detection, no real-time consistency checking — the system depends on discipline and agents that think before writing. Naming the gap matters as much as building what exists."
+    ]
   }
 ]
