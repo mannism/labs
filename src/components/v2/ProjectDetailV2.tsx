@@ -62,9 +62,21 @@ export function ProjectDetailV2({
     const idx = peers.findIndex((p) => p.id === project.id);
     const index = String((idx >= 0 ? idx : 0) + 1).padStart(3, "0");
 
-    /* Prev/next only applies to articles */
-    const prev = isArticleType && idx > 0 ? peers[idx - 1] : undefined;
-    const next = isArticleType && idx < peers.length - 1 ? peers[idx + 1] : undefined;
+    /* Prev/next: series-scoped when article belongs to a series, date-based for standalone */
+    let prev: Project | undefined;
+    let next: Project | undefined;
+    if (isArticleType) {
+      const navPeers = project.seriesTitle
+        ? all
+            .filter((p) => p.type === "article" && p.seriesTitle === project.seriesTitle)
+            .sort((a, b) => (a.sequenceNumber ?? 0) - (b.sequenceNumber ?? 0))
+        : all
+            .filter((p) => p.type === "article" && !p.seriesTitle)
+            .sort((a, b) => (a.createdDate ?? "").localeCompare(b.createdDate ?? ""));
+      const navIdx = navPeers.findIndex((p) => p.id === project.id);
+      prev = navIdx > 0 ? navPeers[navIdx - 1] : undefined;
+      next = navIdx < navPeers.length - 1 ? navPeers[navIdx + 1] : undefined;
+    }
 
     /* Series label: derived total from matching seriesTitle across all visible articles */
     let label: string | undefined;
@@ -510,7 +522,7 @@ function ArticleLayout({
           aria-label="Article navigation"
           style={{
             display: "grid",
-            gridTemplateColumns: prevArticle && nextArticle ? "1fr 1fr" : "1fr",
+            gridTemplateColumns: "1fr 1fr",
             gap: "var(--v2-space-md)",
             marginTop: "var(--v2-space-3xl)",
             borderTop: "1px solid var(--article-nav-border)",
