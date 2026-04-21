@@ -173,6 +173,7 @@ The `/playground` section hosts interactive creative-coding experiments. Experim
 | **Voice Particle Instrument** | `voice-particles` | Three.js WebGL2, Web Audio API | LIVE |
 | **Gesture Fluid Wall** | `gesture-fluid` | Canvas 2D, Navier-Stokes (Jos Stam Stable Fluids) | BETA |
 | **Crowd Flow Twin** | `crowd-flow` | Canvas 2D, Boids + Gray-Scott reaction-diffusion | BETA |
+| **Routines Repo Audit** | `routines-repo-audit` | Automated repo audit pipeline | CONCEPT |
 
 - **Voice Particles:** 150k GPU-instanced particles respond to microphone FFT. Band-directional physics (bass ↓ red, low-mid ← chartreuse, high-mid → cyan, treble ↑ white). Terrain mesh deformation. Mobile fallback (50k particles).
 - **Gesture Fluid:** 256×256 Eulerian fluid grid with pointer/touch velocity injection. 4 colour palettes. Idle/active mode transitions.
