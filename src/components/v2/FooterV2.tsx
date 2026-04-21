@@ -113,12 +113,12 @@ export function FooterV2() {
           onClick={handleReplayBoot}
           style={{
             fontFamily: "var(--v2-font-mono)",
-            fontSize: "10px",
+            fontSize: "var(--v2-font-size-xs)",
             color: "var(--v2-text-tertiary)",
             background: "none",
             border: "none",
             cursor: "pointer",
-            opacity: 0.6,
+            opacity: 0.7,
             transition: "opacity 0.2s ease",
             letterSpacing: "0.06em",
             padding: "var(--v2-space-xs)",
@@ -127,7 +127,7 @@ export function FooterV2() {
             e.currentTarget.style.opacity = "1";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.6";
+            e.currentTarget.style.opacity = "0.7";
           }}
         >
           REPLAY_BOOT_SEQUENCE
