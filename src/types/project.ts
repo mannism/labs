@@ -29,6 +29,14 @@ export interface Project {
   type?: "project" | "article";
   /** Structured sections for article-type entries. Rendered as titled prose blocks on the detail page. */
   articleSections?: ArticleSection[];
+  /** Series arc title grouping related articles, e.g. "Agentic Workflow". Used to derive series count and labels. */
+  seriesTitle?: string;
+  /** 1-based position within the series arc. Combined with derived total to render "2_OF_4" labels. */
+  sequenceNumber?: number;
+  /** Slugs of related articles or experiments shown as a RELATED section on the detail page. */
+  relatedSlugs?: string[];
+  /** Total word count across all articleSections body text. Used to derive reading time at ~200 wpm. */
+  wordCount?: number;
 }
 
 /** A single section within an article-type project entry. */

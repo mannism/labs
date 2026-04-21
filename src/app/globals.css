@@ -161,6 +161,11 @@ html.v2 {
   /* Experiment canvas area */
   --exp-canvas-bg: #1A1D23;
 
+  /* Article detail navigation and series labels */
+  --article-nav-border: rgba(0, 0, 0, 0.06);
+  --article-nav-bg: rgba(0, 0, 0, 0.02);
+  --article-series-color: var(--v2-accent);
+
   /* Spacing */
   --v2-space-xs: 0.25rem;
   --v2-space-sm: 0.5rem;

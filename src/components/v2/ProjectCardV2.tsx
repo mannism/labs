@@ -6,6 +6,7 @@ import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 import { CardProximityData } from "./useProximityField";
+import projectsData from "@/lib/projects";
 
 /**
  * ProjectCardV2 — Speculative Interface project card with selective motion.
@@ -42,6 +43,24 @@ export function ProjectCardV2({
   const isLarge = size === "large";
   const isArticle = project.type === "article";
   const prefersReduced = useReducedMotion();
+
+  /**
+   * Series label for article cards — derived from projectsData, not stored.
+   * Format: SERIES_TITLE // N_OF_T  e.g. AGENTIC_WORKFLOW // 2_OF_4
+   * Only populated when the article has both seriesTitle and sequenceNumber.
+   */
+  const seriesLabel = (() => {
+    if (!isArticle || !project.seriesTitle || project.sequenceNumber === undefined) {
+      return undefined;
+    }
+    const all = (projectsData as Project[]).filter((p) => p.display !== false);
+    const seriesMembers = all.filter(
+      (p) => p.type === "article" && p.seriesTitle === project.seriesTitle
+    );
+    const total = seriesMembers.length;
+    const slug = project.seriesTitle.toUpperCase().replace(/\s+/g, "_");
+    return `${slug} // ${project.sequenceNumber}_OF_${total}`;
+  })();
 
   /** Whether proximity field is actively affecting this card */
   const hasProximity = proximity?.isActive && !prefersReduced;
@@ -204,6 +223,25 @@ export function ProjectCardV2({
       >
         {project.title}
       </h3>
+
+      {/* Series label — shown below title for articles in a named arc */}
+      {seriesLabel && (
+        <p
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            margin: `0 0 ${isLarge ? "var(--v2-space-lg)" : "var(--v2-space-sm)"} 0`,
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {seriesLabel}
+        </p>
+      )}
 
       {/* Description — full text, no truncation */}
       <p

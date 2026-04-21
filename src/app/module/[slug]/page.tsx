@@ -47,7 +47,8 @@ export async function generateMetadata({
       canonical: canonicalUrl,
     },
     openGraph: {
-      type: "website",
+      /* Article pages get og:type "article" for richer social card previews */
+      type: project.type === "article" ? "article" : "website",
       locale: seo.openGraph.locale,
       url: canonicalUrl,
       siteName: seo.siteName,
