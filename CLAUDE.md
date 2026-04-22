@@ -15,7 +15,7 @@ The app has two layers:
 ## Conventions
 
 - **CSS classes:** kebab-case with BEM-style prefixes (`glass-*`, `card-*`, `filter-*`).
-- **Fonts:** Merriweather (display/headings), Open Sans (body), Geist Mono (badges/code).
+- **Fonts:** Space Grotesk (display/headings + body), Geist Mono (badges/code).
 - **Colors:** always via CSS custom properties — `var(--bg-primary)`, `var(--accent-blue)`, `var(--text-primary)`. Never raw hex values in components.
 
 ---
