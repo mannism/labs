@@ -140,7 +140,6 @@ export function getSystemPrompt(): string {
             prompt = prompt.replace("{CREATIVE_CODING}", "");
 
             systemCache = { content: prompt, mtime: currentMtime };
-            console.log("[twin/prompts] system prompt reloaded from disk");
         } catch (err) {
             console.error("[twin/prompts] error loading system prompt:", err);
             if (systemCache) return systemCache.content; // serve stale cache on error
