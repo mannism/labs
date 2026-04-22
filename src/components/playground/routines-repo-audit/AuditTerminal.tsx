@@ -140,9 +140,6 @@ export function AuditTerminal() {
 
   /** Run or replay the typewriter animation. */
   useEffect(() => {
-    setVisibleCount(0);
-    setFinished(false);
-
     if (prefersReduced) {
       /* Respect prefers-reduced-motion: show all lines instantly. */
       setVisibleCount(AUDIT_OUTPUT.length);
@@ -167,7 +164,11 @@ export function AuditTerminal() {
     timeoutRef.current = setTimeout(showNext, 400);
 
     return () => {
+      /* Reset animation state in cleanup so the next run starts from zero
+         without calling setState synchronously at the top of the effect body. */
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setVisibleCount(0);
+      setFinished(false);
     };
   }, [prefersReduced, replayKey]);
 
