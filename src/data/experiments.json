@@ -206,14 +206,13 @@
     "id": "7",
     "slug": "adk-visualizer",
     "title": "ADK Visualizer",
-    "description": "Static interactive diagram contrasting monolithic and orchestrated agent topologies from Google's ADK case study, annotated in real time by Claude.",
+    "description": "Static interactive diagram contrasting monolithic and orchestrated agent topologies from Google's ADK case study, annotated in real time by an LLM.",
     "tags": [
       "React Flow",
       "Google ADK",
       "Agent Architecture",
-      "Claude",
+      "OpenAI",
       "SSE",
-      "Anthropic SDK",
       "SequentialAgent",
       "Multi-Agent Patterns"
     ],
@@ -221,7 +220,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_007",
     "collection": "agent-ops",
-    "conceptStatement": "You see two agent architecture patterns displayed side by side: a monolithic topology (one agent, four inline tools) and an orchestrated topology (a SequentialAgent with five specialist agents and shared session state). Click any node in either pattern. Claude streams a three-sentence annotation explaining what that architectural element is, when to use it, and what breaks if misapplied. The diagram itself is static and pre-positioned for pedagogical contrast. The annotation layer makes the architectural decision-making explicit — every node is an interrogable surface.",
+    "conceptStatement": "You see two agent architecture patterns displayed side by side: a monolithic topology (one agent, four inline tools) and an orchestrated topology (a SequentialAgent with five specialist agents and shared session state). Click any node in either pattern. The model streams a three-sentence annotation explaining what that architectural element is, when to use it, and what breaks if misapplied. The diagram itself is static and pre-positioned for pedagogical contrast. The annotation layer makes the architectural decision-making explicit — every node is an interrogable surface.",
     "howItWorks": [
       {
         "title": "Topology Data Model",
@@ -232,8 +231,8 @@
         "body": "`@xyflow/react` renders the graph. Custom node components (OrchestratorNode, SpecialistNode, ToolNode, MonolithNode, MemoryNode) styled with Speculative Interface v2 tokens — colour, typography, spacing. A TopologySelector toggle switches between the two graphs without remounting the canvas. The canvas maintains zoom and pan state across toggles. Node rendering is stateless; clicking a node triggers selection state in a parent container, not within the node itself."
       },
       {
-        "title": "Claude Annotation via SSE",
-        "body": "Click any node. The app POSTs to `/api/experiments/orchestration/annotate` with element type, node data, and the full surrounding topology context (adjacent nodes and edges). Claude Haiku receives the request and a system prompt specifying: annotate this element in the context of the full topology, explain what it does architecturally, when to use it, and what breaks if misapplied — three sentences, no more. Claude streams the response via SSE. An AnnotationPanel renders the streamed text token by token. An AbortController cancels any previous stream on re-click, preventing overlapping output."
+        "title": "LLM Annotation via SSE",
+        "body": "Click any node. The app POSTs to `/api/experiments/orchestration/annotate` with element type, node data, and the full surrounding topology context (adjacent nodes and edges). The model receives the request and a system prompt specifying: annotate this element in the context of the full topology, explain what it does architecturally, when to use it, and what breaks if misapplied — three sentences, no more. The model streams the response via SSE. An AnnotationPanel renders the streamed text token by token. An AbortController cancels any previous stream on re-click, preventing overlapping output."
       },
       {
         "title": "Custom Edge Components and Visual Hierarchy",
@@ -241,7 +240,7 @@
       }
     ],
     "whatItProves": [
-      "The pedagogical value is not in the visual — it is in the annotation. A static diagram of two architectures is reference material. The same diagram where every node triggers a live Claude explanation transforms it into an interrogable surface. Each click produces contextual reasoning grounded in the specific architectural pattern and topology, not a generic definition. The experiment demonstrates that LLM-powered annotation converts inert reference material into interactive learning infrastructure.",
+      "The pedagogical value is not in the visual — it is in the annotation. A static diagram of two architectures is reference material. The same diagram where every node triggers a live LLM explanation transforms it into an interrogable surface. Each click produces contextual reasoning grounded in the specific architectural pattern and topology, not a generic definition. The experiment demonstrates that LLM-powered annotation converts inert reference material into interactive learning infrastructure.",
       "The topology contrast is the core lesson: monolithic pattern (one agent, all tools inline, failure cascades silently across all tasks) versus orchestrated pattern (SequentialAgent pipeline, specialist agents, shared session state, structured outputs, failure contained to one agent's responsibility). Google's ADK case study grounds this contrast in production experience — moving from Titanium (monolith) to a specialist-agent pipeline reduced failure surface and improved debuggability. Rendering the contrast as an interactive diagram rather than prose makes the architectural trade-offs concrete and interrogable."
     ]
   },
@@ -249,13 +248,12 @@
     "id": "8",
     "slug": "orchestration-map",
     "title": "Orchestration Map",
-    "description": "Drag-and-drop agent topology builder. You construct your own agent architecture, and Claude annotates each node and edge as you build, interrogating your design decisions in real time.",
+    "description": "Drag-and-drop agent topology builder. You construct your own agent architecture, and an LLM annotates each node and edge as you build, interrogating your design decisions in real time.",
     "tags": [
       "React Flow",
       "Agent Architecture",
-      "Claude",
+      "OpenAI",
       "SSE",
-      "Anthropic SDK",
       "Drag-and-Drop",
       "Interactive Diagramming",
       "Multi-Agent Patterns"
@@ -264,7 +262,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_008",
     "collection": "agent-ops",
-    "conceptStatement": "You drag nodes (Orchestrator, Specialist, Tool, Memory) from a palette onto a canvas and draw edges to define delegation relationships. Double-click any node to rename it. As you build, Claude annotates your topology: select a node, and it streams a three-sentence explanation of what that node type does architecturally and how it fits into your system. Select an edge, and Claude explains the delegation semantics — what happens when that call fails, whether the orchestrator retries or surfaces the error, what assumptions you're making. Export your topology as JSON (for persistence) or PNG (for sharing). The interaction model is direct manipulation; the mental model you're building is explicit agent coordination.",
+    "conceptStatement": "You drag nodes (Orchestrator, Specialist, Tool, Memory) from a palette onto a canvas and draw edges to define delegation relationships. Double-click any node to rename it. As you build, an LLM annotates your topology: select a node, and it streams a three-sentence explanation of what that node type does architecturally and how it fits into your system. Select an edge, and it explains the delegation semantics — what happens when that call fails, whether the orchestrator retries or surfaces the error, what assumptions you're making. Export your topology as JSON (for persistence) or PNG (for sharing). The interaction model is direct manipulation; the mental model you're building is explicit agent coordination.",
     "howItWorks": [
       {
         "title": "Node Palette and Canvas",
@@ -275,8 +273,8 @@
         "body": "Connecting two nodes via React Flow connection handles creates a DelegationEdge (animated dashed line with direction arrow). The edge represents a delegation relationship: orchestrator delegates to specialist, specialist delegates to tool. You are building a mental model of agent coordination and making it concrete on the canvas. Every edge you draw commits to a specific coordination pattern. The semantics are yours to determine — the diagram is notation, not prescription."
       },
       {
-        "title": "Real-Time Claude Annotation with Topology Context",
-        "body": "Selecting any node or edge triggers a POST to `/api/experiments/orchestration/annotate` with element type, element data, and full surrounding topology context (all nodes and edges currently on canvas). Claude Haiku receives the full graph state and explains the selected element's architectural role in three sentences, highlighting assumptions or risks in the surrounding pattern. The annotation changes as you modify the topology — adding a new node or drawing a new edge re-triggers annotation for the selected element, so your diagram and the annotation stay synchronised."
+        "title": "Real-Time LLM Annotation with Topology Context",
+        "body": "Selecting any node or edge triggers a POST to `/api/experiments/orchestration/annotate` with element type, element data, and full surrounding topology context (all nodes and edges currently on canvas). The model receives the full graph state and explains the selected element's architectural role in three sentences, highlighting assumptions or risks in the surrounding pattern. The annotation changes as you modify the topology — adding a new node or drawing a new edge re-triggers annotation for the selected element, so your diagram and the annotation stay synchronised."
       },
       {
         "title": "State Management and Export",
@@ -284,7 +282,7 @@
       }
     ],
     "whatItProves": [
-      "Abstract agent architecture becomes tangible when you draw it. The question \"how should my agents coordinate?\" shifts from a whiteboard conversation into an interactive canvas where every architectural choice is interrogated by Claude in real time. The annotation layer makes implicit assumptions explicit — drawing an edge from your orchestrator to a specialist forces you to think about failure modes, retry logic, and state sharing. You cannot draw an edge without confronting the semantics of that delegation.",
+      "Abstract agent architecture becomes tangible when you draw it. The question \"how should my agents coordinate?\" shifts from a whiteboard conversation into an interactive canvas where every architectural choice is interrogated by the LLM in real time. The annotation layer makes implicit assumptions explicit — drawing an edge from your orchestrator to a specialist forces you to think about failure modes, retry logic, and state sharing. You cannot draw an edge without confronting the semantics of that delegation.",
       "The shared infrastructure pattern validates the experiment platform's reusability model. Five node component types, two edge component types, one AnnotationPanel, and one SSE annotation hook serve both a static educational diagram (EXP_007) and an interactive builder (EXP_008) without duplication or modification. The shared directory (`src/components/playground/shared/`) is the first test of whether Labs experiments can build on each other's infrastructure rather than reinventing per experiment. Successful reuse here confirms the pattern scales."
     ]
   }
