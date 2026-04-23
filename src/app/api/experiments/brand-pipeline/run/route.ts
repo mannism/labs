@@ -15,6 +15,7 @@
 import { NextRequest }              from "next/server";
 import { z }                        from "zod";
 import { brandPipelineQueue }       from "@/lib/queues/brandPipelineQueue";
+import { BRAND_RULES_PRESET }       from "@/lib/prompts/brandPipeline";
 import {
     VARIANT_COUNT_MIN,
     VARIANT_COUNT_MAX,
@@ -25,8 +26,15 @@ import {
 } from "@/lib/experiments/config";
 
 // ---------------------------------------------------------------------------
-// Zod schema — mirrors BrandPipelineConfig with enforcement of field bounds
+// Zod schema — mirrors BrandPipelineConfig with enforcement of field bounds.
+//
+// brandRulesPreset and brandRules are mutually exclusive but one is required:
+//   - brandRulesPreset: must match a known preset name
+//   - brandRules: free-text input (validated for length)
+// The superRefine ensures exactly one of them is provided with usable content.
 // ---------------------------------------------------------------------------
+
+const KNOWN_PRESET_NAMES = [BRAND_RULES_PRESET.name] as const;
 
 const BrandPipelineConfigSchema = z.object({
     brief: z
@@ -38,8 +46,13 @@ const BrandPipelineConfigSchema = z.object({
     brandRules: z
         .string()
         .trim()
-        .min(1, "brandRules is required")
-        .max(BRAND_RULES_MAX_LENGTH, `brandRules must be at most ${BRAND_RULES_MAX_LENGTH} characters`),
+        .max(BRAND_RULES_MAX_LENGTH, `brandRules must be at most ${BRAND_RULES_MAX_LENGTH} characters`)
+        .optional(),
+
+    brandRulesPreset: z
+        .string()
+        .trim()
+        .optional(),
 
     variantCount: z
         .number()
@@ -52,10 +65,35 @@ const BrandPipelineConfigSchema = z.object({
         .int("topPicks must be an integer")
         .min(TOP_PICKS_MIN, `topPicks must be at least ${TOP_PICKS_MIN}`)
         .max(TOP_PICKS_MAX, `topPicks must be at most ${TOP_PICKS_MAX}`),
-}).refine(
-    (data) => data.topPicks <= data.variantCount,
-    { message: "topPicks cannot exceed variantCount", path: ["topPicks"] }
-);
+}).superRefine((data, ctx) => {
+    const hasPreset     = (data.brandRulesPreset ?? "").length > 0;
+    const hasFreeText   = (data.brandRules ?? "").length > 0;
+
+    if (!hasPreset && !hasFreeText) {
+        ctx.addIssue({
+            code:    z.ZodIssueCode.custom,
+            message: "Either brandRules or brandRulesPreset is required",
+            path:    ["brandRules"],
+        });
+        return;
+    }
+
+    if (hasPreset && !KNOWN_PRESET_NAMES.includes(data.brandRulesPreset as typeof KNOWN_PRESET_NAMES[number])) {
+        ctx.addIssue({
+            code:    z.ZodIssueCode.custom,
+            message: `Unknown brandRulesPreset. Valid options: ${KNOWN_PRESET_NAMES.join(", ")}`,
+            path:    ["brandRulesPreset"],
+        });
+    }
+
+    if (data.topPicks > data.variantCount) {
+        ctx.addIssue({
+            code:    z.ZodIssueCode.custom,
+            message: "topPicks cannot exceed variantCount",
+            path:    ["topPicks"],
+        });
+    }
+});
 
 // ---------------------------------------------------------------------------
 // Route handler
@@ -84,7 +122,22 @@ export async function POST(req: NextRequest): Promise<Response> {
         );
     }
 
-    const config = parsed.data;
+    const rawConfig = parsed.data;
+
+    // Resolve preset → brandRules so the worker always receives a plain string.
+    // The superRefine above guarantees one of the two is set with valid content.
+    const resolvedBrandRules =
+        (rawConfig.brandRulesPreset ?? "").length > 0
+            ? BRAND_RULES_PRESET.rules
+            : (rawConfig.brandRules ?? "");
+
+    const config = {
+        brief:         rawConfig.brief,
+        brandRules:    resolvedBrandRules,
+        brandRulesPreset: rawConfig.brandRulesPreset,
+        variantCount:  rawConfig.variantCount,
+        topPicks:      rawConfig.topPicks,
+    };
 
     // Enqueue the job
     try {

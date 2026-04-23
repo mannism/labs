@@ -17,6 +17,13 @@ export type BrandPipelineConfig = {
   brief: string;
   /** Brand rules governing tone, language, and visual/verbal identity. */
   brandRules: string;
+  /**
+   * Optional preset name (e.g. "Luxury Sustainable Fashion").
+   * When set, the worker resolves this to its full rule text, overriding
+   * any value in `brandRules`. Validated against BRAND_RULES_PRESET in
+   * src/lib/prompts/brandPipeline.ts.
+   */
+  brandRulesPreset?: string;
   /** N: number of variants to generate (3–10). */
   variantCount: number;
   /** K: number of top-ranked variants to surface in the final result (1–3). */
