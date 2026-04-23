@@ -203,46 +203,6 @@
     ]
   },
   {
-    "id": "6",
-    "slug": "generative-ui-renderer",
-    "title": "Generative UI Renderer",
-    "description": "Describe a UI layout in plain text. An LLM generates a typed component tree and streams it live — each block renders the moment it arrives.",
-    "tags": [
-      "LLM",
-      "SSE",
-      "Generative UI",
-      "Streaming",
-      "Agent Ops"
-    ],
-    "status": "beta",
-    "inputType": "Text",
-    "experimentNumber": "EXP_006",
-    "collection": "agent-ops",
-    "conceptStatement": "Type a plain-text description of a UI layout. The model generates a structured component tree — headings, stats, buttons, cards, forms, badges — and streams each block as it completes. The canvas renders live, block by block, before the full response arrives. This is not a wireframing tool. It is a demonstration that a language model can output typed, renderable UI structure directly, and that a frontend can consume that structure progressively over SSE.",
-    "howItWorks": [
-      {
-        "title": "Prompt to Schema",
-        "body": "The user prompt is sent to a POST endpoint backed by Claude Haiku. The model receives a system prompt specifying a strict JSON schema — a `UICanvas` object containing a `blocks` array. Each block is a discriminated union typed by nine block types: heading, paragraph, button, card, stat, form, input_field, divider, badge. The model generates the canvas as a single JSON object. It does not return natural language."
-      },
-      {
-        "title": "Incremental Block Extraction",
-        "body": "The backend does not wait for the full JSON response. A character-level state machine tracks brace depth in the streaming buffer, extracting each block object the moment its closing brace arrives. Each extracted block is Zod-validated against the UIBlock schema before emission. Valid blocks are emitted immediately as `block` SSE events. Invalid blocks emit a `canvas_error` event and the stream continues — partial results are preserved."
-      },
-      {
-        "title": "Progressive Rendering",
-        "body": "The frontend connects via a custom `useUIBlockStream` hook that POSTs the prompt and consumes the SSE stream. Each `block` event appends a new block to the canvas. Framer Motion's `AnimatePresence` animates each arrival with a fade-up transition, making the progressive nature of the render visible. The terminal `canvas_done` event carries an optional theme value and closes the stream."
-      },
-      {
-        "title": "Block Component Tree",
-        "body": "Nine block components map one-to-one with the schema types. Container blocks — card and form — accept recursive children rendered by `BlockRenderer`. The renderer handles unknown types with an error placeholder rather than throwing, so a malformed block from the model does not crash the canvas. All components use Speculative Interface v2 design tokens exclusively — no hardcoded colour values."
-      }
-    ],
-    "whatItProves": [
-      "A language model can be a UI compiler. Given a sufficiently constrained output schema, the model generates renderable component structure rather than prose. The schema is the contract — it defines what the model can emit and what the frontend knows how to render. Tightening the schema shrinks the model's output space and increases render reliability. This experiment is a minimal proof of that relationship.",
-      "Streaming and progressive rendering are not a UX decoration here — they are architecturally necessary. Waiting for the full JSON response before rendering removes the latency advantage of using a fast model. The incremental block extractor decouples extraction latency from total response time, so the canvas begins rendering in the first few hundred milliseconds of the stream. That extraction pattern — state machine over a streaming buffer — applies to any use case where structured data is embedded in a streaming LLM response."
-    ]
-  },
-  {
     "id": "7",
     "slug": "adk-visualizer",
     "title": "ADK Visualizer",
@@ -260,28 +220,28 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_007",
     "collection": "agent-ops",
-    "conceptStatement": "You see two agent architecture patterns displayed side by side: a monolithic topology (one agent, four inline tools) and an orchestrated topology (a SequentialAgent with five specialist agents and shared session state). Click any node in either pattern. The model streams a three-sentence annotation explaining what that architectural element is, when to use it, and what breaks if misapplied. The diagram itself is static and pre-positioned for pedagogical contrast. The annotation layer makes the architectural decision-making explicit — every node is an interrogable surface.",
+    "conceptStatement": "You see two agent architecture patterns displayed side by side: a monolithic topology (one agent, four inline tools) and an orchestrated topology (a SequentialAgent with five specialist agents and shared session state). Click any node in either pattern. The model streams a three-sentence annotation explaining what that architectural element is, when to use it, and what breaks if misapplied. The diagram itself is static and pre-positioned for pedagogical contrast. The annotation layer makes the architectural decision-making explicit \u2014 every node is an interrogable surface.",
     "howItWorks": [
       {
         "title": "Topology Data Model",
-        "body": "Two pre-defined graphs in `adkTopology.ts`. The monolithic topology: one `LlmAgent` (Titanium) executing all tasks in a linear for loop, with four tool nodes directly attached (web_search, code_exec, vector_search, email_draft). No orchestration, no guardrails. The orchestrated topology: one `SequentialAgent` (orchestrator) executing five specialist agents in defined order, passing a shared `InvocationContext`. Each specialist reads and writes to `session.state` — a whiteboard where agents publish `output_key` values for downstream consumption. Node positions are manually authored to emphasise the structural contrast, not auto-laid out. Based on Google's published \"Production-Ready AI Agents: 5 Lessons from Refactoring a Monolith\" (April 2026)."
+        "body": "Two pre-defined graphs in `adkTopology.ts`. The monolithic topology: one `LlmAgent` (Titanium) executing all tasks in a linear for loop, with four tool nodes directly attached (web_search, code_exec, vector_search, email_draft). No orchestration, no guardrails. The orchestrated topology: one `SequentialAgent` (orchestrator) executing five specialist agents in defined order, passing a shared `InvocationContext`. Each specialist reads and writes to `session.state` \u2014 a whiteboard where agents publish `output_key` values for downstream consumption. Node positions are manually authored to emphasise the structural contrast, not auto-laid out. Based on Google's published \"Production-Ready AI Agents: 5 Lessons from Refactoring a Monolith\" (April 2026)."
       },
       {
         "title": "React Flow Canvas and Node Components",
-        "body": "`@xyflow/react` renders the graph. Custom node components (OrchestratorNode, SpecialistNode, ToolNode, MonolithNode, MemoryNode) styled with Speculative Interface v2 tokens — colour, typography, spacing. A TopologySelector toggle switches between the two graphs without remounting the canvas. The canvas maintains zoom and pan state across toggles. Node rendering is stateless; clicking a node triggers selection state in a parent container, not within the node itself."
+        "body": "`@xyflow/react` renders the graph. Custom node components (OrchestratorNode, SpecialistNode, ToolNode, MonolithNode, MemoryNode) styled with Speculative Interface v2 tokens \u2014 colour, typography, spacing. A TopologySelector toggle switches between the two graphs without remounting the canvas. The canvas maintains zoom and pan state across toggles. Node rendering is stateless; clicking a node triggers selection state in a parent container, not within the node itself."
       },
       {
         "title": "LLM Annotation via SSE",
-        "body": "Click any node. The app POSTs to `/api/experiments/orchestration/annotate` with element type, node data, and the full surrounding topology context (adjacent nodes and edges). The model receives the request and a system prompt specifying: annotate this element in the context of the full topology, explain what it does architecturally, when to use it, and what breaks if misapplied — three sentences, no more. The model streams the response via SSE. An AnnotationPanel renders the streamed text token by token. An AbortController cancels any previous stream on re-click, preventing overlapping output."
+        "body": "Click any node. The app POSTs to `/api/experiments/orchestration/annotate` with element type, node data, and the full surrounding topology context (adjacent nodes and edges). The model receives the request and a system prompt specifying: annotate this element in the context of the full topology, explain what it does architecturally, when to use it, and what breaks if misapplied \u2014 three sentences, no more. The model streams the response via SSE. An AnnotationPanel renders the streamed text token by token. An AbortController cancels any previous stream on re-click, preventing overlapping output."
       },
       {
         "title": "Custom Edge Components and Visual Hierarchy",
-        "body": "DelegationEdge (animated dashed line, direction arrow from orchestrator to specialist) and ReturnEdge (solid reverse, specialist to orchestrator) are custom edge components. They communicate the semantic difference between outbound delegation and inbound result — not just visual distinction but structural relationship. Node size and colour reflect hierarchy: orchestrator (large, chartreuse), specialist (medium, cyan), tool (small, violet), memory node (capsule shape, amber). The hierarchy is visible before any interaction."
+        "body": "DelegationEdge (animated dashed line, direction arrow from orchestrator to specialist) and ReturnEdge (solid reverse, specialist to orchestrator) are custom edge components. They communicate the semantic difference between outbound delegation and inbound result \u2014 not just visual distinction but structural relationship. Node size and colour reflect hierarchy: orchestrator (large, chartreuse), specialist (medium, cyan), tool (small, violet), memory node (capsule shape, amber). The hierarchy is visible before any interaction."
       }
     ],
     "whatItProves": [
-      "The pedagogical value is not in the visual — it is in the annotation. A static diagram of two architectures is reference material. The same diagram where every node triggers a live LLM explanation transforms it into an interrogable surface. Each click produces contextual reasoning grounded in the specific architectural pattern and topology, not a generic definition. The experiment demonstrates that LLM-powered annotation converts inert reference material into interactive learning infrastructure.",
-      "The topology contrast is the core lesson: monolithic pattern (one agent, all tools inline, failure cascades silently across all tasks) versus orchestrated pattern (SequentialAgent pipeline, specialist agents, shared session state, structured outputs, failure contained to one agent's responsibility). Google's ADK case study grounds this contrast in production experience — moving from Titanium (monolith) to a specialist-agent pipeline reduced failure surface and improved debuggability. Rendering the contrast as an interactive diagram rather than prose makes the architectural trade-offs concrete and interrogable."
+      "The pedagogical value is not in the visual \u2014 it is in the annotation. A static diagram of two architectures is reference material. The same diagram where every node triggers a live LLM explanation transforms it into an interrogable surface. Each click produces contextual reasoning grounded in the specific architectural pattern and topology, not a generic definition. The experiment demonstrates that LLM-powered annotation converts inert reference material into interactive learning infrastructure.",
+      "The topology contrast is the core lesson: monolithic pattern (one agent, all tools inline, failure cascades silently across all tasks) versus orchestrated pattern (SequentialAgent pipeline, specialist agents, shared session state, structured outputs, failure contained to one agent's responsibility). Google's ADK case study grounds this contrast in production experience \u2014 moving from Titanium (monolith) to a specialist-agent pipeline reduced failure surface and improved debuggability. Rendering the contrast as an interactive diagram rather than prose makes the architectural trade-offs concrete and interrogable."
     ]
   },
   {
@@ -302,28 +262,68 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_008",
     "collection": "agent-ops",
-    "conceptStatement": "You drag nodes (Orchestrator, Specialist, Tool, Memory) from a palette onto a canvas and draw edges to define delegation relationships. Double-click any node to rename it. As you build, an LLM annotates your topology: select a node, and it streams a three-sentence explanation of what that node type does architecturally and how it fits into your system. Select an edge, and it explains the delegation semantics — what happens when that call fails, whether the orchestrator retries or surfaces the error, what assumptions you're making. Export your topology as JSON (for persistence) or PNG (for sharing). The interaction model is direct manipulation; the mental model you're building is explicit agent coordination.",
+    "conceptStatement": "You drag nodes (Orchestrator, Specialist, Tool, Memory) from a palette onto a canvas and draw edges to define delegation relationships. Double-click any node to rename it. As you build, an LLM annotates your topology: select a node, and it streams a three-sentence explanation of what that node type does architecturally and how it fits into your system. Select an edge, and it explains the delegation semantics \u2014 what happens when that call fails, whether the orchestrator retries or surfaces the error, what assumptions you're making. Export your topology as JSON (for persistence) or PNG (for sharing). The interaction model is direct manipulation; the mental model you're building is explicit agent coordination.",
     "howItWorks": [
       {
         "title": "Node Palette and Canvas",
-        "body": "A palette of four node types (Orchestrator, Specialist, Tool, Memory) sits beside the React Flow canvas. Drag from palette to canvas. Each drop creates a new node instance at the drop position. React Flow handles drag repositioning within the canvas. Double-click any node to edit its label — this is how you name your specialists and tools. The canvas maintains zoom and pan state across interactions. No auto-layout; manual positioning forces you to think about spatial hierarchy and data flow directionality."
+        "body": "A palette of four node types (Orchestrator, Specialist, Tool, Memory) sits beside the React Flow canvas. Drag from palette to canvas. Each drop creates a new node instance at the drop position. React Flow handles drag repositioning within the canvas. Double-click any node to edit its label \u2014 this is how you name your specialists and tools. The canvas maintains zoom and pan state across interactions. No auto-layout; manual positioning forces you to think about spatial hierarchy and data flow directionality."
       },
       {
         "title": "Edge Drawing and Delegation Semantics",
-        "body": "Connecting two nodes via React Flow connection handles creates a DelegationEdge (animated dashed line with direction arrow). The edge represents a delegation relationship: orchestrator delegates to specialist, specialist delegates to tool. You are building a mental model of agent coordination and making it concrete on the canvas. Every edge you draw commits to a specific coordination pattern. The semantics are yours to determine — the diagram is notation, not prescription."
+        "body": "Connecting two nodes via React Flow connection handles creates a DelegationEdge (animated dashed line with direction arrow). The edge represents a delegation relationship: orchestrator delegates to specialist, specialist delegates to tool. You are building a mental model of agent coordination and making it concrete on the canvas. Every edge you draw commits to a specific coordination pattern. The semantics are yours to determine \u2014 the diagram is notation, not prescription."
       },
       {
         "title": "Real-Time LLM Annotation with Topology Context",
-        "body": "Selecting any node or edge triggers a POST to `/api/experiments/orchestration/annotate` with element type, element data, and full surrounding topology context (all nodes and edges currently on canvas). The model receives the full graph state and explains the selected element's architectural role in three sentences, highlighting assumptions or risks in the surrounding pattern. The annotation changes as you modify the topology — adding a new node or drawing a new edge re-triggers annotation for the selected element, so your diagram and the annotation stay synchronised."
+        "body": "Selecting any node or edge triggers a POST to `/api/experiments/orchestration/annotate` with element type, element data, and full surrounding topology context (all nodes and edges currently on canvas). The model receives the full graph state and explains the selected element's architectural role in three sentences, highlighting assumptions or risks in the surrounding pattern. The annotation changes as you modify the topology \u2014 adding a new node or drawing a new edge re-triggers annotation for the selected element, so your diagram and the annotation stay synchronised."
       },
       {
         "title": "State Management and Export",
-        "body": "`useOrchestrationState` wraps React Flow's built-in node and edge state hooks. No external state library. Session-scoped state — nothing persists across page reload. JSON export serialises current nodes and edges in React Flow format. PNG export uses `html2canvas` to capture the canvas element at 2x resolution, then triggers browser download. Both are one-click operations from the toolbar."
+        "body": "`useOrchestrationState` wraps React Flow's built-in node and edge state hooks. No external state library. Session-scoped state \u2014 nothing persists across page reload. JSON export serialises current nodes and edges in React Flow format. PNG export uses `html2canvas` to capture the canvas element at 2x resolution, then triggers browser download. Both are one-click operations from the toolbar."
       }
     ],
     "whatItProves": [
-      "Abstract agent architecture becomes tangible when you draw it. The question \"how should my agents coordinate?\" shifts from a whiteboard conversation into an interactive canvas where every architectural choice is interrogated by the LLM in real time. The annotation layer makes implicit assumptions explicit — drawing an edge from your orchestrator to a specialist forces you to think about failure modes, retry logic, and state sharing. You cannot draw an edge without confronting the semantics of that delegation.",
+      "Abstract agent architecture becomes tangible when you draw it. The question \"how should my agents coordinate?\" shifts from a whiteboard conversation into an interactive canvas where every architectural choice is interrogated by the LLM in real time. The annotation layer makes implicit assumptions explicit \u2014 drawing an edge from your orchestrator to a specialist forces you to think about failure modes, retry logic, and state sharing. You cannot draw an edge without confronting the semantics of that delegation.",
       "The shared infrastructure pattern validates the experiment platform's reusability model. Five node component types, two edge component types, one AnnotationPanel, and one SSE annotation hook serve both a static educational diagram (EXP_007) and an interactive builder (EXP_008) without duplication or modification. The shared directory (`src/components/playground/shared/`) is the first test of whether Labs experiments can build on each other's infrastructure rather than reinventing per experiment. Successful reuse here confirms the pattern scales."
+    ]
+  },
+  {
+    "id": "6",
+    "slug": "generative-ui-renderer",
+    "title": "Generative UI Renderer",
+    "description": "Describe a UI layout in plain text. An LLM generates a typed component tree and streams it live \u2014 each block renders the moment it arrives.",
+    "tags": [
+      "LLM",
+      "SSE",
+      "Generative UI",
+      "Streaming",
+      "Agent Ops"
+    ],
+    "status": "beta",
+    "inputType": "Text",
+    "experimentNumber": "EXP_006",
+    "collection": "agent-ops",
+    "conceptStatement": "Type a plain-text description of a UI layout. The model generates a structured component tree \u2014 headings, stats, buttons, cards, forms, badges \u2014 and streams each block as it completes. The canvas renders live, block by block, before the full response arrives. This is not a wireframing tool. It is a demonstration that a language model can output typed, renderable UI structure directly, and that a frontend can consume that structure progressively over SSE.",
+    "howItWorks": [
+      {
+        "title": "Prompt to Schema",
+        "body": "The user prompt is sent to a POST endpoint backed by Claude Haiku. The model receives a system prompt specifying a strict JSON schema \u2014 a `UICanvas` object containing a `blocks` array. Each block is a discriminated union typed by nine block types: heading, paragraph, button, card, stat, form, input_field, divider, badge. The model generates the canvas as a single JSON object. It does not return natural language."
+      },
+      {
+        "title": "Incremental Block Extraction",
+        "body": "The backend does not wait for the full JSON response. A character-level state machine tracks brace depth in the streaming buffer, extracting each block object the moment its closing brace arrives. Each extracted block is Zod-validated against the UIBlock schema before emission. Valid blocks are emitted immediately as `block` SSE events. Invalid blocks emit a `canvas_error` event and the stream continues \u2014 partial results are preserved."
+      },
+      {
+        "title": "Progressive Rendering",
+        "body": "The frontend connects via a custom `useUIBlockStream` hook that POSTs the prompt and consumes the SSE stream. Each `block` event appends a new block to the canvas. Framer Motion's `AnimatePresence` animates each arrival with a fade-up transition, making the progressive nature of the render visible. The terminal `canvas_done` event carries an optional theme value and closes the stream."
+      },
+      {
+        "title": "Block Component Tree",
+        "body": "Nine block components map one-to-one with the schema types. Container blocks \u2014 card and form \u2014 accept recursive children rendered by `BlockRenderer`. The renderer handles unknown types with an error placeholder rather than throwing, so a malformed block from the model does not crash the canvas. All components use Speculative Interface v2 design tokens exclusively \u2014 no hardcoded colour values."
+      }
+    ],
+    "whatItProves": [
+      "A language model can be a UI compiler. Given a sufficiently constrained output schema, the model generates renderable component structure rather than prose. The schema is the contract \u2014 it defines what the model can emit and what the frontend knows how to render. Tightening the schema shrinks the model's output space and increases render reliability. This experiment is a minimal proof of that relationship.",
+      "Streaming and progressive rendering are not a UX decoration here \u2014 they are architecturally necessary. Waiting for the full JSON response before rendering removes the latency advantage of using a fast model. The incremental block extractor decouples extraction latency from total response time, so the canvas begins rendering in the first few hundred milliseconds of the stream. That extraction pattern \u2014 state machine over a streaming buffer \u2014 applies to any use case where structured data is embedded in a streaming LLM response."
     ]
   }
 ]
