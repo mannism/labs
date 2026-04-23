@@ -641,5 +641,46 @@
       "The knowledge base that's useful to an agent is not the one that looks impressive in a diagram — it's the one that hands off everything the next session needs to not repeat work or break coherence. Writing for AI readability before human browsability is a design choice that compounds over months of production use.",
       "The gap between file-based persistence and graph-based retrieval is the honest frontier. No semantic query, no automated staleness detection, no real-time consistency checking — the system depends on discipline and agents that think before writing. Naming the gap matters as much as building what exists."
     ]
+  },
+  {
+    "id": "25",
+    "slug": "what-routines-actually-is",
+    "order": 12,
+    "createdDate": "2026-04-24",
+    "title": "What Routines Actually Is",
+    "shortDescription": "Anthropic's Routines solves the scheduling problem, not the orchestration problem. It replaces manual session management with a cloud scheduler — which is a concrete win for running nightly audits — but leaves the coordination layer, knowledge persistence, and operational discipline entirely to you.",
+    "detailedDescription": "Before Routines, I ran scheduled agent sessions through manual triggers and session-boundary documents that captured state between runs. I wrote rules like \"compact at 60% context usage\" and \"use /handoff before ending a session\" to keep that layer from collapsing. Routines formalises the trigger mechanism — cron jobs, GitHub event webhooks, API calls — but the rest of the multi-agent orchestration stack stays yours. The scheduling problem is solved. The coordination problem is not. My first Routines deployment — a nightly repo audit running every night at 5am — executes on schedule and posts results to Slack, but it still doesn't know what \"stale branch\" means without the prompt spelling it out, doesn't coordinate with the other eleven agents, and doesn't enforce the spec-before-code rule. Routines is the scheduler. The manifest infrastructure, the session handoff discipline, and the operational layer are the knowledge base. Understanding the difference explains why the hype coverage missed what this upgrade actually provides: not autonomy, but a faster trigger mechanism for something you were already doing manually.",
+    "category": "Research",
+    "status": "Active",
+    "display": true,
+    "highlight": false,
+    "type": "article",
+    "tags": [
+      "Claude Code",
+      "Agentic AI",
+      "Routines",
+      "Scheduling",
+      "Orchestration",
+      "Multi-Agent Systems",
+      "Automation"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "articleSections": [
+      {
+        "title": "What Routines Doesn't Solve",
+        "body": "Routines handles scheduling and execution. It doesn't handle orchestration. It doesn't coordinate between agents. It doesn't enforce quality gates. It doesn't know what an agent should know when it starts.\n\nMy nightly repo audit — deployed in April as a Claude Routine (trigger ID: `trig_01D6WAcCPALST8R8t1w8BFES`), running every night at 5am SGT — is the first production Routines deployment in my system. It checks four health signals across six repositories: failing CI (GitHub Actions status on main), open Dependabot PRs, stale branches (no commits in 30+ days), and open PRs older than seven days. Results post to Slack #updates. Routines triggers the execution, runs the prompt on Anthropic's cloud, and handles the scheduling constraint — the audit runs once per night, deliberately within the daily run quota.\n\nWhat Routines doesn't do: it doesn't read the manifests before starting the audit. It doesn't know what \"stale branch\" means without the audit prompt spelling it out. It doesn't coordinate with the other eleven agents to decide whether to run simultaneously or sequentially. It doesn't enforce the PR comprehension gate or the spec-before-code rule — those are still human or orchestration decisions.\n\nThe manifest infrastructure the audit relies on — the `depends_on` fields, the `failure_modes` declarations, the per-module contracts — that's the knowledge base. Routines is the scheduler. The two layers are distinct. Confusing them explains a lot of the hype coverage."
+      },
+      {
+        "title": "The Operational Layer Still Yours",
+        "body": "Before Routines, I had session-boundary documents. Sessions ended with a write to a file: here's what's done, here's what's blocked, here's what the next agent needs. That bridge still exists. That discipline is still required.\n\nBefore Routines, I had model tiering rules. Sheena (the orchestrator) is the only Opus user. Sonnet-tier agents do code and strategy. Haiku-tier agents do copy and design. That routing decision still happens. Routines doesn't know about role hierarchies.\n\nBefore Routines, I had a spec-before-code rule: anything touching more than two files requires a brief first. That rule is still in place. Routines doesn't check whether a brief exists.\n\nThe scheduling problem is solved. The coordination problem is not. The knowledge persistence problem is not. The orchestration problem is not.\n\nWhat this changes about running a multi-project agent team: you replace your session management conventions with a cloud scheduler. You stop writing \"use /handoff before ending a session\" because the scheduler handles session boundaries now. You keep everything else.\n\nThat's the upgrade path Routines creates. Not autonomy. Not full-stack agentic decision-making. A faster trigger mechanism for something you were already doing manually.\n\nFor a solo operator like me, running twelve agents across six repos, the upgrade is concrete: one less thing to script, one less thing to manually trigger, one less place for discipline to slip. The audit runs reliably at 5am without me starting it. That's the win.\n\nThe question it raises isn't conceptual. It's operational. If your agent team is currently held together by handwritten session management conventions and manual triggers, what gaps would a scheduler actually fill — and what would you still have to provide?"
+      }
+    ],
+    "keyLearnings": [
+      "Scheduling and orchestration are distinct problems. Routines solves one and not the other. A routine can run on schedule without knowing what it's supposed to decide, without coordinating with other agents, and without enforcing quality gates. If your system needs those layers, a scheduler alone is not enough — the framework that makes scheduling decisions and coordinates between runs still has to be written, tested, and maintained separately.",
+      "The upgrade path for multi-agent teams is precise: session management conventions move from handwritten rules to cloud infrastructure. You stop writing \"use /handoff before ending a session\" because Routines handles session boundaries. You stop manually triggering nightly work because the scheduler handles cron jobs. You keep the knowledge persistence layer, the coordination rules, the spec-before-code discipline, and the PR comprehension gate — all the things that govern what the scheduled agent decides to do. Misunderstanding this distinction explains why adoption looks like a much smaller win than the hype suggested.",
+      "The real measure of whether Routines helps is the operational friction it removes, not the automation it adds. For me, running a nightly audit manually meant either scripting it myself or starting a session to trigger it. Routines removes that friction. But it removes friction only for the trigger mechanism. Everything upstream — defining what the audit should check, writing the prompt, deciding what to do with the results — was already there and stays there. The concrete win is: one less manual action, run at the exact time I chose, failing gracefully when something is wrong. That is genuinely useful. It is also significantly smaller than \"agents now run autonomously.\""
+    ],
+    "wordCount": 634
   }
 ]
