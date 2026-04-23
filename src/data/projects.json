@@ -65,7 +65,7 @@
       "Input sanitisation strips control characters, role-switching keywords (`system:`, `assistant:`), and XML tag injections before every LLM call — applied at the boundary, not in-flight, paired with length limits (4000 chars web, 1000 Telegram)."
     ],
     "version": "1.0.1",
-    "lastUpdated": "2026-04-22"
+    "lastUpdated": "2026-04-23"
   },
   {
     "id": "12",
@@ -112,7 +112,7 @@
       "Migrating from NextAuth to Better Auth while preserving existing bcrypt-with-pepper password hashes required a custom Drizzle adapter that remaps field names (`full_name` to `name`, `created_on` to `createdAt`) and a migration script that backfills the new account table from existing user rows — any mismatch silently locks users out because Better Auth checks the account table first.",
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve `oklch()` to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on `oklch()` throughout."
     ],
-    "version": "3.11.9",
+    "version": "3.11.10",
     "lastUpdated": "2026-04-23"
   },
   {
@@ -188,7 +188,7 @@
       "Tailwind CSS v4's `oklch()` colour space breaks `html2canvas`'s CSS parser. Rather than patching stylesheets (`getComputedStyle` reads resolved values, not raw text), the fix pre-renders each Recharts SVG to a PNG data URL via `XMLSerializer` + offscreen canvas, then swaps it in the `onclone` callback so `html2canvas` never inspects an SVG element.",
       "SSRF protection via hostname regex must cover the full private IP space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, plus `::1`) — missing a single octet range leaves fetch-based server-side requests open to internal network scanning."
     ],
-    "version": "2.10.25",
+    "version": "2.10.27",
     "lastUpdated": "2026-04-23"
   },
   {
@@ -339,8 +339,6 @@
       "Context compaction is lossy and the loss is silent. There's no error when a key decision gets compressed away — the model just starts making contradictory choices. Writing decisions to files (not conversation) is the only reliable defence, because files survive compaction and are re-read on demand.",
       "The gap between 'AI that can do anything' and 'AI that does the right thing' is organisational design. The same model that produces mediocre output as a generic assistant produces focused, high-quality work when given a clear role, defined boundaries, and structured handoff protocols."
     ],
-    "seriesTitle": "Agentic Workflow",
-    "sequenceNumber": 1,
     "wordCount": 763
   },
   {
@@ -400,8 +398,6 @@
       "Implicit overrides break silently and surface as inconsistent agent behaviour across projects. Explicit override declarations -- one line stating the deviation, scoped to the project -- eliminate rule conflicts at the cost of a single sentence per exception. The Terraform model (state the override, not just the new value) is more reliable than the ESLint model (last config wins) for LLM instruction-following.",
       "The difference between rules that work and rules that don't is verifiability. \"Handle errors properly\" occupies tokens without constraining behaviour. \"Wrap every external call in try/catch; non-critical failures log and continue\" is a concrete instruction an agent can follow and a reviewer can check. If a rule cannot be verified, it is noise -- and noise degrades everything around it."
     ],
-    "seriesTitle": "Agentic Workflow",
-    "sequenceNumber": 3,
     "wordCount": 1228
   },
   {
@@ -462,8 +458,6 @@
       "Two `CLAUDE.md` files answering two different questions outperform one file trying to answer both. Separating \"how do we write code here\" from \"what is this project and who works on it\" eliminates the 400-line mega-document failure mode and ensures each context loads only what the agent needs for the task at hand.",
       "Standardised folder structure is the cheapest high-leverage intervention in multi-project agent governance. It costs an afternoon to implement, requires no tooling changes, and immediately eliminates the onboarding tax that agents pay every time they enter an unfamiliar planning directory -- which, across fourteen projects and dozens of daily sessions, compounds into the difference between a system that scales and one that doesn't."
     ],
-    "seriesTitle": "Agentic Workflow",
-    "sequenceNumber": 2,
     "wordCount": 1296
   },
   {
@@ -528,8 +522,6 @@
       "Five failure modes appear consistently when scaling AI-assisted development: monolithic prompts, review bottlenecks, technical debt accumulation, security blind spots, and skipping fundamentals. Governance does not prevent these -- it encodes the engineering practices that counteract them, so the countermeasures persist across sessions, agents, and projects rather than depending on whoever happens to be paying attention.",
       "Governance without measurement degrades silently. Five proxy metrics -- PR rejection rate, onboarding time-to-first-useful-output, rule revision frequency, agent-generated incident count, and review cycle time -- provide the feedback loop that no published framework includes. If you are not measuring whether your rules are working, you are maintaining a system on faith."
     ],
-    "seriesTitle": "Agentic Workflow",
-    "sequenceNumber": 4,
     "wordCount": 1586
   },
   {
