@@ -5,30 +5,59 @@
  * hook (instrumentation.ts at project root). It picks up jobs from the
  * "brand-pipeline" queue and drives them through three sequential steps:
  *
- *   1. generate  — produce N brand concept variants via Anthropic SDK
- *   2. evaluate  — score each variant against brand rules
- *   3. rank      — select top K variants and assemble VariantResult[]
+ *   1. generate  — produce N brand concept variants via Anthropic streaming
+ *   2. evaluate  — score each variant against brand rules (parallelised)
+ *   3. rank      — select top K variants with Anthropic reasoning
  *
  * Each step publishes SSE-formatted events to a Redis pub/sub channel
- * `brand-pipeline:<jobId>` so the stream route can forward them to the client
- * in real time.
- *
- * Day 1 status: step stubs are in place; Anthropic SDK calls added on Day 2-3.
+ * `brand-pipeline:<jobId>` so the stream route can forward them to the
+ * client in real time.
  *
  * Timing considerations:
  *   - stalledInterval: 15 000 ms — how often BullMQ checks for stalled jobs.
  *     Pipeline runs are 60–90 s, so a 15 s interval catches truly stuck jobs
  *     without excessive overhead.
  *   - lockDuration: 30 000 ms — the job lock is renewed every 30 s to prevent
- *     another worker from stealing the job mid-run. The worker extends the lock
- *     via BullMQ's internal keepalive before expiry.
+ *     another worker from stealing the job mid-run.
  */
 
-import { Worker, type Job }    from "bullmq";
-import Redis                   from "ioredis";
-import type { BrandPipelineConfig, PipelineEvent, PipelineStep } from "@/types/brandPipeline";
+import Anthropic                   from "@anthropic-ai/sdk";
+import { Worker, type Job }        from "bullmq";
+import Redis                       from "ioredis";
+import { randomUUID }              from "crypto";
+import type {
+    BrandPipelineConfig,
+    PipelineEvent,
+    PipelineStep,
+    VariantResult,
+} from "@/types/brandPipeline";
+import {
+    buildGenerateMessages,
+    buildEvaluateMessages,
+    buildRankMessages,
+} from "@/lib/prompts/brandPipeline";
+import {
+    ANTHROPIC_API_KEY,
+    ANTHROPIC_MODEL,
+    ANTHROPIC_EVAL_MODEL,
+    ANTHROPIC_MAX_TOKENS,
+} from "@/lib/experiments/config";
 
 const QUEUE_NAME = "brand-pipeline";
+
+// ---------------------------------------------------------------------------
+// Anthropic client — module-level singleton.
+// Initialised once at worker startup; throws clearly if the API key is absent.
+// ---------------------------------------------------------------------------
+
+if (!ANTHROPIC_API_KEY) {
+    console.error(
+        "[workers/brandPipeline] ANTHROPIC_API_KEY is not set. " +
+        "Brand pipeline jobs will fail at the generate step."
+    );
+}
+
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 // ---------------------------------------------------------------------------
 // Dedicated Redis connection for the worker.
@@ -86,19 +115,37 @@ async function publishEvent(jobId: string, event: PipelineEvent): Promise<void> 
     }
 }
 
+/**
+ * Parses a JSON string returned by Claude, stripping markdown fences if any.
+ * Claude occasionally wraps JSON in ```json ... ``` despite being instructed
+ * not to — this strips those fences before parsing.
+ */
+function parseJsonResponse(raw: string): unknown {
+    const stripped = raw
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```\s*$/, "")
+        .trim();
+    return JSON.parse(stripped);
+}
+
 // ---------------------------------------------------------------------------
-// Step processors (Day 1 stubs — Anthropic SDK calls added Day 2-3)
+// Step 1: Generate
 // ---------------------------------------------------------------------------
 
 /**
- * Step 1: Generate N brand concept variants.
- * TODO (Day 2): Call Anthropic SDK with the creative brief; stream llm_chunk
- *               events for each token; return raw variant texts.
+ * Calls Anthropic with streaming to produce N brand concept variants.
+ * Streams llm_chunk events per token. On completion parses a JSON array of
+ * { id: string, concept: string }[] and returns the concept strings.
+ *
+ * Throws on:
+ *   - API errors (timeout, rate limit, server error)
+ *   - JSON parse failure
+ *   - Unexpected response shape
  */
 async function runGenerateStep(
     job: Job<BrandPipelineConfig>,
-    _config: BrandPipelineConfig
-): Promise<string[]> {
+    config: BrandPipelineConfig
+): Promise<Array<{ id: string; concept: string }>> {
     const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
@@ -107,14 +154,63 @@ async function runGenerateStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] generate step started — variantCount: ${_config.variantCount}`);
-
-    // TODO (Day 2): Replace stub with Anthropic streaming call.
-    // The generator loop should publish { type: "llm_chunk", step: "generate", content }
-    // events for each streamed token so the UI can render live output.
-    const stubVariants: string[] = Array.from({ length: _config.variantCount }, (_, i) =>
-        `[STUB] Brand concept variant ${i + 1} — to be generated by Anthropic SDK`
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] generate step started — ` +
+        `model: ${ANTHROPIC_MODEL}, variantCount: ${config.variantCount}`
     );
+
+    const { system, user } = buildGenerateMessages(
+        config.brief,
+        config.brandRules,
+        config.variantCount
+    );
+
+    let fullText = "";
+
+    const stream = anthropic.messages.stream({
+        model:      ANTHROPIC_MODEL,
+        max_tokens: ANTHROPIC_MAX_TOKENS,
+        system,
+        messages:   [{ role: "user", content: user }],
+    });
+
+    // Forward streamed tokens to the SSE channel in real time
+    stream.on("text", async (delta: string) => {
+        fullText += delta;
+        await publishEvent(jobId, {
+            type:    "llm_chunk",
+            step:    "generate" as PipelineStep,
+            content: delta,
+        });
+    });
+
+    await stream.finalMessage();
+
+    // Parse the JSON array from the completed response
+    let parsed: unknown;
+    try {
+        parsed = parseJsonResponse(fullText);
+    } catch {
+        throw new Error(
+            `[generate] Claude returned non-JSON output. ` +
+            `Raw response (first 200 chars): ${fullText.slice(0, 200)}`
+        );
+    }
+
+    if (!Array.isArray(parsed)) {
+        throw new Error(
+            `[generate] Expected a JSON array, got ${typeof parsed}`
+        );
+    }
+
+    const variants = parsed as Array<{ id: string; concept: string }>;
+
+    if (variants.length !== config.variantCount) {
+        console.warn(
+            `[workers/brandPipeline] [job:${jobId}] generate step: expected ` +
+            `${config.variantCount} variants, received ${variants.length}`
+        );
+    }
 
     await publishEvent(jobId, {
         type:      "step_complete",
@@ -122,21 +218,120 @@ async function runGenerateStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] generate step complete — ${stubVariants.length} variants`);
-    return stubVariants;
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] generate step complete — ` +
+        `${variants.length} variants`
+    );
+
+    return variants;
+}
+
+// ---------------------------------------------------------------------------
+// Step 2: Evaluate
+// ---------------------------------------------------------------------------
+
+/**
+ * Structured result expected from the evaluate prompt.
+ */
+type EvaluationResult = {
+    concept:   string;
+    id:        string;
+    score:     number;
+    flags:     string[];
+    rationale: string;
+};
+
+/**
+ * Evaluates a single variant against the brand rules.
+ * Streams llm_chunk events prefixed with the variant index for the UI.
+ *
+ * Returns null if the call fails — the caller skips failed variants and logs
+ * the skip rather than aborting the whole pipeline.
+ */
+async function evaluateSingleVariant(
+    jobId:      string,
+    variant:    { id: string; concept: string },
+    variantIdx: number,
+    brandRules: string
+): Promise<EvaluationResult | null> {
+    const { system, user } = buildEvaluateMessages(variant.concept, brandRules);
+
+    let fullText = "";
+
+    try {
+        const stream = anthropic.messages.stream({
+            model:      ANTHROPIC_EVAL_MODEL,
+            max_tokens: 1024,
+            system,
+            messages:   [{ role: "user", content: user }],
+        });
+
+        stream.on("text", async (delta: string) => {
+            fullText += delta;
+            // Prefix chunks with variant index so the UI can associate tokens
+            // with the correct evaluation card while parallel evals stream in
+            await publishEvent(jobId, {
+                type:    "llm_chunk",
+                step:    "evaluate" as PipelineStep,
+                content: `[variant:${variantIdx}] ${delta}`,
+            });
+        });
+
+        await stream.finalMessage();
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(
+            `[workers/brandPipeline] [job:${jobId}] evaluate variant ${variant.id} failed: ${msg}`
+        );
+        return null;
+    }
+
+    let parsed: unknown;
+    try {
+        parsed = parseJsonResponse(fullText);
+    } catch {
+        console.error(
+            `[workers/brandPipeline] [job:${jobId}] evaluate variant ${variant.id} ` +
+            `returned non-JSON. Raw (first 200 chars): ${fullText.slice(0, 200)}`
+        );
+        return null;
+    }
+
+    const raw = parsed as Record<string, unknown>;
+
+    if (
+        typeof raw.score     !== "number" ||
+        !Array.isArray(raw.flags)         ||
+        typeof raw.rationale !== "string"
+    ) {
+        console.error(
+            `[workers/brandPipeline] [job:${jobId}] evaluate variant ${variant.id} ` +
+            `response missing required fields. Parsed:`, raw
+        );
+        return null;
+    }
+
+    return {
+        id:        variant.id,
+        concept:   variant.concept,
+        score:     raw.score as number,
+        flags:     raw.flags as string[],
+        rationale: raw.rationale as string,
+    };
 }
 
 /**
- * Step 2: Evaluate each variant against the brand rules.
- * TODO (Day 2): Call Anthropic SDK with each variant + brandRules; parse score,
- *               flags, and rationale from structured output; stream llm_chunk
- *               events during evaluation.
+ * Step 2: Evaluates all variants in parallel.
+ * Failed evaluations are logged and skipped — the pipeline continues with
+ * the successfully evaluated subset.
+ *
+ * Throws only if zero variants are successfully evaluated (nothing to rank).
  */
 async function runEvaluateStep(
     job: Job<BrandPipelineConfig>,
-    _config: BrandPipelineConfig,
-    _variants: string[]
-): Promise<Array<{ concept: string; score: number; flags: string[]; rationale: string }>> {
+    config: BrandPipelineConfig,
+    variants: Array<{ id: string; concept: string }>
+): Promise<EvaluationResult[]> {
     const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
@@ -145,17 +340,32 @@ async function runEvaluateStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] evaluate step started — ${_variants.length} variants to evaluate`);
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] evaluate step started — ` +
+        `${variants.length} variants, model: ${ANTHROPIC_EVAL_MODEL}`
+    );
 
-    // TODO (Day 2): Replace stub with per-variant evaluation calls.
-    // Each call should parse a structured JSON response containing score, flags[],
-    // and rationale. Stream llm_chunk events per variant as evaluation progresses.
-    const stubEvaluations = _variants.map((concept) => ({
-        concept,
-        score:     Math.round(Math.random() * 40 + 60), // stub: 60-100
-        flags:     [] as string[],
-        rationale: "[STUB] Evaluation rationale — to be generated by Anthropic SDK",
-    }));
+    const results = await Promise.all(
+        variants.map((v, idx) =>
+            evaluateSingleVariant(jobId, v, idx, config.brandRules)
+        )
+    );
+
+    const successful = results.filter((r): r is EvaluationResult => r !== null);
+    const skipped    = results.length - successful.length;
+
+    if (skipped > 0) {
+        console.warn(
+            `[workers/brandPipeline] [job:${jobId}] evaluate step: ` +
+            `${skipped} variant(s) skipped due to evaluation errors`
+        );
+    }
+
+    if (successful.length === 0) {
+        throw new Error(
+            "[evaluate] All variant evaluations failed. Cannot proceed to rank step."
+        );
+    }
 
     await publishEvent(jobId, {
         type:      "step_complete",
@@ -163,20 +373,31 @@ async function runEvaluateStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] evaluate step complete`);
-    return stubEvaluations;
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] evaluate step complete — ` +
+        `${successful.length} of ${variants.length} variants evaluated`
+    );
+
+    return successful;
 }
 
+// ---------------------------------------------------------------------------
+// Step 3: Rank
+// ---------------------------------------------------------------------------
+
 /**
- * Step 3: Rank evaluated variants and select top K.
- * TODO (Day 3): Sort by score, apply tie-breaking logic, assemble final
- *               VariantResult[] with stable UUIDs.
+ * Step 3: Sends all evaluated variants to Anthropic for comparative ranking.
+ * Streams the reasoning as llm_chunk events. Parses the final top-K list.
+ *
+ * The rank prompt instructs Claude to sort by score desc, break ties by flag
+ * count asc, and prefer conceptual diversity. Returns a VariantResult[] with
+ * stable UUIDs assigned here (the model only sees the id field from evaluation).
  */
 async function runRankStep(
     job: Job<BrandPipelineConfig>,
     config: BrandPipelineConfig,
-    evaluations: Array<{ concept: string; score: number; flags: string[]; rationale: string }>
-): Promise<import("@/types/brandPipeline").VariantResult[]> {
+    evaluations: EvaluationResult[]
+): Promise<VariantResult[]> {
     const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
@@ -185,20 +406,59 @@ async function runRankStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] rank step started — selecting top ${config.topPicks}`);
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] rank step started — ` +
+        `${evaluations.length} candidates, selecting top ${config.topPicks}`
+    );
 
-    // TODO (Day 3): Replace stub sort with weighted ranking logic.
-    // Current stub: sort descending by score, slice to topPicks.
-    const ranked = [...evaluations]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, config.topPicks)
-        .map((ev, i) => ({
-            id:        `${jobId}-variant-${i}`,
-            concept:   ev.concept,
-            score:     ev.score,
-            flags:     ev.flags,
-            rationale: ev.rationale,
-        }));
+    const { system, user } = buildRankMessages(evaluations, config.topPicks);
+
+    let fullText = "";
+
+    const stream = anthropic.messages.stream({
+        model:      ANTHROPIC_EVAL_MODEL,
+        max_tokens: 2048,
+        system,
+        messages:   [{ role: "user", content: user }],
+    });
+
+    stream.on("text", async (delta: string) => {
+        fullText += delta;
+        await publishEvent(jobId, {
+            type:    "llm_chunk",
+            step:    "rank" as PipelineStep,
+            content: delta,
+        });
+    });
+
+    await stream.finalMessage();
+
+    let parsed: unknown;
+    try {
+        parsed = parseJsonResponse(fullText);
+    } catch {
+        throw new Error(
+            `[rank] Claude returned non-JSON output. ` +
+            `Raw response (first 200 chars): ${fullText.slice(0, 200)}`
+        );
+    }
+
+    const raw = parsed as Record<string, unknown>;
+
+    if (!Array.isArray(raw.results)) {
+        throw new Error(
+            `[rank] Expected { results: [...] }, got shape: ${JSON.stringify(Object.keys(raw))}`
+        );
+    }
+
+    // Assign stable UUIDs for the UI — the model's id field is internal only
+    const results: VariantResult[] = (raw.results as Array<Record<string, unknown>>).map((item) => ({
+        id:        randomUUID(),
+        concept:   String(item.concept   ?? ""),
+        score:     Number(item.score     ?? 0),
+        flags:     Array.isArray(item.flags) ? (item.flags as string[]) : [],
+        rationale: String(item.rationale ?? ""),
+    }));
 
     await publishEvent(jobId, {
         type:      "step_complete",
@@ -206,8 +466,12 @@ async function runRankStep(
         timestamp: Date.now(),
     });
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] rank step complete — top ${ranked.length} variants selected`);
-    return ranked;
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] rank step complete — ` +
+        `top ${results.length} variants selected`
+    );
+
+    return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -215,37 +479,77 @@ async function runRankStep(
 // ---------------------------------------------------------------------------
 
 async function processBrandPipelineJob(job: Job<BrandPipelineConfig>): Promise<void> {
-    const jobId = job.id ?? "unknown";
+    const jobId  = job.id ?? "unknown";
     const config = job.data;
 
-    console.log(`[workers/brandPipeline] [job:${jobId}] pipeline started — brief length: ${config.brief.length} chars`);
+    console.log(
+        `[workers/brandPipeline] [job:${jobId}] pipeline started — ` +
+        `brief: ${config.brief.length} chars, ` +
+        `variantCount: ${config.variantCount}, topPicks: ${config.topPicks}`
+    );
+
+    let variants:    Array<{ id: string; concept: string }> | undefined;
+    let evaluations: EvaluationResult[]                     | undefined;
+    let results:     VariantResult[]                        | undefined;
 
     try {
-        const variants    = await runGenerateStep(job, config);
-        const evaluations = await runEvaluateStep(job, config, variants);
-        const results     = await runRankStep(job, config, evaluations);
-
-        await publishEvent(jobId, {
-            type:      "pipeline_done",
-            results,
-            timestamp: Date.now(),
-        });
-
-        console.log(`[workers/brandPipeline] [job:${jobId}] pipeline complete`);
+        // Step 1 — generate variants
+        variants = await runGenerateStep(job, config);
     } catch (err) {
-        const message = err instanceof Error ? err.message : "Unknown pipeline error";
-        console.error(`[workers/brandPipeline] [job:${jobId}] pipeline failed:`, message);
+        const message = err instanceof Error ? err.message : "Unknown error in generate step";
+        console.error(`[workers/brandPipeline] [job:${jobId}] generate step failed:`, message);
 
-        // Publish error event so the SSE stream can surface it to the client
         await publishEvent(jobId, {
             type:      "pipeline_error",
-            error:     "The brand pipeline encountered an error. Please try again.",
+            error:     "Variant generation failed. Please try again.",
+            step:      "generate",
             timestamp: Date.now(),
         });
 
-        // Re-throw so BullMQ marks the job as failed and records the error
+        throw err;  // BullMQ marks job as failed
+    }
+
+    try {
+        // Step 2 — evaluate variants
+        evaluations = await runEvaluateStep(job, config, variants);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error in evaluate step";
+        console.error(`[workers/brandPipeline] [job:${jobId}] evaluate step failed:`, message);
+
+        await publishEvent(jobId, {
+            type:      "pipeline_error",
+            error:     "Variant evaluation failed. Please try again.",
+            step:      "evaluate",
+            timestamp: Date.now(),
+        });
+
         throw err;
     }
+
+    try {
+        // Step 3 — rank and select top K
+        results = await runRankStep(job, config, evaluations);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error in rank step";
+        console.error(`[workers/brandPipeline] [job:${jobId}] rank step failed:`, message);
+
+        await publishEvent(jobId, {
+            type:      "pipeline_error",
+            error:     "Final ranking failed. Please try again.",
+            step:      "rank",
+            timestamp: Date.now(),
+        });
+
+        throw err;
+    }
+
+    await publishEvent(jobId, {
+        type:      "pipeline_done",
+        results,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] pipeline complete`);
 }
 
 // ---------------------------------------------------------------------------
@@ -265,7 +569,7 @@ export const brandPipelineWorker = new Worker<BrandPipelineConfig>(
 
 brandPipelineWorker.on("failed", (job, err) => {
     console.error(
-        `[workers/brandPipeline] job ${job?.id ?? "unknown"} failed with error: ${err.message}`
+        `[workers/brandPipeline] job ${job?.id ?? "unknown"} failed: ${err.message}`
     );
 });
 
