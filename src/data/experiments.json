@@ -4,33 +4,38 @@
     "slug": "voice-particles",
     "title": "Voice Particle Instrument",
     "description": "Microphone input drives GPU-accelerated particles and terrain mesh deformation in real-time. Speak, sing, or make noise to shape the visual landscape.",
-    "tags": ["WebGPU", "Web Audio", "Compute Shader", "Three.js"],
+    "tags": [
+      "WebGPU",
+      "Web Audio",
+      "Compute Shader",
+      "Three.js"
+    ],
     "status": "live",
     "inputType": "Microphone",
     "experimentNumber": "EXP_001",
     "collection": "webgpu",
-    "conceptStatement": "150,000 GPU-instanced particles respond to your microphone in real time. Frequency bands from the audio signal drive particle groups in different directions and colours — bass down, treble up, mids left and right — turning your voice into a visible, physical force. The experiment maps the Web Audio API directly to per-particle physics on the GPU.",
+    "conceptStatement": "150,000 GPU-instanced particles respond to your microphone in real time. Frequency bands from the audio signal drive particle groups in different directions and colours \u2014 bass down, treble up, mids left and right \u2014 turning your voice into a visible, physical force. The experiment maps the Web Audio API directly to per-particle physics on the GPU.",
     "howItWorks": [
       {
         "title": "Audio Pipeline",
-        "body": "When you grant microphone access, the browser captures your audio stream and feeds it through a Web Audio AnalyserNode running a Fast Fourier Transform at 1024 samples. That FFT splits your audio into 512 frequency bins — a real-time snapshot of how much energy exists at each pitch, updated every frame. The raw frequency data is normalised and passed to the GPU as a uniform array, which means the shader reads fresh audio data every frame without recompilation."
+        "body": "When you grant microphone access, the browser captures your audio stream and feeds it through a Web Audio AnalyserNode running a Fast Fourier Transform at 1024 samples. That FFT splits your audio into 512 frequency bins \u2014 a real-time snapshot of how much energy exists at each pitch, updated every frame. The raw frequency data is normalised and passed to the GPU as a uniform array, which means the shader reads fresh audio data every frame without recompilation."
       },
       {
         "title": "Band-Directional Physics",
-        "body": "The 512 bins are grouped into four bands: bass (0-375 Hz), low-mid (375 Hz-1.9 kHz), high-mid (1.9-6 kHz), and treble (6 kHz and above). Each band drives a directional force on a different subset of the 150K particles. Bass energy pushes particles downward and turns them red. Low-mid pushes left, colouring them chartreuse. High-mid pushes right in cyan. Treble drives particles upward and fades them to white. The result is that a spoken sentence, a clap, and a whistle each produce visually distinct formations — you can see the spectral shape of the sound."
+        "body": "The 512 bins are grouped into four bands: bass (0-375 Hz), low-mid (375 Hz-1.9 kHz), high-mid (1.9-6 kHz), and treble (6 kHz and above). Each band drives a directional force on a different subset of the 150K particles. Bass energy pushes particles downward and turns them red. Low-mid pushes left, colouring them chartreuse. High-mid pushes right in cyan. Treble drives particles upward and fades them to white. The result is that a spoken sentence, a clap, and a whistle each produce visually distinct formations \u2014 you can see the spectral shape of the sound."
       },
       {
         "title": "Dual Mode System",
-        "body": "Without audio input, the particles hold a calm breathing sphere — a slow sine-wave oscillation that keeps the scene alive without being distracting. The moment the microphone detects signal above a threshold, the system transitions to active mode: per-band forces override the idle oscillation and the sphere explodes into a directional storm. When audio drops back below the threshold, particles gradually return to the sphere formation."
+        "body": "Without audio input, the particles hold a calm breathing sphere \u2014 a slow sine-wave oscillation that keeps the scene alive without being distracting. The moment the microphone detects signal above a threshold, the system transitions to active mode: per-band forces override the idle oscillation and the sphere explodes into a directional storm. When audio drops back below the threshold, particles gradually return to the sphere formation."
       },
       {
         "title": "Terrain Deformation",
-        "body": "Below the particle field, a subdivided plane mesh acts as a terrain surface. Its vertex positions are displaced in real time by the same FFT data — each vertex samples a frequency bin based on its grid position, so the mesh ripples and deforms in sync with the audio. The terrain provides a grounded visual anchor while the particles move freely above it."
+        "body": "Below the particle field, a subdivided plane mesh acts as a terrain surface. Its vertex positions are displaced in real time by the same FFT data \u2014 each vertex samples a frequency bin based on its grid position, so the mesh ripples and deforms in sync with the audio. The terrain provides a grounded visual anchor while the particles move freely above it."
       }
     ],
     "whatItProves": [
-      "This is a GPU instancing stress test running in the browser. 150,000 individually animated particles — each with its own position, velocity, colour, and physics response — render at 60fps on commodity hardware using WebGL2 instanced buffer geometry. No compute shaders, no WebGPU, no native code. The bottleneck in browser-based particle systems has historically been the CPU-to-GPU data bridge; this experiment keeps all per-particle state on the GPU and only sends the audio uniform data (2KB per frame) across the bridge each tick.",
-      "It also demonstrates that the Web Audio API's AnalyserNode is fast enough to drive real-time visual feedback at animation-loop speeds — a capability that matters for any application mapping audio to visuals, from music tools to accessibility interfaces. The experiment runs entirely client-side with no server dependencies."
+      "This is a GPU instancing stress test running in the browser. 150,000 individually animated particles \u2014 each with its own position, velocity, colour, and physics response \u2014 render at 60fps on commodity hardware using WebGL2 instanced buffer geometry. No compute shaders, no WebGPU, no native code. The bottleneck in browser-based particle systems has historically been the CPU-to-GPU data bridge; this experiment keeps all per-particle state on the GPU and only sends the audio uniform data (2KB per frame) across the bridge each tick.",
+      "It also demonstrates that the Web Audio API's AnalyserNode is fast enough to drive real-time visual feedback at animation-loop speeds \u2014 a capability that matters for any application mapping audio to visuals, from music tools to accessibility interfaces. The experiment runs entirely client-side with no server dependencies."
     ]
   },
   {
@@ -38,16 +43,21 @@
     "slug": "gesture-fluid",
     "title": "Gesture Fluid Wall",
     "description": "Pointer-driven Eulerian fluid simulation using Jos Stam's Stable Fluids algorithm. Move your mouse or finger to inject velocity and density into a real-time fluid field.",
-    "tags": ["Canvas 2D", "Stable Fluids", "Fluid Dynamics", "Navier-Stokes"],
+    "tags": [
+      "Canvas 2D",
+      "Stable Fluids",
+      "Fluid Dynamics",
+      "Navier-Stokes"
+    ],
     "status": "beta",
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_002",
     "collection": "webgpu",
-    "conceptStatement": "A 256×256 Eulerian fluid grid runs Jos Stam's Stable Fluids algorithm entirely on the CPU, rendered to Canvas 2D. Moving your pointer injects velocity and density into the grid — the fluid advects, diffuses, and conserves mass in real time, producing ink-in-water trails that respond to gesture speed and direction. Four selectable colour palettes map fluid density to visual output.",
+    "conceptStatement": "A 256\u00d7256 Eulerian fluid grid runs Jos Stam's Stable Fluids algorithm entirely on the CPU, rendered to Canvas 2D. Moving your pointer injects velocity and density into the grid \u2014 the fluid advects, diffuses, and conserves mass in real time, producing ink-in-water trails that respond to gesture speed and direction. Four selectable colour palettes map fluid density to visual output.",
     "howItWorks": [
       {
         "title": "Navier-Stokes Solver",
-        "body": "Each frame runs the four steps of Stam's Stable Fluids: diffusion (Jacobi iteration, 20 passes), advection (semi-Lagrangian backtracing with bilinear interpolation), pressure solve (Jacobi iteration, 40 passes), and projection (subtract pressure gradient to enforce mass conservation). The velocity field is processed twice through projection — before and after advection — to maintain a divergence-free field at both stages."
+        "body": "Each frame runs the four steps of Stam's Stable Fluids: diffusion (Jacobi iteration, 20 passes), advection (semi-Lagrangian backtracing with bilinear interpolation), pressure solve (Jacobi iteration, 40 passes), and projection (subtract pressure gradient to enforce mass conservation). The velocity field is processed twice through projection \u2014 before and after advection \u2014 to maintain a divergence-free field at both stages."
       },
       {
         "title": "Pointer Injection",
@@ -59,12 +69,12 @@
       },
       {
         "title": "Rendering Pipeline",
-        "body": "The density field is rendered by sampling each grid cell through a colour palette gradient — a series of colour stops that map density concentration (0–1) to RGB values. The resulting ImageData is written at grid resolution and then scaled up to canvas size with bilinear smoothing, producing a soft, organic look without per-pixel simulation cost."
+        "body": "The density field is rendered by sampling each grid cell through a colour palette gradient \u2014 a series of colour stops that map density concentration (0\u20131) to RGB values. The resulting ImageData is written at grid resolution and then scaled up to canvas size with bilinear smoothing, producing a soft, organic look without per-pixel simulation cost."
       }
     ],
     "whatItProves": [
-      "A full Navier-Stokes fluid solver — diffusion, advection, pressure projection — runs at 60fps in the browser on a 256×256 grid using only CPU and Canvas 2D. No WebGPU, no WebGL, no WASM. The bottleneck is the Jacobi iteration count (60 passes per frame across two solve steps), which remains tractable at this resolution because Float64Array arithmetic on modern JavaScript engines is fast enough for real-time simulation.",
-      "The experiment also demonstrates that Jos Stam's unconditionally stable semi-Lagrangian advection scheme — originally published for offline VFX — translates directly to interactive use. The simulation never blows up regardless of pointer speed or parameter values, which is the core property that makes it suitable for a public-facing demo where users control the input."
+      "A full Navier-Stokes fluid solver \u2014 diffusion, advection, pressure projection \u2014 runs at 60fps in the browser on a 256\u00d7256 grid using only CPU and Canvas 2D. No WebGPU, no WebGL, no WASM. The bottleneck is the Jacobi iteration count (60 passes per frame across two solve steps), which remains tractable at this resolution because Float64Array arithmetic on modern JavaScript engines is fast enough for real-time simulation.",
+      "The experiment also demonstrates that Jos Stam's unconditionally stable semi-Lagrangian advection scheme \u2014 originally published for offline VFX \u2014 translates directly to interactive use. The simulation never blows up regardless of pointer speed or parameter values, which is the core property that makes it suitable for a public-facing demo where users control the input."
     ]
   },
   {
@@ -72,12 +82,17 @@
     "slug": "crowd-flow",
     "title": "Crowd Flow Twin",
     "description": "Cellular automata meets agent-based crowd simulation. Draw walls and obstacles, then watch emergent flow patterns form in real-time.",
-    "tags": ["Canvas 2D", "Boids", "Spatial Hash", "Gray-Scott RD"],
+    "tags": [
+      "Canvas 2D",
+      "Boids",
+      "Spatial Hash",
+      "Gray-Scott RD"
+    ],
     "status": "beta",
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_003",
     "collection": "webgpu",
-    "conceptStatement": "10,000 autonomous agents run a flocking algorithm, leaving density trails on a grid as they move. Those trails feed a Gray-Scott reaction-diffusion system — a cellular automaton that transforms raw crowd density data into emergent organic structures resembling coral, lichen, and chemical wavefronts. The result is a crowd simulation that visualises density not as a heatmap but as a living pattern.",
+    "conceptStatement": "10,000 autonomous agents run a flocking algorithm, leaving density trails on a grid as they move. Those trails feed a Gray-Scott reaction-diffusion system \u2014 a cellular automaton that transforms raw crowd density data into emergent organic structures resembling coral, lichen, and chemical wavefronts. The result is a crowd simulation that visualises density not as a heatmap but as a living pattern.",
     "howItWorks": [
       {
         "title": "Agent Simulation",
@@ -85,11 +100,11 @@
       },
       {
         "title": "Trail System",
-        "body": "As agents move, they deposit density values onto a 2D grid. Each grid cell accumulates deposits from nearby agents and decays over time, creating a fading trail map that records where agents have been and how densely they travelled. High-traffic corridors light up; empty zones fade to zero. This trail grid is the bridge between the agent simulation and the reaction-diffusion system — it converts discrete agent positions into a continuous density field."
+        "body": "As agents move, they deposit density values onto a 2D grid. Each grid cell accumulates deposits from nearby agents and decays over time, creating a fading trail map that records where agents have been and how densely they travelled. High-traffic corridors light up; empty zones fade to zero. This trail grid is the bridge between the agent simulation and the reaction-diffusion system \u2014 it converts discrete agent positions into a continuous density field."
       },
       {
         "title": "Reaction-Diffusion",
-        "body": "The trail grid's density values seed a Gray-Scott reaction-diffusion model. Gray-Scott simulates two virtual chemicals — an activator and an inhibitor — that diffuse across the grid at different rates. Where agents deposit trails, the activator concentration rises. The inhibitor responds, and the interplay between diffusion rates, feed rate, and kill rate produces self-organising patterns: spots, stripes, branching coral structures, labyrinthine networks. The specific pattern depends on the Gray-Scott parameters, which are tuned so that crowd density produces organic structures rather than uniform blobs."
+        "body": "The trail grid's density values seed a Gray-Scott reaction-diffusion model. Gray-Scott simulates two virtual chemicals \u2014 an activator and an inhibitor \u2014 that diffuse across the grid at different rates. Where agents deposit trails, the activator concentration rises. The inhibitor responds, and the interplay between diffusion rates, feed rate, and kill rate produces self-organising patterns: spots, stripes, branching coral structures, labyrinthine networks. The specific pattern depends on the Gray-Scott parameters, which are tuned so that crowd density produces organic structures rather than uniform blobs."
       },
       {
         "title": "Interactive Manipulation",
@@ -97,37 +112,43 @@
       }
     ],
     "whatItProves": [
-      "This demonstrates multiple coupled simulation systems running in the browser. Three distinct passes — agent flocking, trail accumulation, and reaction-diffusion — run sequentially each frame, reading and writing shared data structures. That pipeline pattern is the foundation for any serious simulation work in the browser: fluid dynamics, crowd modelling, procedural generation, physics solvers.",
-      "The Boids algorithm requires each of 10,000 agents to read positions from nearby neighbours every frame — a workload that spatial hashing makes tractable on the CPU. Combined with the reaction-diffusion system, the experiment sustains three coupled simulations at 60fps, entirely client-side, with no WASM or native plugins."
+      "This demonstrates multiple coupled simulation systems running in the browser. Three distinct passes \u2014 agent flocking, trail accumulation, and reaction-diffusion \u2014 run sequentially each frame, reading and writing shared data structures. That pipeline pattern is the foundation for any serious simulation work in the browser: fluid dynamics, crowd modelling, procedural generation, physics solvers.",
+      "The Boids algorithm requires each of 10,000 agents to read positions from nearby neighbours every frame \u2014 a workload that spatial hashing makes tractable on the CPU. Combined with the reaction-diffusion system, the experiment sustains three coupled simulations at 60fps, entirely client-side, with no WASM or native plugins."
     ]
   },
   {
     "id": "4",
     "slug": "routines-repo-audit",
     "title": "Routines Repo Audit",
-    "description": "Anthropic Routines powers a nightly Claude Code session that audits 6 repos for stale manifests, CI failures, open Dependabot PRs, uncommitted worktrees, and stale branches — then posts a structured summary to Slack.",
-    "tags": ["Anthropic Routines", "Claude Code", "GitHub API", "Slack", "Agent Ops"],
+    "description": "Anthropic Routines powers a nightly Claude Code session that audits 6 repos for stale manifests, CI failures, open Dependabot PRs, uncommitted worktrees, and stale branches \u2014 then posts a structured summary to Slack.",
+    "tags": [
+      "Anthropic Routines",
+      "Claude Code",
+      "GitHub API",
+      "Slack",
+      "Agent Ops"
+    ],
     "status": "live",
     "inputType": "None",
     "experimentNumber": "EXP_004",
     "collection": "agent-ops",
-    "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of Diana's 6 repos against 5 health signals — manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene — then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
+    "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of Diana's 6 repos against 5 health signals \u2014 manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene \u2014 then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
     "howItWorks": [
       {
         "title": "Anthropic Routines as the Scheduler",
-        "body": "Routines are saved Claude Code configurations — a prompt, a set of repos, environment variables, and triggers — that run on Anthropic-managed cloud infrastructure. This routine uses a schedule trigger set to 02:00 SGT (18:00 UTC) nightly. The session starts without a human in the loop, runs autonomously, and posts its results to Slack before the working day begins. The routine is configured once at claude.ai/code/routines; the prompt file lives in .claude/routines/ in the labs repo as the source-of-truth reference."
+        "body": "Routines are saved Claude Code configurations \u2014 a prompt, a set of repos, environment variables, and triggers \u2014 that run on Anthropic-managed cloud infrastructure. This routine uses a schedule trigger set to 02:00 SGT (18:00 UTC) nightly. The session starts without a human in the loop, runs autonomously, and posts its results to Slack before the working day begins. The routine is configured once at claude.ai/code/routines; the prompt file lives in .claude/routines/ in the labs repo as the source-of-truth reference."
       },
       {
         "title": "Manifest Integrity Check",
-        "body": "Each repo uses manifest.yaml files to document module boundaries, dependencies, and exports (a convention established across Diana's agent team). The routine reads every manifest.yaml it finds and cross-references the depends_on and depended_on_by fields against the actual manifests present in the repo. It also checks that every path listed in exports exists on disk. Any reference that resolves to nothing is flagged. Deprecated modules skip cross-reference checks — stale references there are expected."
+        "body": "Each repo uses manifest.yaml files to document module boundaries, dependencies, and exports (a convention established across Diana's agent team). The routine reads every manifest.yaml it finds and cross-references the depends_on and depended_on_by fields against the actual manifests present in the repo. It also checks that every path listed in exports exists on disk. Any reference that resolves to nothing is flagged. Deprecated modules skip cross-reference checks \u2014 stale references there are expected."
       },
       {
         "title": "CI, Dependabot, and Branch Signals",
-        "body": "The GitHub API provides the last workflow run status for each repo's default branch — a pass or fail in one API call. Dependabot PRs are fetched from the open PR list, filtered by user.login, and sorted by age in days. Branches are listed and filtered for anything outside main/master with a last-commit date older than 14 days. Each check wraps its API call in error handling — a rate limit or unreachable repo logs a failure in the output rather than silently skipping the check."
+        "body": "The GitHub API provides the last workflow run status for each repo's default branch \u2014 a pass or fail in one API call. Dependabot PRs are fetched from the open PR list, filtered by user.login, and sorted by age in days. Branches are listed and filtered for anything outside main/master with a last-commit date older than 14 days. Each check wraps its API call in error handling \u2014 a rate limit or unreachable repo logs a failure in the output rather than silently skipping the check."
       },
       {
         "title": "Worktree Detection",
-        "body": "Claude Code creates git worktrees for agent sessions working on the same repo in parallel. These worktrees are prefixed with .claude/worktrees/ and should be cleaned up after each session. The routine runs git worktree list on each cloned repo and flags any non-primary worktree as a potentially stale agent artifact. This is the routine's way of auditing the auditors — checking that the automation that generates work is cleaning up after itself."
+        "body": "Claude Code creates git worktrees for agent sessions working on the same repo in parallel. These worktrees are prefixed with .claude/worktrees/ and should be cleaned up after each session. The routine runs git worktree list on each cloned repo and flags any non-primary worktree as a potentially stale agent artifact. This is the routine's way of auditing the auditors \u2014 checking that the automation that generates work is cleaning up after itself."
       },
       {
         "title": "Slack Output",
@@ -135,8 +156,50 @@
       }
     ],
     "whatItProves": [
-      "Routines are the scheduling layer Diana has been approximating manually. The same patterns that drove the agent team — manifest conventions, explicit dependency graphs, worktree isolation — become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
-      "This is agent auditing agents at its simplest: a Claude Code session that checks whether the Claude Code sessions that ran earlier left the codebase in a clean state. The feedback loop closes nightly without a human in the loop. The Slack message is the handoff to human attention — only the repos that need it, only the issues that matter."
+      "Routines are the scheduling layer Diana has been approximating manually. The same patterns that drove the agent team \u2014 manifest conventions, explicit dependency graphs, worktree isolation \u2014 become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
+      "This is agent auditing agents at its simplest: a Claude Code session that checks whether the Claude Code sessions that ran earlier left the codebase in a clean state. The feedback loop closes nightly without a human in the loop. The Slack message is the handoff to human attention \u2014 only the repos that need it, only the issues that matter."
+    ]
+  },
+  {
+    "id": "5",
+    "slug": "autonomous-brand-pipeline",
+    "title": "Autonomous Brand Pipeline",
+    "description": "Submit a creative brief and brand rules. A three-stage LLM pipeline generates N concept variants, evaluates each against your rules, and ranks the top K \u2014 streamed live as it runs.",
+    "tags": [
+      "Anthropic SDK",
+      "Claude",
+      "BullMQ",
+      "SSE",
+      "Redis",
+      "Agent Ops",
+      "Autonomous Pipeline"
+    ],
+    "status": "beta",
+    "inputType": "Text (Brief + Rules)",
+    "experimentNumber": "EXP_005",
+    "collection": "agent-ops",
+    "conceptStatement": "A three-stage agentic pipeline runs entirely on the server: a generate step produces N brand concept variants from a brief and brand rules, an evaluate step scores each variant for rule compliance, and a rank step selects the top K results. Every LLM call streams token-by-token over SSE so you watch the pipeline think in real time \u2014 not a progress bar, but the actual model output.",
+    "howItWorks": [
+      {
+        "title": "Job Queue and Worker",
+        "body": "Submitting the form POSTs a config to the API, which enqueues a BullMQ job backed by Redis and returns a jobId immediately. A long-running Node.js worker picks up the job and runs the three pipeline steps sequentially. BullMQ handles retries, job isolation, and worker lifecycle \u2014 the HTTP response returns before a single LLM token is generated."
+      },
+      {
+        "title": "SSE Event Stream",
+        "body": "The frontend connects to a streaming endpoint using the jobId. The server publishes structured events \u2014 step_start, llm_chunk (one per token), step_complete, pipeline_done, pipeline_error \u2014 to a Redis pub/sub channel. The SSE handler subscribes and forwards each event to the client as a typed JSON frame. The stream closes automatically on terminal events."
+      },
+      {
+        "title": "Three-Step Pipeline",
+        "body": "Generate: the model receives the brief and brand rules and returns N distinct brand concept variants as a JSON array. Evaluate: each variant is scored independently against the brand rules on a 1\u201310 scale, with flags for specific violations and a rationale. Rank: all scored variants are compared holistically, ties broken by flag count, and the top K are returned in rank order."
+      },
+      {
+        "title": "Brand Rules Preset",
+        "body": "A built-in Luxury Sustainable Fashion preset demonstrates the rules format \u2014 voice, colour palette, typography direction, values, audience, and explicit avoid-list. The preset is a one-click fill for the brand rules field, designed to be edited rather than used verbatim. Writing precise rules produces tighter evaluations: vague rules produce vague scores."
+      }
+    ],
+    "whatItProves": [
+      "The autonomous execution model decouples configuration from observation. The user provides constraints once, then watches a multi-step agent pipeline execute server-side without further interaction. Each step \u2014 generate, evaluate, rank \u2014 involves Claude reasoning on structured data, not just prompt-response pairs. The pipeline demonstrates that real agentic work in a web application context is not polling for an answer; it is delegating work to a persistent job queue and observing the reasoning unfold in real time. This is the pattern for production agent systems: intent specification, autonomous execution, full observability.",
+      "The stack itself is the infrastructure lesson: BullMQ provides job persistence and concurrency control; Redis pub/sub provides a low-latency observation channel; Anthropic SDK's streaming callbacks provide token-level visibility into Claude's output; SSE delivers those tokens to the client without polling. All four layers are required for production agentic work at web scale. A job queue without streaming gives you answer-on-demand but no visibility. Streaming without a job queue couples the client to the inference duration. This experiment shows why that coupling breaks down and how to separate them."
     ]
   }
 ]
