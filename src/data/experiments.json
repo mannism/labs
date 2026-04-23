@@ -138,5 +138,39 @@
       "Routines are the scheduling layer Diana has been approximating manually. The same patterns that drove the agent team — manifest conventions, explicit dependency graphs, worktree isolation — become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
       "This is agent auditing agents at its simplest: a Claude Code session that checks whether the Claude Code sessions that ran earlier left the codebase in a clean state. The feedback loop closes nightly without a human in the loop. The Slack message is the handoff to human attention — only the repos that need it, only the issues that matter."
     ]
+  },
+  {
+    "id": "5",
+    "slug": "autonomous-brand-pipeline",
+    "title": "Autonomous Brand Pipeline",
+    "description": "Submit a creative brief and brand rules. A three-stage LLM pipeline generates N concept variants, evaluates each against your rules, and ranks the top K — streamed live as it runs.",
+    "tags": ["Anthropic SDK", "BullMQ", "SSE", "Redis", "Agent Pipeline"],
+    "status": "live",
+    "inputType": "None",
+    "experimentNumber": "EXP_005",
+    "collection": "agent-ops",
+    "conceptStatement": "A three-stage agentic pipeline runs entirely on the server: a generate step produces N brand concept variants from a brief and brand rules, an evaluate step scores each variant for rule compliance, and a rank step selects the top K results. Every LLM call streams token-by-token over SSE so you watch the pipeline think in real time — not a progress bar, but the actual model output.",
+    "howItWorks": [
+      {
+        "title": "Job Queue and Worker",
+        "body": "Submitting the form POSTs a config to the API, which enqueues a BullMQ job backed by Redis and returns a jobId immediately. A long-running Node.js worker picks up the job and runs the three pipeline steps sequentially. BullMQ handles retries, job isolation, and worker lifecycle — the HTTP response returns before a single LLM token is generated."
+      },
+      {
+        "title": "SSE Event Stream",
+        "body": "The frontend connects to a streaming endpoint using the jobId. The server publishes structured events — step_start, llm_chunk (one per token), step_complete, pipeline_done, pipeline_error — to a Redis pub/sub channel. The SSE handler subscribes and forwards each event to the client as a typed JSON frame. The stream closes automatically on terminal events."
+      },
+      {
+        "title": "Three-Step Pipeline",
+        "body": "Generate: the model receives the brief and brand rules and returns N distinct brand concept variants as a JSON array. Evaluate: each variant is scored independently against the brand rules on a 1–10 scale, with flags for specific violations and a rationale. Rank: all scored variants are compared holistically, ties broken by flag count, and the top K are returned in rank order."
+      },
+      {
+        "title": "Brand Rules Preset",
+        "body": "A built-in Luxury Sustainable Fashion preset demonstrates the rules format — voice, colour palette, typography direction, values, audience, and explicit avoid-list. The preset is a one-click fill for the brand rules field, designed to be edited rather than used verbatim. Writing precise rules produces tighter evaluations: vague rules produce vague scores."
+      }
+    ],
+    "whatItProves": [
+      "This experiment demonstrates that a multi-step agentic pipeline — with real LLM calls at each step, streaming output, and structured inter-step data passing — can run reliably in a production web app without a dedicated ML backend. BullMQ handles the async job lifecycle, Redis handles pub/sub fan-out to the SSE stream, and the Anthropic SDK handles the model calls. The three layers are decoupled: the HTTP API, the worker, and the stream endpoint share only a jobId.",
+      "It also tests the limits of streaming UX for agent output. The terminal trace exposes the raw pipeline execution — not a polished summary, but the actual token-by-token generation from each step. That visibility is deliberate: it makes the pipeline's reasoning legible, surfaces failures at the step level rather than as opaque errors, and demonstrates that SSE is a viable transport for real-time agent observability in a browser application."
+    ]
   }
 ]

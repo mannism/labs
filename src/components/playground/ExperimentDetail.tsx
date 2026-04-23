@@ -91,6 +91,17 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_005: Autonomous Brand Pipeline — config form, SSE execution trace, result cards */
+  "autonomous-brand-pipeline": dynamic(
+    () =>
+      import("./autonomous-brand-pipeline/BrandPipelineExperiment").then(
+        (mod) => mod.BrandPipelineExperiment
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
 /** Map input types to their descriptive requirement text. */
