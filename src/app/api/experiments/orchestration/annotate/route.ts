@@ -128,7 +128,7 @@ export async function POST(req: NextRequest): Promise<Response> {
             try {
                 const openaiStream = await openai.chat.completions.create({
                     model: MODEL,
-                    max_tokens: MAX_TOKENS,
+                    max_completion_tokens: MAX_TOKENS,
                     stream: true,
                     messages: [
                         { role: "system", content: system },
