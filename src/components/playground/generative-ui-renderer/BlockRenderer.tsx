@@ -51,7 +51,7 @@ export function BlockRenderer({ block }: BlockRendererProps) {
       return (
         <CardBlock
           props={block.props}
-          children={block.children}
+          childBlocks={block.children}
           renderChildren={renderChildBlocks}
         />
       );
@@ -63,7 +63,7 @@ export function BlockRenderer({ block }: BlockRendererProps) {
       return (
         <FormBlock
           props={block.props}
-          children={block.children}
+          childBlocks={block.children}
           renderChildren={renderChildBlocks}
         />
       );

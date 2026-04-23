@@ -1,5 +1,5 @@
 /**
- * FormBlock — form container with optional title and recursive children (input_fields).
+ * FormBlock — form container with optional title and recursive childBlocks (input_fields).
  * Children are rendered by the caller via `renderChildren` to break the
  * circular dependency between FormBlock → BlockRenderer → FormBlock.
  * Uses Speculative Interface v2 design tokens only — no hardcoded hex.
@@ -9,12 +9,12 @@ import type { FormProps, UIBlock } from "@/lib/schemas/uiBlocks";
 
 interface FormBlockProps {
   props: FormProps;
-  children?: UIBlock[];
+  childBlocks?: UIBlock[];
   /** Caller-provided renderer to avoid a circular import with BlockRenderer. */
   renderChildren: (blocks: UIBlock[]) => React.ReactNode;
 }
 
-export function FormBlock({ props, children, renderChildren }: FormBlockProps) {
+export function FormBlock({ props, childBlocks, renderChildren }: FormBlockProps) {
   return (
     // role="group" conveys that this is a form container in a layout preview —
     // it is decorative, not a real form submission target.
@@ -46,8 +46,8 @@ export function FormBlock({ props, children, renderChildren }: FormBlockProps) {
         </span>
       )}
 
-      {/* Recursive field children */}
-      {children !== undefined && children.length > 0 && (
+      {/* Recursive field childBlocks */}
+      {childBlocks !== undefined && childBlocks.length > 0 && (
         <div
           style={{
             display: "flex",
@@ -55,7 +55,7 @@ export function FormBlock({ props, children, renderChildren }: FormBlockProps) {
             gap: "var(--v2-space-md)",
           }}
         >
-          {renderChildren(children)}
+          {renderChildren(childBlocks)}
         </div>
       )}
     </div>

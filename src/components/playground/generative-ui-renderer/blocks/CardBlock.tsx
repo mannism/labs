@@ -1,5 +1,5 @@
 /**
- * CardBlock — container with title, optional subtitle, and recursive children.
+ * CardBlock — container with title, optional subtitle, and recursive childBlocks.
  * Children are rendered by the caller via `renderChildren` to break the
  * circular dependency between CardBlock → BlockRenderer → CardBlock.
  * Uses Speculative Interface v2 design tokens only — no hardcoded hex.
@@ -9,12 +9,12 @@ import type { CardProps, UIBlock } from "@/lib/schemas/uiBlocks";
 
 interface CardBlockProps {
   props: CardProps;
-  children?: UIBlock[];
+  childBlocks?: UIBlock[];
   /** Caller-provided renderer to avoid a circular import with BlockRenderer. */
   renderChildren: (blocks: UIBlock[]) => React.ReactNode;
 }
 
-export function CardBlock({ props, children, renderChildren }: CardBlockProps) {
+export function CardBlock({ props, childBlocks, renderChildren }: CardBlockProps) {
   return (
     <div
       style={{
@@ -55,8 +55,8 @@ export function CardBlock({ props, children, renderChildren }: CardBlockProps) {
         )}
       </div>
 
-      {/* Recursive children */}
-      {children !== undefined && children.length > 0 && (
+      {/* Recursive childBlocks */}
+      {childBlocks !== undefined && childBlocks.length > 0 && (
         <div
           style={{
             display: "flex",
@@ -64,7 +64,7 @@ export function CardBlock({ props, children, renderChildren }: CardBlockProps) {
             gap: "var(--v2-space-sm)",
           }}
         >
-          {renderChildren(children)}
+          {renderChildren(childBlocks)}
         </div>
       )}
     </div>
