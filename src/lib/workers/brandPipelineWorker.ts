@@ -99,7 +99,7 @@ async function runGenerateStep(
     job: Job<BrandPipelineConfig>,
     _config: BrandPipelineConfig
 ): Promise<string[]> {
-    const { id: jobId } = job;
+    const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
         type:      "step_start",
@@ -137,7 +137,7 @@ async function runEvaluateStep(
     _config: BrandPipelineConfig,
     _variants: string[]
 ): Promise<Array<{ concept: string; score: number; flags: string[]; rationale: string }>> {
-    const { id: jobId } = job;
+    const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
         type:      "step_start",
@@ -177,7 +177,7 @@ async function runRankStep(
     config: BrandPipelineConfig,
     evaluations: Array<{ concept: string; score: number; flags: string[]; rationale: string }>
 ): Promise<import("@/types/brandPipeline").VariantResult[]> {
-    const { id: jobId } = job;
+    const jobId = job.id ?? "unknown";
 
     await publishEvent(jobId, {
         type:      "step_start",
@@ -215,7 +215,7 @@ async function runRankStep(
 // ---------------------------------------------------------------------------
 
 async function processBrandPipelineJob(job: Job<BrandPipelineConfig>): Promise<void> {
-    const { id: jobId } = job;
+    const jobId = job.id ?? "unknown";
     const config = job.data;
 
     console.log(`[workers/brandPipeline] [job:${jobId}] pipeline started — brief length: ${config.brief.length} chars`);

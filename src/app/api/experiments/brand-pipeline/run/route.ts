@@ -75,10 +75,11 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     const parsed = BrandPipelineConfigSchema.safeParse(body);
     if (!parsed.success) {
-        // Return the first validation error message — safe to surface to client
-        const firstError = parsed.error.errors[0];
+        // Return the first validation issue message — safe to surface to client
+        // Zod v4 uses .issues (not .errors) on ZodError
+        const firstIssue = parsed.error.issues[0];
         return Response.json(
-            { error: firstError?.message ?? "Invalid request body" },
+            { error: firstIssue?.message ?? "Invalid request body" },
             { status: 400 }
         );
     }
