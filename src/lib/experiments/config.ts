@@ -16,11 +16,11 @@ export const ANTHROPIC_API_KEY =
 
 /**
  * Anthropic model for the generate step.
- * claude-3-5-haiku-20241022 is the default — fast and cost-effective for
- * high-volume variant generation. Override with ANTHROPIC_MODEL env var.
+ * claude-sonnet-4-6 is the default — capable and cost-effective for
+ * variant generation and evaluation. Override with ANTHROPIC_MODEL env var.
  */
 export const ANTHROPIC_MODEL =
-    process.env.ANTHROPIC_MODEL ?? "claude-3-5-haiku-20241022";
+    process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 /**
  * Anthropic model for the evaluate and rank steps.
