@@ -102,6 +102,17 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_006: Generative UI Renderer — SSE block stream, progressive canvas */
+  "generative-ui-renderer": dynamic(
+    () =>
+      import("./generative-ui-renderer/GenerativeUIExperiment").then(
+        (mod) => mod.GenerativeUIExperiment
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
   /* EXP_007: ADK Visualizer — React Flow diagram, SSE annotation */
   "adk-visualizer": dynamic(
     () =>
@@ -131,6 +142,7 @@ const INPUT_LABELS: Record<string, string> = {
   Microphone: "REQUIRES MICROPHONE ACCESS",
   Camera: "REQUIRES CAMERA ACCESS",
   "Mouse / Touch": "MOUSE OR TOUCH INPUT",
+  "Text": "TEXT INPUT",
   None: "NO INPUT REQUIRED — READ ONLY",
 };
 
