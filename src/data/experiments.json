@@ -203,6 +203,46 @@
     ]
   },
   {
+    "id": "6",
+    "slug": "generative-ui-renderer",
+    "title": "Generative UI Renderer",
+    "description": "Describe a UI layout in plain text. An LLM generates a typed component tree and streams it live — each block renders the moment it arrives.",
+    "tags": [
+      "LLM",
+      "SSE",
+      "Generative UI",
+      "Streaming",
+      "Agent Ops"
+    ],
+    "status": "beta",
+    "inputType": "Text",
+    "experimentNumber": "EXP_006",
+    "collection": "agent-ops",
+    "conceptStatement": "Type a plain-text description of a UI layout. The model generates a structured component tree — headings, stats, buttons, cards, forms, badges — and streams each block as it completes. The canvas renders live, block by block, before the full response arrives. This is not a wireframing tool. It is a demonstration that a language model can output typed, renderable UI structure directly, and that a frontend can consume that structure progressively over SSE.",
+    "howItWorks": [
+      {
+        "title": "Prompt to Schema",
+        "body": "The user prompt is sent to a POST endpoint backed by Claude Haiku. The model receives a system prompt specifying a strict JSON schema — a `UICanvas` object containing a `blocks` array. Each block is a discriminated union typed by nine block types: heading, paragraph, button, card, stat, form, input_field, divider, badge. The model generates the canvas as a single JSON object. It does not return natural language."
+      },
+      {
+        "title": "Incremental Block Extraction",
+        "body": "The backend does not wait for the full JSON response. A character-level state machine tracks brace depth in the streaming buffer, extracting each block object the moment its closing brace arrives. Each extracted block is Zod-validated against the UIBlock schema before emission. Valid blocks are emitted immediately as `block` SSE events. Invalid blocks emit a `canvas_error` event and the stream continues — partial results are preserved."
+      },
+      {
+        "title": "Progressive Rendering",
+        "body": "The frontend connects via a custom `useUIBlockStream` hook that POSTs the prompt and consumes the SSE stream. Each `block` event appends a new block to the canvas. Framer Motion's `AnimatePresence` animates each arrival with a fade-up transition, making the progressive nature of the render visible. The terminal `canvas_done` event carries an optional theme value and closes the stream."
+      },
+      {
+        "title": "Block Component Tree",
+        "body": "Nine block components map one-to-one with the schema types. Container blocks — card and form — accept recursive children rendered by `BlockRenderer`. The renderer handles unknown types with an error placeholder rather than throwing, so a malformed block from the model does not crash the canvas. All components use Speculative Interface v2 design tokens exclusively — no hardcoded colour values."
+      }
+    ],
+    "whatItProves": [
+      "A language model can be a UI compiler. Given a sufficiently constrained output schema, the model generates renderable component structure rather than prose. The schema is the contract — it defines what the model can emit and what the frontend knows how to render. Tightening the schema shrinks the model's output space and increases render reliability. This experiment is a minimal proof of that relationship.",
+      "Streaming and progressive rendering are not a UX decoration here — they are architecturally necessary. Waiting for the full JSON response before rendering removes the latency advantage of using a fast model. The incremental block extractor decouples extraction latency from total response time, so the canvas begins rendering in the first few hundred milliseconds of the stream. That extraction pattern — state machine over a streaming buffer — applies to any use case where structured data is embedded in a streaming LLM response."
+    ]
+  },
+  {
     "id": "7",
     "slug": "adk-visualizer",
     "title": "ADK Visualizer",
