@@ -102,6 +102,28 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_007: ADK Visualizer — React Flow diagram, SSE annotation */
+  "adk-visualizer": dynamic(
+    () =>
+      import("./adk-visualizer/ADKVisualizerExperiment").then(
+        (mod) => mod.ADKVisualizerExperiment
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
+  /* EXP_008: Agent Orchestration Map — drag-and-drop builder, SSE annotation */
+  "orchestration-map": dynamic(
+    () =>
+      import("./orchestration-map/OrchestrationMapExperiment").then(
+        (mod) => mod.OrchestrationMapExperiment
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
 /** Map input types to their descriptive requirement text. */
