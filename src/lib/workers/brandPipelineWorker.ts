@@ -1,0 +1,274 @@
+/**
+ * BullMQ Worker for EXP_005 — Autonomous Brand Pipeline.
+ *
+ * This worker runs inside the Next.js server process via the instrumentation
+ * hook (instrumentation.ts at project root). It picks up jobs from the
+ * "brand-pipeline" queue and drives them through three sequential steps:
+ *
+ *   1. generate  — produce N brand concept variants via Anthropic SDK
+ *   2. evaluate  — score each variant against brand rules
+ *   3. rank      — select top K variants and assemble VariantResult[]
+ *
+ * Each step publishes SSE-formatted events to a Redis pub/sub channel
+ * `brand-pipeline:<jobId>` so the stream route can forward them to the client
+ * in real time.
+ *
+ * Day 1 status: step stubs are in place; Anthropic SDK calls added on Day 2-3.
+ *
+ * Timing considerations:
+ *   - stalledInterval: 15 000 ms — how often BullMQ checks for stalled jobs.
+ *     Pipeline runs are 60–90 s, so a 15 s interval catches truly stuck jobs
+ *     without excessive overhead.
+ *   - lockDuration: 30 000 ms — the job lock is renewed every 30 s to prevent
+ *     another worker from stealing the job mid-run. The worker extends the lock
+ *     via BullMQ's internal keepalive before expiry.
+ */
+
+import { Worker, type Job }    from "bullmq";
+import Redis                   from "ioredis";
+import type { BrandPipelineConfig, PipelineEvent, PipelineStep } from "@/types/brandPipeline";
+
+const QUEUE_NAME = "brand-pipeline";
+
+// ---------------------------------------------------------------------------
+// Dedicated Redis connection for the worker.
+// BullMQ Workers use blocking BRPOP calls — they MUST have their own
+// connection and cannot share with Queue or QueueEvents.
+// ---------------------------------------------------------------------------
+
+function createWorkerRedisConnection(): Redis {
+    const url = process.env.REDIS_URL ?? "redis://localhost:6379";
+    const client = new Redis(url, {
+        maxRetriesPerRequest: null,
+        enableOfflineQueue:   true,
+    });
+    client.on("error", (err: Error) => {
+        console.error("[workers/brandPipeline] Redis worker connection error:", err.message);
+    });
+    return client;
+}
+
+// ---------------------------------------------------------------------------
+// Pub/sub publisher — separate connection, dedicated to PUBLISH only.
+// A connection in subscriber mode cannot issue PUBLISH; keeping it separate
+// also avoids blocking the worker connection with pub/sub state.
+// ---------------------------------------------------------------------------
+
+function createPublisherConnection(): Redis {
+    const url = process.env.REDIS_URL ?? "redis://localhost:6379";
+    const client = new Redis(url, {
+        maxRetriesPerRequest: null,
+        enableOfflineQueue:   true,
+    });
+    client.on("error", (err: Error) => {
+        console.error("[workers/brandPipeline] Redis publisher connection error:", err.message);
+    });
+    return client;
+}
+
+const publisher = createPublisherConnection();
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Publishes a PipelineEvent to the job-specific Redis pub/sub channel.
+ * The stream route subscribes to this channel and forwards events as SSE frames.
+ * Failures are logged and swallowed — a missed event does not crash the pipeline.
+ */
+async function publishEvent(jobId: string, event: PipelineEvent): Promise<void> {
+    try {
+        const channel = `brand-pipeline:${jobId}`;
+        await publisher.publish(channel, JSON.stringify(event));
+    } catch (err) {
+        console.error(`[workers/brandPipeline] failed to publish event for job ${jobId}:`, err);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Step processors (Day 1 stubs — Anthropic SDK calls added Day 2-3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Step 1: Generate N brand concept variants.
+ * TODO (Day 2): Call Anthropic SDK with the creative brief; stream llm_chunk
+ *               events for each token; return raw variant texts.
+ */
+async function runGenerateStep(
+    job: Job<BrandPipelineConfig>,
+    _config: BrandPipelineConfig
+): Promise<string[]> {
+    const { id: jobId } = job;
+
+    await publishEvent(jobId, {
+        type:      "step_start",
+        step:      "generate" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] generate step started — variantCount: ${_config.variantCount}`);
+
+    // TODO (Day 2): Replace stub with Anthropic streaming call.
+    // The generator loop should publish { type: "llm_chunk", step: "generate", content }
+    // events for each streamed token so the UI can render live output.
+    const stubVariants: string[] = Array.from({ length: _config.variantCount }, (_, i) =>
+        `[STUB] Brand concept variant ${i + 1} — to be generated by Anthropic SDK`
+    );
+
+    await publishEvent(jobId, {
+        type:      "step_complete",
+        step:      "generate" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] generate step complete — ${stubVariants.length} variants`);
+    return stubVariants;
+}
+
+/**
+ * Step 2: Evaluate each variant against the brand rules.
+ * TODO (Day 2): Call Anthropic SDK with each variant + brandRules; parse score,
+ *               flags, and rationale from structured output; stream llm_chunk
+ *               events during evaluation.
+ */
+async function runEvaluateStep(
+    job: Job<BrandPipelineConfig>,
+    _config: BrandPipelineConfig,
+    _variants: string[]
+): Promise<Array<{ concept: string; score: number; flags: string[]; rationale: string }>> {
+    const { id: jobId } = job;
+
+    await publishEvent(jobId, {
+        type:      "step_start",
+        step:      "evaluate" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] evaluate step started — ${_variants.length} variants to evaluate`);
+
+    // TODO (Day 2): Replace stub with per-variant evaluation calls.
+    // Each call should parse a structured JSON response containing score, flags[],
+    // and rationale. Stream llm_chunk events per variant as evaluation progresses.
+    const stubEvaluations = _variants.map((concept) => ({
+        concept,
+        score:     Math.round(Math.random() * 40 + 60), // stub: 60-100
+        flags:     [] as string[],
+        rationale: "[STUB] Evaluation rationale — to be generated by Anthropic SDK",
+    }));
+
+    await publishEvent(jobId, {
+        type:      "step_complete",
+        step:      "evaluate" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] evaluate step complete`);
+    return stubEvaluations;
+}
+
+/**
+ * Step 3: Rank evaluated variants and select top K.
+ * TODO (Day 3): Sort by score, apply tie-breaking logic, assemble final
+ *               VariantResult[] with stable UUIDs.
+ */
+async function runRankStep(
+    job: Job<BrandPipelineConfig>,
+    config: BrandPipelineConfig,
+    evaluations: Array<{ concept: string; score: number; flags: string[]; rationale: string }>
+): Promise<import("@/types/brandPipeline").VariantResult[]> {
+    const { id: jobId } = job;
+
+    await publishEvent(jobId, {
+        type:      "step_start",
+        step:      "rank" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] rank step started — selecting top ${config.topPicks}`);
+
+    // TODO (Day 3): Replace stub sort with weighted ranking logic.
+    // Current stub: sort descending by score, slice to topPicks.
+    const ranked = [...evaluations]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, config.topPicks)
+        .map((ev, i) => ({
+            id:        `${jobId}-variant-${i}`,
+            concept:   ev.concept,
+            score:     ev.score,
+            flags:     ev.flags,
+            rationale: ev.rationale,
+        }));
+
+    await publishEvent(jobId, {
+        type:      "step_complete",
+        step:      "rank" as PipelineStep,
+        timestamp: Date.now(),
+    });
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] rank step complete — top ${ranked.length} variants selected`);
+    return ranked;
+}
+
+// ---------------------------------------------------------------------------
+// Worker processor
+// ---------------------------------------------------------------------------
+
+async function processBrandPipelineJob(job: Job<BrandPipelineConfig>): Promise<void> {
+    const { id: jobId } = job;
+    const config = job.data;
+
+    console.log(`[workers/brandPipeline] [job:${jobId}] pipeline started — brief length: ${config.brief.length} chars`);
+
+    try {
+        const variants    = await runGenerateStep(job, config);
+        const evaluations = await runEvaluateStep(job, config, variants);
+        const results     = await runRankStep(job, config, evaluations);
+
+        await publishEvent(jobId, {
+            type:      "pipeline_done",
+            results,
+            timestamp: Date.now(),
+        });
+
+        console.log(`[workers/brandPipeline] [job:${jobId}] pipeline complete`);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown pipeline error";
+        console.error(`[workers/brandPipeline] [job:${jobId}] pipeline failed:`, message);
+
+        // Publish error event so the SSE stream can surface it to the client
+        await publishEvent(jobId, {
+            type:      "pipeline_error",
+            error:     "The brand pipeline encountered an error. Please try again.",
+            timestamp: Date.now(),
+        });
+
+        // Re-throw so BullMQ marks the job as failed and records the error
+        throw err;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Worker instance
+// ---------------------------------------------------------------------------
+
+export const brandPipelineWorker = new Worker<BrandPipelineConfig>(
+    QUEUE_NAME,
+    processBrandPipelineJob,
+    {
+        connection:      createWorkerRedisConnection(),
+        stalledInterval: 15_000,  // check for stalled jobs every 15 s
+        lockDuration:    30_000,  // lock duration 30 s; BullMQ auto-renews before expiry
+        concurrency:     2,       // max 2 concurrent pipeline runs (CPU/cost guard)
+    }
+);
+
+brandPipelineWorker.on("failed", (job, err) => {
+    console.error(
+        `[workers/brandPipeline] job ${job?.id ?? "unknown"} failed with error: ${err.message}`
+    );
+});
+
+brandPipelineWorker.on("error", (err) => {
+    console.error("[workers/brandPipeline] worker error:", err.message);
+});
