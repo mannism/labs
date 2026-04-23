@@ -132,15 +132,15 @@
     "inputType": "None",
     "experimentNumber": "EXP_004",
     "collection": "agent-ops",
-    "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of Diana's 6 repos against 5 health signals \u2014 manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene \u2014 then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
+    "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of my 6 repos against 5 health signals \u2014 manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene \u2014 then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
     "howItWorks": [
       {
         "title": "Anthropic Routines as the Scheduler",
-        "body": "Routines are saved Claude Code configurations \u2014 a prompt, a set of repos, environment variables, and triggers \u2014 that run on Anthropic-managed cloud infrastructure. This routine uses a schedule trigger set to 02:00 SGT (18:00 UTC) nightly. The session starts without a human in the loop, runs autonomously, and posts its results to Slack before the working day begins. The routine is configured once at claude.ai/code/routines; the prompt file lives in .claude/routines/ in the labs repo as the source-of-truth reference."
+        "body": "Routines are saved Claude Code configurations \u2014 a prompt, a set of repos, environment variables, and triggers \u2014 that run on Anthropic-managed cloud infrastructure. This routine uses a schedule trigger set to 02:00 SGT (18:00 UTC) nightly. The session starts without a human in the loop, runs autonomously, and posts its results to Slack before my working day begins. The routine is configured once at claude.ai/code/routines; the prompt file lives in .claude/routines/ in the labs repo as the source-of-truth reference."
       },
       {
         "title": "Manifest Integrity Check",
-        "body": "Each repo uses manifest.yaml files to document module boundaries, dependencies, and exports (a convention established across Diana's agent team). The routine reads every manifest.yaml it finds and cross-references the depends_on and depended_on_by fields against the actual manifests present in the repo. It also checks that every path listed in exports exists on disk. Any reference that resolves to nothing is flagged. Deprecated modules skip cross-reference checks \u2014 stale references there are expected."
+        "body": "Each repo uses manifest.yaml files to document module boundaries, dependencies, and exports (a convention established across my agent team). The routine reads every manifest.yaml it finds and cross-references the depends_on and depended_on_by fields against the actual manifests present in the repo. It also checks that every path listed in exports exists on disk. Any reference that resolves to nothing is flagged. Deprecated modules skip cross-reference checks \u2014 stale references there are expected."
       },
       {
         "title": "CI, Dependabot, and Branch Signals",
@@ -156,7 +156,7 @@
       }
     ],
     "whatItProves": [
-      "Routines are the scheduling layer Diana has been approximating manually. The same patterns that drove the agent team \u2014 manifest conventions, explicit dependency graphs, worktree isolation \u2014 become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
+      "Routines are the scheduling layer I've been approximating manually. The same patterns that drove my agent team \u2014 manifest conventions, explicit dependency graphs, worktree isolation \u2014 become machine-readable signals. The routine doesn't need to understand the code; it needs to understand the infrastructure the code lives in. That infrastructure was already built.",
       "This is agent auditing agents at its simplest: a Claude Code session that checks whether the Claude Code sessions that ran earlier left the codebase in a clean state. The feedback loop closes nightly without a human in the loop. The Slack message is the handoff to human attention \u2014 only the repos that need it, only the issues that matter."
     ]
   },
