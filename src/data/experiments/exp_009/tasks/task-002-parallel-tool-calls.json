@@ -1,0 +1,41 @@
+{
+  "id": "task-002-parallel-tool-calls",
+  "category": "parallel_tool_calls",
+  "description": "Model must issue two tool calls in a single turn — one for weather and one for an exchange rate — without waiting for either to resolve first. Tests whether the model correctly batches independent tool calls rather than sequencing them.",
+  "prompt": "I need two things at once: the current weather in Tokyo, and the exchange rate from GBP to JPY. Fetch both using the available tools.",
+  "expectedSchema": "parallel_weather_currency",
+  "toolDefinitions": [
+    {
+      "name": "get_weather",
+      "description": "Retrieves the current weather conditions for a given location.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name or city + country."
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    {
+      "name": "get_exchange_rate",
+      "description": "Returns the current exchange rate between two ISO 4217 currency codes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "from_currency": {
+            "type": "string",
+            "description": "Source currency code, e.g. 'GBP'."
+          },
+          "to_currency": {
+            "type": "string",
+            "description": "Target currency code, e.g. 'JPY'."
+          }
+        },
+        "required": ["from_currency", "to_currency"]
+      }
+    }
+  ]
+}
