@@ -65,7 +65,7 @@
       "Input sanitisation strips control characters, role-switching keywords (`system:`, `assistant:`), and XML tag injections before every LLM call — applied at the boundary, not in-flight, paired with length limits (4000 chars web, 1000 Telegram)."
     ],
     "version": "2.3.3",
-    "lastUpdated": "2026-04-24"
+    "lastUpdated": "2026-04-25"
   },
   {
     "id": "12",
@@ -113,7 +113,7 @@
       "OKLch colour tokens break print stylesheets in every browser except Safari — Chrome and Firefox resolve `oklch()` to transparent in print rendering, so the print stylesheet must override score-colour utilities with fallback hex values, a constraint that only surfaced after the dark-mode-first palette was already built on `oklch()` throughout."
     ],
     "version": "3.11.10",
-    "lastUpdated": "2026-04-24"
+    "lastUpdated": "2026-04-25"
   },
   {
     "id": "13",
@@ -141,8 +141,8 @@
       "Markers must appear at predictable positions in the stream; if the model embeds them mid-sentence or omits them under ambiguous prompts, the UI silently skips the action.",
       "Schedule conflict detection with a 5-minute gap buffer was silently removed to maximise session density — a tradeoff that means 'dense schedule' returns back-to-back sessions with zero transition time, and the two generation paths (client-side vs. API) now enforce different constraints."
     ],
-    "version": "2.5.0",
-    "lastUpdated": "2026-04-24"
+    "version": "2.5.4",
+    "lastUpdated": "2026-04-25"
   },
   {
     "id": "14",
@@ -189,7 +189,7 @@
       "SSRF protection via hostname regex must cover the full private IP space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, plus `::1`) — missing a single octet range leaves fetch-based server-side requests open to internal network scanning."
     ],
     "version": "2.10.29",
-    "lastUpdated": "2026-04-23"
+    "lastUpdated": "2026-04-25"
   },
   {
     "id": "15",
@@ -248,7 +248,7 @@
       "The AI Context Panel caches generated summaries in `sessionStorage` keyed by content hash — revisits within the same session skip the LLM call entirely, reducing token usage and latency without requiring backend state."
     ],
     "version": "2.4.3",
-    "lastUpdated": "2026-04-22"
+    "lastUpdated": "2026-04-25"
   },
   {
     "id": "17",
