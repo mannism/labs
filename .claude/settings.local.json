@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "/Users/mann/Documents/Claude/Owner-Inbox/labs"
+    ],
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(find . -not -path './node_modules/*' -not -path './.git/*' -not -path './output/*' -type f -exec wc -l {} +)",
+      "Bash(curl:*)",
+      "Bash(npx playwright:*)",
+      "Bash(ls -1 ~/.claude/agents/*.md)",
+      "Bash(xargs -I {} basename {} .md)",
+      "Bash(find ~/.claude -name *handoff* -o -name *Handoff*)",
+      "Bash(grep -r \"Sable\\\\|Maya\\\\|Lena\\\\|Cleo\\\\|Jo\\\\|Oren\\\\|Sheena\" ~/.claude/agents/*.md)",
+      "Bash(file:*)",
+      "Bash(find /Users/mann/Documents/GitHub/labs/.next -type f -name opengraph-image* -o -name icon* -o -name apple-icon* -o -name manifest*)",
+      "Bash(ls:*)",
+      "Bash(tr '<' '\\\\n')",
+      "Bash(gh api:*)",
+      "Read(//Users/mann/.claude/state/**)",
+      "Bash(git -C /Users/mann/Documents/GitHub/labs branch --show-current)",
+      "Bash(node:*)",
+      "Bash(npx eslint:*)",
+      "Bash(git:*)",
+      "Bash(sed -i:*)",
+      "Bash(sed -i '' '/^  \"version\": \"2.12.1\",$/d' package.json)",
+      "Bash(sed -i '' '/^=======/d' package.json)",
+      "Bash(sed -i '' '/^>>>>>>> /d' package.json)",
+      "mcp__claude_ai_Open_Brain__capture_thought",
+      "mcp__claude_ai_Open_Brain__list_thoughts",
+      "Bash(grep -n \"bottom\\\\|left\\\\|position\\\\|absolute\\\\|fixed\" /Users/mann/Documents/GitHub/labs/src/components/playground/*/ControlPanel.tsx /Users/mann/Documents/GitHub/labs/src/components/playground/*/*ControlPanel.tsx)",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch",
+      "mcp__notion__notion-create-pages",
+      "mcp__notion__notion-update-page",
+      "Bash(xargs -r git branch -d)",
+      "Bash(npm view *)",
+      "Skill(update-config)"
+    ]
+  }
+}
