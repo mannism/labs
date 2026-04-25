@@ -290,11 +290,12 @@
     "id": "6",
     "slug": "generative-ui-renderer",
     "title": "Generative UI Renderer",
-    "description": "Describe a UI layout in plain text. An LLM generates a typed component tree and streams it live \u2014 each block renders the moment it arrives.",
+    "description": "Describe a UI layout in plain text. An LLM generates a typed component tree and streams it live — each block renders as it arrives. Google's A2UI validates this pattern. Diana built it first.",
     "tags": [
       "LLM",
       "SSE",
       "Generative UI",
+      "A2UI",
       "Streaming",
       "Agent Ops"
     ],
