@@ -32,7 +32,10 @@ A clinical, forward-looking aesthetic built on pale blue-grey surfaces with char
 | Animations | Framer Motion + HTML5 Canvas + Three.js (WebGL2) |
 | Typography | Space Grotesk, Geist Mono (self-hosted via `next/font`) |
 | Icons | Lucide React + custom SVG icons (`src/components/icons/`) |
-| AI | OpenAI API |
+| AI | OpenAI API, Anthropic Claude API (`@anthropic-ai/sdk`) |
+| Job queue | BullMQ + Redis Pub/Sub |
+| Graph UI | React Flow (`@xyflow/react`) |
+| Schema validation | Zod |
 | Session store | Redis (ioredis) |
 | Deployment | Docker (multi-stage, Node 22 Alpine) |
 
@@ -75,6 +78,14 @@ src/
 │       │   └── history/        # GET — retrieve conversation history for a session
 │       ├── link/               # POST — OTP verification to link web session ↔ Telegram
 │       ├── telegram/           # POST — Telegram webhook handler
+│       ├── experiments/
+│       │   ├── brand-pipeline/
+│       │   │   ├── run/        # POST — enqueue BullMQ brand pipeline job (EXP_005)
+│       │   │   └── stream/[jobId]/ # GET — SSE stream for brand pipeline job events (EXP_005)
+│       │   ├── orchestration/
+│       │   │   └── annotate/   # POST — SSE LLM annotation for EXP_007/EXP_008
+│       │   └── generative-ui/
+│       │       └── render/     # POST — SSE generative UI block streaming (EXP_006)
 │       └── cors.ts             # CORS policy: *.dianaismail.me + localhost
 ├── components/
 │   ├── AppShell.tsx            # Root orchestrator: SignalField, SystemBoot, Datamosh, LayoutShellV2, ChatWidget
@@ -91,7 +102,13 @@ src/
 │   │   ├── WebGPUCheck.tsx        # WebGPU context provider + amber fallback banner
 │   │   ├── voice-particles/       # Three.js WebGL2 — 150k particles driven by microphone FFT
 │   │   ├── gesture-fluid/         # Canvas 2D Navier-Stokes fluid sim (Jos Stam Stable Fluids)
-│   │   └── crowd-flow/            # Boids flocking + Gray-Scott reaction-diffusion (10k agents)
+│   │   ├── crowd-flow/            # Boids flocking + Gray-Scott reaction-diffusion (10k agents)
+│   │   ├── routines-repo-audit/   # EXP_004: terminal-style audit report display
+│   │   ├── autonomous-brand-pipeline/ # EXP_005: pipeline config, execution trace, variant results
+│   │   ├── generative-ui-renderer/    # EXP_006: chat input, UI canvas, 9 block renderers
+│   │   ├── adk-visualizer/        # EXP_007: React Flow topology viewer + annotation
+│   │   ├── orchestration-map/     # EXP_008: drag-and-drop topology builder, JSON/PNG export
+│   │   └── shared/                # Shared flow-nodes (5 types), flow-edges (2 types), AnnotationPanel
 │   └── v2/
 │       ├── LayoutShellV2.tsx   # Page wrapper: NavbarV2 + HeroV2 + content + FooterV2
 │       ├── NavbarV2.tsx        # Sticky nav: letterspaced logo, version, portfolio link
@@ -109,9 +126,25 @@ src/
 │       ├── useTextScramble.ts  # Ghost Type hook — procedural text scramble
 │       ├── useProximityField.ts # Proximity Pulse hook — cursor-driven magnetic field for grid cards
 │       └── useReducedMotion.ts # Detects prefers-reduced-motion via useSyncExternalStore
+├── hooks/
+│   ├── useEventStream.ts       # Generic SSE consumer hook (EXP_005)
+│   ├── useAnnotationStream.ts  # SSE hook for LLM annotation streams (EXP_007/EXP_008)
+│   └── useUIBlockStream.ts     # SSE hook for generative UI block streams (EXP_006)
 ├── lib/
 │   ├── projects.ts             # Canonical projects loader — resolves Labs version from package.json
 │   ├── analytics.ts            # Thin wrapper around gtag (injected by @next/third-parties)
+│   ├── schemas/
+│   │   └── uiBlocks.ts         # Zod discriminated union for 9 UI block types (EXP_006)
+│   ├── prompts/
+│   │   ├── generativeUI.ts     # System prompt for UI block generation (EXP_006)
+│   │   ├── orchestrationAnnotation.ts # System prompt for topology annotation (EXP_007/EXP_008)
+│   │   └── brandPipeline.ts    # Prompts for generate/evaluate/rank pipeline steps (EXP_005)
+│   ├── queues/
+│   │   └── brandPipelineQueue.ts # BullMQ queue definition for brand pipeline jobs (EXP_005)
+│   ├── workers/
+│   │   └── brandPipelineWorker.ts # BullMQ worker: pipeline steps + Redis Pub/Sub events (EXP_005)
+│   ├── experiments/
+│   │   └── config.ts           # Shared experiment configuration (API keys, model, Redis)
 │   └── twin/
 │       ├── config.ts           # All env vars — single import point
 │       ├── engine.ts           # Core chat orchestration: context injection, OpenAI calls, memory
@@ -122,11 +155,14 @@ src/
 │       └── telegram.ts         # Telegram Bot API client (sendMessage, sendTypingAction)
 ├── types/
 │   ├── project.ts              # Project interface (id, slug, title, status, tags, URLs, etc.)
-│   └── experiment.ts           # Experiment interface (id, slug, status, howItWorks, etc.)
+│   ├── experiment.ts           # Experiment interface (id, slug, status, howItWorks, etc.)
+│   └── brandPipeline.ts        # BrandPipelineConfig, PipelineStep, PipelineEvent, VariantResult
 └── data/
     ├── projects.json           # Single source of truth for all project data
     ├── experiments.json        # Single source of truth for experiment data
     ├── seo.json                # OpenGraph metadata, site URL, Twitter handle
+    ├── experiments/
+    │   └── adkTopology.ts      # Pre-authored React Flow graph data for EXP_007
     └── twin/
         ├── System-prompt.md    # Main AI instruction template
         ├── summarise-prompt.md # Prompt for compressing old conversation history
@@ -150,6 +186,10 @@ Conversation history is stored in Redis with a 30-day rolling TTL. Once a sessio
 | `/api/chat/history` | GET | Retrieve conversation history for a session ID |
 | `/api/link` | POST | OTP verification — accepts `{ code }`, returns `{ success, linked_session_id?, message }` |
 | `/api/telegram` | POST | Telegram webhook — validates secret, routes commands, delegates messages to engine |
+| `/api/experiments/brand-pipeline/run` | POST | Enqueue BullMQ brand pipeline job (EXP_005) |
+| `/api/experiments/brand-pipeline/stream/[jobId]` | GET | SSE stream for brand pipeline job events (EXP_005) |
+| `/api/experiments/orchestration/annotate` | POST | SSE LLM annotation for agent topology (EXP_007/EXP_008) |
+| `/api/experiments/generative-ui/render` | POST | SSE generative UI block streaming (EXP_006) |
 
 ### Telegram Bot
 
@@ -166,18 +206,27 @@ Web sessions use a `localStorage` session ID. Telegram chats use the Telegram nu
 
 ## Playground Experiments
 
-The `/playground` section hosts interactive creative-coding experiments. Experiment data lives in `src/data/experiments.json` — same pattern as `projects.json`.
+The `/playground` section hosts interactive creative-coding and agentic AI experiments. Experiment data lives in `src/data/experiments.json` — same pattern as `projects.json`.
 
-| Experiment | Slug | Tech | Status |
-|---|---|---|---|
-| **Voice Particle Instrument** | `voice-particles` | Three.js WebGL2, Web Audio API | LIVE |
-| **Gesture Fluid Wall** | `gesture-fluid` | Canvas 2D, Navier-Stokes (Jos Stam Stable Fluids) | BETA |
-| **Crowd Flow Twin** | `crowd-flow` | Canvas 2D, Boids + Gray-Scott reaction-diffusion | BETA |
-| **Routines Repo Audit** | `routines-repo-audit` | Automated repo audit pipeline | CONCEPT |
+| ID | Slug | Title | Tech | Status |
+|---|---|---|---|---|
+| EXP_001 | `voice-particles` | **Voice Particle Instrument** | Three.js WebGL2, Web Audio API | LIVE |
+| EXP_002 | `gesture-fluid` | **Gesture Fluid Wall** | Canvas 2D, Navier-Stokes | BETA |
+| EXP_003 | `crowd-flow` | **Crowd Flow Twin** | Canvas 2D, Boids + Gray-Scott reaction-diffusion | BETA |
+| EXP_004 | `routines-repo-audit` | **Routines Repo Audit** | Claude Code Routines | LIVE |
+| EXP_005 | `autonomous-brand-pipeline` | **Autonomous Brand Pipeline** | Claude API, BullMQ, Redis Pub/Sub | BETA |
+| EXP_006 | `generative-ui-renderer` | **Generative UI Renderer** | OpenAI, Zod, SSE streaming | BETA |
+| EXP_007 | `adk-visualizer` | **ADK Visualizer** | React Flow, OpenAI | BETA |
+| EXP_008 | `orchestration-map` | **Orchestration Map** | React Flow, html2canvas, OpenAI | BETA |
 
-- **Voice Particles:** 150k GPU-instanced particles respond to microphone FFT. Band-directional physics (bass ↓ red, low-mid ← chartreuse, high-mid → cyan, treble ↑ white). Terrain mesh deformation. Mobile fallback (50k particles).
-- **Gesture Fluid:** 256×256 Eulerian fluid grid with pointer/touch velocity injection. 4 colour palettes. Idle/active mode transitions.
-- **Crowd Flow:** 10k Boids agents with spatial-hash neighbour detection. Trail density deposits onto a grid, feeding a Gray-Scott reaction-diffusion system for emergent organic patterns. Interactive obstacle drawing.
+- **Voice Particles (EXP_001):** 150k GPU-instanced particles respond to microphone FFT. Band-directional physics (bass ↓ red, low-mid ← chartreuse, high-mid → cyan, treble ↑ white). Terrain mesh deformation. Mobile fallback (50k particles).
+- **Gesture Fluid (EXP_002):** 256×256 Eulerian fluid grid with pointer/touch velocity injection. 4 colour palettes. Idle/active mode transitions.
+- **Crowd Flow (EXP_003):** 10k Boids agents with spatial-hash neighbour detection. Trail density deposits onto a grid, feeding a Gray-Scott reaction-diffusion system for emergent organic patterns. Interactive obstacle drawing.
+- **Routines Repo Audit (EXP_004):** Automated repo audit pipeline powered by Claude Code Routines. Displays formatted audit reports in a terminal-style interface.
+- **Autonomous Brand Pipeline (EXP_005):** Multi-agent brand content pipeline using the Claude API. Generates copy variants, evaluates them against configurable rules, and ranks results. BullMQ job queue with Redis Pub/Sub for real-time SSE progress streaming.
+- **Generative UI Renderer (EXP_006):** Prompt-to-UI renderer. OpenAI generates structured UI blocks (headings, cards, stats, forms, buttons, badges, dividers) validated by Zod schemas, streamed via SSE, and rendered progressively on a live canvas.
+- **ADK Visualizer (EXP_007):** Interactive visualization of Google ADK agent architectures. Pre-authored React Flow topologies (monolithic vs orchestrated) with live LLM annotation via streaming SSE.
+- **Orchestration Map (EXP_008):** Drag-and-drop agent orchestration designer. Build custom multi-agent topologies with typed nodes (orchestrator, specialist, tool, memory) and edges (delegation, return). Export as JSON or PNG. LLM annotation for architecture feedback.
 
 All experiment canvases are loaded via `next/dynamic` with `ssr: false`. The `WebGPUProvider` context gates WebGPU-dependent features with an amber fallback banner.
 
@@ -277,7 +326,7 @@ The Docker build uses a three-stage pipeline (deps → builder → runner) with 
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | Push/PR to main | Runs `npm audit --production --audit-level=high` |
+| `ci.yml` | Push/PR to main | Runs lint, typecheck (`tsc --noEmit`), build, and `npm audit --production --audit-level=high` |
 | `release.yml` | Push to main | Creates GitHub Releases via semantic-release |
 | `sync-project-versions.yml` | Daily 02:00 UTC | Syncs `version` and `lastUpdated` in `projects.json` from GitHub API |
 
