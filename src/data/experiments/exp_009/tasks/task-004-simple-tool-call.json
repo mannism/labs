@@ -1,0 +1,24 @@
+{
+  "id": "task-004-simple-tool-call",
+  "category": "simple_tool_call",
+  "source": "synthetic",
+  "description": "Model must call the CRM contact lookup tool using an email address extracted from a natural-language request. Tests correct tool selection and email extraction with no ambiguity in the prompt.",
+  "prompt": "Look up the CRM record for the contact with email address jordan.elliot@example.com. Use the available tool.",
+  "expectedSchema": "crm_contact_lookup",
+  "toolDefinitions": [
+    {
+      "name": "lookup_contact",
+      "description": "Searches the CRM for a contact record by email address and returns their profile.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The contact's email address in standard format, e.g. 'user@domain.com'."
+          }
+        },
+        "required": ["email"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "task-007-parallel-tool-calls",
+  "category": "parallel_tool_calls",
+  "source": "synthetic",
+  "description": "Model must simultaneously call an inventory check and a shipping estimator in a single turn. The two calls are independent — neither result feeds the other. Tests batching of operationally related but computationally independent tool calls.",
+  "prompt": "A customer wants to order 2 units of SKU 'PRD-4471-BLK' and ship them to postcode SW1A 1AA. Each unit weighs 1.2 kg. Check inventory availability and get a shipping estimate at the same time.",
+  "expectedSchema": "parallel_inventory_shipping",
+  "toolDefinitions": [
+    {
+      "name": "check_inventory",
+      "description": "Returns the current stock level for a product SKU, optionally scoped to a specific warehouse.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "description": "Product stock-keeping unit identifier, e.g. 'PRD-4471-BLK'."
+          },
+          "warehouse_id": {
+            "type": "string",
+            "description": "Optional warehouse filter. If omitted, returns aggregate stock across all warehouses."
+          }
+        },
+        "required": ["sku"]
+      }
+    },
+    {
+      "name": "estimate_shipping",
+      "description": "Calculates an estimated shipping cost and delivery window for a given destination and parcel weight.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "destination_postcode": {
+            "type": "string",
+            "description": "UK postcode for the delivery address, e.g. 'SW1A 1AA'."
+          },
+          "weight_kg": {
+            "type": "number",
+            "description": "Total parcel weight in kilograms."
+          }
+        },
+        "required": ["destination_postcode", "weight_kg"]
+      }
+    }
+  ]
+}

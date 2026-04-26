@@ -1,0 +1,8 @@
+{
+  "id": "task-015-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must analyse a batch of API error logs, identify the root cause category, assess severity, list affected services, propose remediation steps, and decide whether to escalate — all in one structured output. Tests log analysis + multi-field reasoning under strict enum and array constraints.",
+  "prompt": "Analyse the following API error log excerpt and return a structured incident triage record as JSON with these fields: root_cause_category (one of: rate_limit, auth_failure, upstream_timeout, malformed_payload, config_error, unknown), severity (one of: low, medium, high, critical), affected_services (array of strings, at least one), remediation_steps (array of 1–6 strings), requires_escalation (boolean).\n\nLog excerpt (last 5 minutes):\n[10:42:01] notifications-service → email-gateway: HTTP 504 Gateway Timeout (attempt 1/3)\n[10:42:04] notifications-service → email-gateway: HTTP 504 Gateway Timeout (attempt 2/3)\n[10:42:09] notifications-service → email-gateway: HTTP 504 Gateway Timeout (attempt 3/3) — circuit breaker OPEN\n[10:42:09] scheduler-service → notifications-service: HTTP 503 Service Unavailable (dependency unhealthy)\n[10:42:12] api-gateway → scheduler-service: HTTP 503 Service Unavailable\n[10:42:15] api-gateway: 47 requests queued, 12 dropped (queue full)\n[10:42:18] alerting-service: PagerDuty webhook delivery failed — no response from email-gateway\nPattern: email-gateway has returned 504 on 38/40 requests in the last 5 minutes. No deployment in the last 2 hours. email-gateway upstream (SendGrid API) shows elevated latency on status page.",
+  "expectedSchema": "incident_triage"
+}

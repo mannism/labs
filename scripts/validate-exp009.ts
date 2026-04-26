@@ -1,9 +1,11 @@
 /**
  * EXP_009 validation script
  *
- * Runs task-001, task-002, and task-003 against OpenAI and Anthropic providers.
- * Gemini is verified by inspection (correct SDK + error handling) but skipped
- * at runtime because GOOGLE_AI_API_KEY is not yet provisioned.
+ * Discovers all task JSON files from src/data/experiments/exp_009/tasks/,
+ * validates each against TaskSchema, then runs them against OpenAI and
+ * Anthropic providers. Gemini is verified by inspection (correct SDK + error
+ * handling) but skipped at runtime because GOOGLE_AI_API_KEY is not yet
+ * provisioned.
  *
  * Usage:
  *   npx tsx --env-file=.env scripts/validate-exp009.ts
@@ -13,30 +15,52 @@
  * when models are gated). Exit code 1 = unrecoverable setup error.
  */
 
-import { readFile } from 'fs/promises';
+import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { TaskSchema, MODEL_CONFIGS, type Task, type ModelId } from '../src/lib/experiments/exp_009/types';
 import { runTask } from '../src/lib/experiments/exp_009/runner';
 
 const TASKS_DIR = join(process.cwd(), 'src', 'data', 'experiments', 'exp_009', 'tasks');
 
-const TASK_FILES = [
-  'task-001-simple-tool-call.json',
-  'task-002-parallel-tool-calls.json',
-  'task-003-structured-json.json',
-];
-
 // Run against OpenAI and Anthropic only — Gemini key not yet provisioned.
 const ACTIVE_MODELS: ModelId[] = ['gpt-5.5', 'claude-opus-4-7'];
 
-async function loadTask(filename: string): Promise<Task> {
-  const raw = await readFile(join(TASKS_DIR, filename), 'utf-8');
-  const json: unknown = JSON.parse(raw);
-  const result = TaskSchema.safeParse(json);
-  if (!result.success) {
-    throw new Error(`Invalid task file ${filename}: ${JSON.stringify(result.error.issues)}`);
+/**
+ * Discover and load all task JSON files from the tasks directory.
+ * Files are sorted alphabetically so results are deterministic.
+ * Invalid files are logged and skipped — they do not abort the run.
+ */
+async function loadAllTasks(): Promise<Task[]> {
+  let files: string[];
+
+  try {
+    files = await readdir(TASKS_DIR);
+  } catch (err: unknown) {
+    throw new Error(`Cannot read tasks directory: ${String(err)}`);
   }
-  return result.data;
+
+  const jsonFiles = files.filter((f) => f.endsWith('.json')).sort();
+  const tasks: Task[] = [];
+
+  for (const file of jsonFiles) {
+    const filePath = join(TASKS_DIR, file);
+    try {
+      const raw = await readFile(filePath, 'utf-8');
+      const json: unknown = JSON.parse(raw);
+      const result = TaskSchema.safeParse(json);
+
+      if (result.success) {
+        tasks.push(result.data);
+      } else {
+        const errors = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`);
+        console.warn(`[validate] Skipping invalid task file ${file}: ${errors.join(', ')}`);
+      }
+    } catch (err: unknown) {
+      console.warn(`[validate] Failed to parse ${file}: ${String(err)}`);
+    }
+  }
+
+  return tasks;
 }
 
 function pad(s: string, n: number): string {
@@ -51,14 +75,21 @@ async function main(): Promise<void> {
   let tasks: Task[];
 
   try {
-    tasks = await Promise.all(TASK_FILES.map(loadTask));
+    tasks = await loadAllTasks();
   } catch (err: unknown) {
     console.error('Failed to load tasks:', err instanceof Error ? err.message : String(err));
     process.exit(1);
   }
 
+  if (tasks.length === 0) {
+    console.error('No valid task files found in tasks directory. Aborting.');
+    process.exit(1);
+  }
+
+  console.log(`Loaded ${tasks.length} task(s). Running against ${ACTIVE_MODELS.length} model(s)...\n`);
+
   const header = [
-    pad('Task ID', 36),
+    pad('Task ID', 40),
     pad('Model', 20),
     pad('Pass', 6),
     pad('Latency', 10),
@@ -69,6 +100,7 @@ async function main(): Promise<void> {
   console.log('-'.repeat(header.length));
 
   let anyFailed = false;
+  const failingSummary: Array<{ taskId: string; model: string; errors: string }> = [];
 
   for (const task of tasks) {
     for (const modelId of ACTIVE_MODELS) {
@@ -81,7 +113,7 @@ async function main(): Promise<void> {
 
       console.log(
         [
-          pad(result.taskId, 36),
+          pad(result.taskId, 40),
           pad(config.label, 20),
           pad(passLabel, 6),
           pad(latency, 10),
@@ -89,13 +121,21 @@ async function main(): Promise<void> {
         ].join('  '),
       );
 
-      if (!result.pass) anyFailed = true;
+      if (!result.pass) {
+        anyFailed = true;
+        failingSummary.push({ taskId: result.taskId, model: config.label, errors });
+      }
     }
     console.log('');
   }
 
   console.log('=== Run complete ===');
+
   if (anyFailed) {
+    console.log('\nFailing tasks summary:');
+    for (const f of failingSummary) {
+      console.log(`  ${f.taskId} / ${f.model}: ${f.errors || '(no error detail)'}`);
+    }
     console.log('\nNote: individual task failures may reflect gated model access or API key issues.');
     console.log('The runner itself is functioning correctly if errors are provider-level (not crashes).\n');
   } else {

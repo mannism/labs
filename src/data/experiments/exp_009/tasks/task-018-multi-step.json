@@ -1,0 +1,8 @@
+{
+  "id": "task-018-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must analyse a failed API call, classify the error, decide whether to retry or abort, specify a backoff strategy if retrying, draft a user-facing status message, and set the appropriate log level. Tests error-recovery reasoning across multiple output fields with enum and numeric constraints.",
+  "prompt": "You are an error-recovery controller. A downstream API call has failed. Analyse the failure details below and return a structured recovery plan as a JSON object.\n\nFailure details:\n- Endpoint: POST /api/payments/charge\n- HTTP status: 429\n- Response body: {\"error\": \"rate_limit_exceeded\", \"retry_after_ms\": 2000}\n- Attempt number: 2 of 3\n- Last attempt timestamp: 2026-04-26T14:33:01Z\n- Context: User is waiting for a payment confirmation in a checkout flow\n\nReturn a JSON object with: error_class (one of: transient, permanent, rate_limit, auth, unknown), action (one of: retry, abort, fallback, escalate), retry_strategy (object with max_attempts as integer 1–10, initial_delay_ms as non-negative integer, and backoff as one of: linear, exponential, none — include only if action is retry, omit otherwise), user_message (string max 200 chars: what to show the user right now), and log_level (one of: debug, info, warn, error, critical).",
+  "expectedSchema": "error_recovery_plan"
+}

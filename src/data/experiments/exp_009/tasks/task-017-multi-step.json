@@ -1,0 +1,8 @@
+{
+  "id": "task-017-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must plan a conditional API workflow given a set of tool availability flags and a user request. It must choose which tools to invoke in what order, identify a fallback if the preferred tool is unavailable, and describe the expected output shape. Tests branching and fallback reasoning under resource constraints.",
+  "prompt": "You are an orchestration planner. Given the tool availability flags and user request below, produce a conditional execution plan as a JSON object.\n\nAvailable tools and their status:\n- enrich_contact: AVAILABLE\n- send_notification: UNAVAILABLE (service degraded)\n- log_event: AVAILABLE\n- update_crm: AVAILABLE\n- send_sms_fallback: AVAILABLE\n\nUser request: A new lead has been captured. Enrich their contact record, update the CRM, notify them by the fastest available channel, and log the event for audit purposes.\n\nReturn a JSON object with: primary_tools (array of tool names for the happy path, in call order), fallback_tools (array of tool names used when a primary is unavailable), execution_order (final resolved order after applying fallbacks), skip_reason (string explaining any tool that was skipped — omit if nothing was skipped), and expected_output_shape (string: one sentence describing what a successful run returns to the caller).",
+  "expectedSchema": "conditional_tool_plan"
+}
