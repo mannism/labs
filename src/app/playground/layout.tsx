@@ -8,9 +8,9 @@ import { ExperimentsShell } from "@/components/playground/ExperimentsShell";
  */
 
 export const metadata: Metadata = {
-  title: "Playground | Labs by Diana",
+  title: "Live Experiments | Labs by Diana",
   description:
-    "Technical experiments exploring emerging browser capabilities. WebGPU compute shaders, real-time simulations, and interactive visualizations.",
+    "Live technical experiments — WebGPU simulations, agentic systems, real-time interfaces. Built in public.",
 };
 
 export default function ExperimentsLayout({

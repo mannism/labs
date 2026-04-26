@@ -10,7 +10,7 @@ import { useReducedMotion } from "@/components/v2/useReducedMotion";
 
 /**
  * ExperimentsLanding — hero section + card grid for the experiments index.
- * Hero: system label, GPU PLAYGROUND headline with text scramble, subtitle.
+ * Hero: system label, LIVE EXPERIMENTS headline with text scramble, subtitle.
  * Grid: 3-col desktop, 2-col tablet, 1-col mobile with stagger-fade entrance.
  * WebGPU browser support banner shown when navigator.gpu is unavailable.
  */
@@ -34,7 +34,7 @@ export function ExperimentsLanding() {
   const prefersReduced = useReducedMotion();
 
   /** Ghost Type scramble on the headline */
-  const headline = useTextScramble("GPU Playground", {
+  const headline = useTextScramble("Live Experiments", {
     delay: 100,
     enabled: true,
     sessionKey: "ghost-type-exp-hero",
@@ -62,7 +62,7 @@ export function ExperimentsLanding() {
             textTransform: "uppercase",
           }}
         >
-          EXPERIMENTS // WEBGPU.COMPUTE
+          PLAYGROUND // EXPERIMENTS
         </p>
 
         {/* Headline */}
@@ -94,9 +94,8 @@ export function ExperimentsLanding() {
             margin: 0,
           }}
         >
-          Technical experiments exploring emerging browser capabilities. WebGPU
-          compute shaders, real-time simulations, and interactive
-          visualizations.
+          WebGPU simulations, agentic systems, real-time interfaces. Built in
+          public, shipped imperfect.
         </p>
       </section>
 
