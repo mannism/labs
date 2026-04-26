@@ -1,0 +1,8 @@
+{
+  "id": "task-016-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must inspect an inbound data record against a published contract, enumerate which fields pass and which fail (with a reason per failure), and produce a structured validation report with a correctable flag. Tests field-level inspection, conditional classification, and structured reporting under per-field constraints.",
+  "prompt": "You are a data pipeline validator. Inspect the following inbound record against the contract below and return a JSON validation report.\n\nContract:\n- id: required string, must be non-empty\n- email: required string, must be a valid email address\n- plan: required string, must be one of: free, pro, enterprise\n- created_at: required string, must be ISO 8601 datetime\n- seat_count: optional number, must be a positive integer if present\n\nReturn a JSON object with: verdict ('pass' if all required fields are valid, 'fail' otherwise), valid_fields (array of field names that passed), invalid_fields (array of objects with field and reason for each failure), correctable (boolean — true if all failures are fixable without re-collecting data from the source, false if data is fundamentally unusable), and notes (string, max 300 characters, a brief human summary).\n\nRecord: {\"id\": \"usr_7742\", \"email\": \"not-an-email\", \"plan\": \"premium\", \"created_at\": \"2026-04-01T09:00:00Z\", \"seat_count\": 0}",
+  "expectedSchema": "data_validation_report"
+}

@@ -58,10 +58,12 @@ export const MODEL_CONFIGS: Record<ModelId, ModelConfig> = {
 // Task categories
 // ---------------------------------------------------------------------------
 
+// Note: 'chained_tool_calls' is reserved for a future multi-turn runner that can
+// execute tool calls and thread results across turns. The current single-turn runner
+// cannot support it — see refactor(exp_009) commit for details.
 export const TASK_CATEGORIES = [
   'simple_tool_call',
   'parallel_tool_calls',
-  'chained_tool_calls',
   'structured_json',
   'multi_step',
 ] as const;
@@ -328,85 +330,6 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
   }),
 
   // -------------------------------------------------------------------------
-  // chained_tool_calls (tasks 008, 009, 010)
-  // -------------------------------------------------------------------------
-  //
-  // Chained tasks ask the model to plan a multi-step sequence in a single
-  // turn. The runner returns { tool_calls: [...] } for all tool-calling
-  // categories. For chained tasks the model must emit both calls in the
-  // correct order without executing them. We validate the full tool_calls
-  // array shape — both tool names and required arguments must be present.
-  //
-  // Note: because no real tool execution occurs, the model cannot actually
-  // thread a real draft_id or slug from step 1 into step 2. The schema
-  // accepts any non-empty string for those pass-through fields — the
-  // structural planning (correct tool names + argument keys) is what's
-  // being tested, not runtime values.
-
-  /**
-   * task-008: plan a two-step chain — get_user_profile then get_billing_status.
-   * Validates that both tool calls are present in the correct order with the
-   * required argument keys populated.
-   */
-  chained_user_org_billing: z.object({
-    tool_calls: z
-      .tuple([
-        z.object({
-          tool_name: z.literal('get_user_profile'),
-          arguments: z.object({ user_id: z.string() }),
-        }),
-        z.object({
-          tool_name: z.literal('get_billing_status'),
-          arguments: z.object({ org_id: z.string() }),
-        }),
-      ]),
-  }),
-
-  /**
-   * task-009: plan a two-step CMS chain — search_articles then fetch_article.
-   * Validates both calls are present in order with required argument keys.
-   */
-  chained_cms_search_fetch: z.object({
-    tool_calls: z
-      .tuple([
-        z.object({
-          tool_name: z.literal('search_articles'),
-          arguments: z.object({ tag: z.string(), limit: z.number().int().positive().optional() }),
-        }),
-        z.object({
-          tool_name: z.literal('fetch_article'),
-          arguments: z.object({ slug: z.string() }),
-        }),
-      ]),
-  }),
-
-  /**
-   * task-010: plan a two-step email chain — create_email_draft then schedule_email.
-   * Validates both calls are in order with the required argument keys.
-   * draft_id in step 2 must be a non-empty string (runtime value unknown at plan time).
-   */
-  chained_draft_schedule: z.object({
-    tool_calls: z
-      .tuple([
-        z.object({
-          tool_name: z.literal('create_email_draft'),
-          arguments: z.object({
-            to: z.string().email(),
-            subject: z.string(),
-            body: z.string(),
-          }),
-        }),
-        z.object({
-          tool_name: z.literal('schedule_email'),
-          arguments: z.object({
-            draft_id: z.string().min(1),
-            send_at: z.string().datetime(),
-          }),
-        }),
-      ]),
-  }),
-
-  // -------------------------------------------------------------------------
   // structured_json (tasks 003, 011, 012)
   // -------------------------------------------------------------------------
 
@@ -451,7 +374,7 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
   }),
 
   // -------------------------------------------------------------------------
-  // multi_step (tasks 013, 014, 015)
+  // multi_step (tasks 013, 014, 015, 016, 017, 018)
   // -------------------------------------------------------------------------
 
   /**
@@ -499,5 +422,58 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
     affected_services: z.array(z.string()).min(1),
     remediation_steps: z.array(z.string()).min(1).max(6),
     requires_escalation: z.boolean(),
+  }),
+
+  /**
+   * task-016: validate an inbound data record against a schema contract and
+   * produce a structured report — valid fields, invalid fields with reasons,
+   * and a pass/fail verdict. Tests conditional data inspection and structured
+   * reporting under field-level constraints.
+   */
+  data_validation_report: z.object({
+    verdict: z.enum(['pass', 'fail']),
+    valid_fields: z.array(z.string()),
+    invalid_fields: z.array(
+      z.object({
+        field: z.string(),
+        reason: z.string(),
+      }),
+    ),
+    correctable: z.boolean(),
+    notes: z.string().max(300),
+  }),
+
+  /**
+   * task-017: given a set of tool availability flags and a user request,
+   * decide which tools to invoke, in what order, and what to do if a
+   * preferred tool is unavailable. Tests conditional API workflow planning
+   * under resource constraints — branching + fallback reasoning.
+   */
+  conditional_tool_plan: z.object({
+    primary_tools: z.array(z.string()).min(1),
+    fallback_tools: z.array(z.string()),
+    execution_order: z.array(z.string()).min(1),
+    skip_reason: z.string().optional(),
+    expected_output_shape: z.string(),
+  }),
+
+  /**
+   * task-018: given a failed API call with error details, produce a recovery
+   * plan — classify the error, decide whether to retry or abort, specify
+   * backoff strategy, and draft a user-facing status message. Tests
+   * error-recovery reasoning with structured multi-field output.
+   */
+  error_recovery_plan: z.object({
+    error_class: z.enum(['transient', 'permanent', 'rate_limit', 'auth', 'unknown']),
+    action: z.enum(['retry', 'abort', 'fallback', 'escalate']),
+    retry_strategy: z
+      .object({
+        max_attempts: z.number().int().min(1).max(10),
+        initial_delay_ms: z.number().int().nonnegative(),
+        backoff: z.enum(['linear', 'exponential', 'none']),
+      })
+      .optional(),
+    user_message: z.string().max(200),
+    log_level: z.enum(['debug', 'info', 'warn', 'error', 'critical']),
   }),
 };
