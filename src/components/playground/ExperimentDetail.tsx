@@ -11,6 +11,10 @@ import { StatusIndicator } from "./StatusIndicator";
  * description, input indicator badge), and either a live experiment
  * canvas or a "coming soon" placeholder depending on experiment status.
  *
+ * Design pattern: the input-type pill is always a passive tag describing
+ * the interaction modality. Interactive controls (run buttons, etc.) live
+ * inside the dark canvas area owned by the experiment component itself.
+ *
  * Live experiments are loaded via next/dynamic with ssr: false to avoid
  * server-side rendering of Three.js / browser-only APIs.
  */
@@ -135,14 +139,34 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_009: Agentic Reliability Dashboard — SSE benchmark runner, 3-column task grid.
+     Imports DashboardClient (the thin next/dynamic wrapper) from the exp_009 component
+     directory. DashboardClient itself loads Dashboard with ssr: false, satisfying
+     Next.js 16+ Turbopack's requirement that ssr:false be declared inside a Client
+     Component. Re-using the existing component — no duplication. */
+  "agentic-reliability": dynamic(
+    () =>
+      import("../experiments/exp_009/DashboardClient").then(
+        (mod) => mod.DashboardClient
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
-/** Map input types to their descriptive requirement text. */
+/**
+ * Map input types to their descriptive requirement text.
+ * All entries render as passive tags — not interactive controls.
+ * Interactive run buttons live inside the dark canvas area.
+ */
 const INPUT_LABELS: Record<string, string> = {
   Microphone: "REQUIRES MICROPHONE ACCESS",
   Camera: "REQUIRES CAMERA ACCESS",
   "Mouse / Touch": "MOUSE OR TOUCH INPUT",
   "Text": "TEXT INPUT",
+  "Click to run": "CLICK TO RUN",
   None: "NO INPUT REQUIRED — READ ONLY",
 };
 
@@ -276,7 +300,8 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
           {experiment.description}
         </p>
 
-        {/* Input indicator badge + status */}
+        {/* Input indicator badge + status — always a passive tag.
+            Interactive controls (run buttons etc.) live inside the dark canvas. */}
         <div
           style={{
             display: "flex",

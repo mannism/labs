@@ -8,7 +8,10 @@
  *   - SSE subscription via useExp009Stream
  *   - Elapsed timer (setInterval, cleared on run completion)
  *   - aria-live region for screen reader announcements of SSE events
- *   - Layout: sticky ControlsStrip → 3-column task grid → MetricsRow
+ *   - Layout: sticky ControlsStrip (RUN button + status) → 3-column task grid → MetricsRow
+ *
+ * Design pattern: RUN SUITE button lives inside ControlsStrip (inside the dark canvas).
+ * The input-type pill in ExperimentDetail is a passive descriptive tag only — no event bridge.
  *
  * Architecture:
  *   - Results are stored flat in `results[]`; per-column views are derived via Map
@@ -204,7 +207,7 @@ export function Dashboard() {
         id="results-announcements"
       />
 
-      {/* ── Controls strip (sticky) ──────────────────────────── */}
+      {/* ── Controls strip (sticky) — RUN button, status badge, timer, error ── */}
       <ControlsStrip
         status={startError ? "error" : status}
         isStarting={isStarting}
