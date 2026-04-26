@@ -8,15 +8,10 @@
  *   - SSE subscription via useExp009Stream
  *   - Elapsed timer (setInterval, cleared on run completion)
  *   - aria-live region for screen reader announcements of SSE events
- *   - Layout: sticky RunStatusBar → 3-column task grid → MetricsRow
+ *   - Layout: sticky ControlsStrip (RUN button + status) → 3-column task grid → MetricsRow
  *
- * Run trigger integration with ExperimentDetail shell:
- *   - Listens for `playground:experiment-run` custom events (dispatched by the
- *     "CLICK TO RUN" pill in ExperimentDetail when inputType === "Click to run").
- *   - Emits `playground:experiment-status` on every status transition so the pill
- *     can disable itself while a run is in progress.
- *   - Slug filter (`detail.slug === 'agentic-reliability'`) keeps the event handler
- *     specific — future experiments implement the same protocol independently.
+ * Design pattern: RUN SUITE button lives inside ControlsStrip (inside the dark canvas).
+ * The input-type pill in ExperimentDetail is a passive descriptive tag only — no event bridge.
  *
  * Architecture:
  *   - Results are stored flat in `results[]`; per-column views are derived via Map
@@ -181,48 +176,6 @@ export function Dashboard() {
     }
   }, [isStarting, status]);
 
-  // ── Custom event bridge: playground:experiment-run → handleRunClick ──────
-  /**
-   * ExperimentDetail's "CLICK TO RUN" pill dispatches playground:experiment-run
-   * when clicked. We subscribe here so the pill in the shell triggers the same
-   * run handler that ControlsStrip's button used to call directly.
-   * Slug filter ensures only this experiment responds; the pattern generalises
-   * to any future "Click to run" experiment without changes to ExperimentDetail.
-   */
-  useEffect(() => {
-    function onRunEvent(e: Event) {
-      const ev = e as CustomEvent<{ slug: string }>;
-      if (ev.detail.slug !== "agentic-reliability") return;
-      void handleRunClick();
-    }
-    window.addEventListener("playground:experiment-run", onRunEvent);
-    return () => {
-      window.removeEventListener("playground:experiment-run", onRunEvent);
-    };
-  }, [handleRunClick]);
-
-  // ── Status emitter: playground:experiment-status ──────────────────────────
-  /**
-   * Emit playground:experiment-status on every status transition so
-   * ExperimentDetail's pill button can disable itself while a run is active.
-   * Maps internal SSE stream status + isStarting to the pill's three-value
-   * RunStatus type: "idle" | "running" | "done".
-   */
-  useEffect(() => {
-    const derivedStatus: "idle" | "running" | "done" =
-      isStarting || status === "connecting" || status === "streaming"
-        ? "running"
-        : status === "done"
-          ? "done"
-          : "idle";
-
-    window.dispatchEvent(
-      new CustomEvent("playground:experiment-status", {
-        detail: { slug: "agentic-reliability", status: derivedStatus },
-      })
-    );
-  }, [status, isStarting]);
-
   // Combined error: start error takes precedence over stream error.
   const displayError = startError ?? streamError;
 
@@ -254,11 +207,13 @@ export function Dashboard() {
         id="results-announcements"
       />
 
-      {/* ── Run status bar (sticky) — shows status badge, timer, error ──── */}
+      {/* ── Controls strip (sticky) — RUN button, status badge, timer, error ── */}
       <ControlsStrip
         status={startError ? "error" : status}
+        isStarting={isStarting}
         totalTasks={displayTotalTasks}
         elapsedSeconds={elapsedSeconds}
+        onRunClick={handleRunClick}
         error={displayError}
       />
 

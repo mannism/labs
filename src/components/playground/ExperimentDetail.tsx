@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useState, useEffect, useCallback } from "react";
 import type { Experiment } from "@/types/experiment";
 import { StatusIndicator } from "./StatusIndicator";
 
@@ -11,6 +10,10 @@ import { StatusIndicator } from "./StatusIndicator";
  * Displays breadcrumb navigation, header (system label, title,
  * description, input indicator badge), and either a live experiment
  * canvas or a "coming soon" placeholder depending on experiment status.
+ *
+ * Design pattern: the input-type pill is always a passive tag describing
+ * the interaction modality. Interactive controls (run buttons, etc.) live
+ * inside the dark canvas area owned by the experiment component itself.
  *
  * Live experiments are loaded via next/dynamic with ssr: false to avoid
  * server-side rendering of Three.js / browser-only APIs.
@@ -153,22 +156,19 @@ const EXPERIMENT_COMPONENTS: Record<
   ),
 };
 
-/** Map input types to their descriptive requirement text. */
+/**
+ * Map input types to their descriptive requirement text.
+ * All entries render as passive tags — not interactive controls.
+ * Interactive run buttons live inside the dark canvas area.
+ */
 const INPUT_LABELS: Record<string, string> = {
   Microphone: "REQUIRES MICROPHONE ACCESS",
   Camera: "REQUIRES CAMERA ACCESS",
   "Mouse / Touch": "MOUSE OR TOUCH INPUT",
   "Text": "TEXT INPUT",
+  "Click to run": "CLICK TO RUN",
   None: "NO INPUT REQUIRED — READ ONLY",
 };
-
-/**
- * Run status for "Click to run" experiments.
- * Received via the `playground:experiment-status` custom event emitted by
- * the mounted experiment component (e.g. Dashboard). The pill button is
- * disabled while status is "running" so users cannot double-trigger a run.
- */
-type RunStatus = "idle" | "running" | "done";
 
 export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
   /** Format experiment number for breadcrumb display, e.g. EXP_001 -> 001 */
@@ -176,51 +176,6 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
 
   /** Look up the live experiment component by slug — undefined means placeholder */
   const ExperimentComponent = EXPERIMENT_COMPONENTS[experiment.slug] ?? null;
-
-  /**
-   * Run status for "Click to run" pill — mirrors the mounted experiment's
-   * own status, received via playground:experiment-status custom events.
-   * Only relevant when inputType === "Click to run"; harmlessly idle otherwise.
-   */
-  const [runStatus, setRunStatus] = useState<RunStatus>("idle");
-
-  /**
-   * Dispatch the run trigger event and update local status to "running".
-   * The mounted experiment (e.g. Dashboard) listens for playground:experiment-run
-   * and executes the actual POST + SSE flow. The pill is disabled while running
-   * so duplicate dispatches are blocked at source.
-   */
-  const handleRunClick = useCallback(() => {
-    if (runStatus === "running") return;
-    setRunStatus("running");
-    window.dispatchEvent(
-      new CustomEvent("playground:experiment-run", {
-        detail: { slug: experiment.slug },
-      })
-    );
-  }, [runStatus, experiment.slug]);
-
-  /**
-   * Listen for status feedback from the mounted experiment component.
-   * The experiment emits playground:experiment-status events on each transition
-   * (idle → running → done). ExperimentDetail stays experiment-agnostic:
-   * it only checks detail.slug so the pattern works for any future experiment
-   * that adopts the "Click to run" inputType.
-   */
-  useEffect(() => {
-    if (experiment.inputType !== "Click to run") return;
-
-    function onStatus(e: Event) {
-      const ev = e as CustomEvent<{ slug: string; status: RunStatus }>;
-      if (ev.detail.slug !== experiment.slug) return;
-      setRunStatus(ev.detail.status);
-    }
-
-    window.addEventListener("playground:experiment-status", onStatus);
-    return () => {
-      window.removeEventListener("playground:experiment-status", onStatus);
-    };
-  }, [experiment.slug, experiment.inputType]);
 
   return (
     <>
@@ -289,16 +244,12 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         </ol>
       </nav>
 
-      {/* Concept header.
-          paddingBottom: 0 so dark-background experiments (EXP_009) have no
-          light-bg strip between the header's last element and the canvas edge.
-          Internal content spacing is handled by each child element's own margins.
-          paddingTop preserved for separation from the breadcrumb nav above. */}
+      {/* Concept header */}
       <section
         className="max-w-7xl mx-auto w-full px-6"
         style={{
           paddingTop: "var(--v2-space-lg)",
-          paddingBottom: 0,
+          paddingBottom: "var(--v2-space-lg)",
         }}
       >
         {/* System label */}
@@ -349,7 +300,8 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
           {experiment.description}
         </p>
 
-        {/* Input indicator badge + status */}
+        {/* Input indicator badge + status — always a passive tag.
+            Interactive controls (run buttons etc.) live inside the dark canvas. */}
         <div
           style={{
             display: "flex",
@@ -358,106 +310,36 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             flexWrap: "wrap",
           }}
         >
-          {experiment.inputType === "Click to run" ? (
-            /*
-             * Interactive pill for "Click to run" experiments.
-             * Dispatches playground:experiment-run on click; disabled while
-             * the experiment reports status "running" via playground:experiment-status.
-             * Rendered as <button> so it is keyboard-focusable and screen-reader
-             * announced as a control. Visual styling matches the passive <span>
-             * so the pattern is visually consistent with other input-type badges.
-             */
-            <button
-              type="button"
-              onClick={handleRunClick}
-              disabled={runStatus === "running"}
-              aria-label={
-                runStatus === "running"
-                  ? "Benchmark run in progress"
-                  : "Click to start the benchmark run"
-              }
-              style={{
-                /*
-                 * Solid chartreuse fill + near-black text — lifted from the
-                 * old ControlsStrip "RUN SUITE" button for maximum contrast.
-                 * Opacity dims to 0.6 while running so the busy state is clear
-                 * without removing the chartreuse fill entirely.
-                 */
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                fontFamily: "var(--v2-font-display)",
-                fontSize: "var(--v2-font-size-xs)",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                /* --v2-text-primary = #1A1D23 (near-black) — correct contrast on chartreuse fill.
-                   --v2-bg-primary = #F0F2F5 (near-white) — wrong, was prior commit's mistake. */
-                color: "var(--v2-text-primary)",
-                background: "var(--v2-accent)",
-                border: "none",
-                padding: "6px 14px",
-                borderRadius: "2px",
-                cursor: runStatus === "running" ? "not-allowed" : "pointer",
-                opacity: runStatus === "running" ? 0.6 : 1,
-                transition: "opacity 0.2s ease, box-shadow 0.15s ease",
-                outline: "none",
-              }}
-              onMouseEnter={(e) => {
-                if (runStatus !== "running") {
-                  e.currentTarget.style.opacity = "0.85";
-                  e.currentTarget.style.boxShadow = "0 0 20px rgba(200, 255, 0, 0.3)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = runStatus === "running" ? "0.6" : "1";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent), 0 0 0 4px var(--v2-bg-primary)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              {runStatus === "running" ? "RUNNING…" : "CLICK TO RUN"}
-            </button>
-          ) : (
-            /* Passive badge for all other input types */
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                fontFamily: "var(--v2-font-mono)",
-                fontSize: "var(--v2-font-size-xs)",
-                textTransform: "uppercase",
-                color: "var(--v2-text-tertiary)",
-                background: "var(--v2-tag-bg)",
-                border: "1px solid var(--v2-tag-border)",
-                padding: "4px 12px",
-                borderRadius: "2px",
-              }}
-            >
-              {/* Input icon — simple unicode indicator */}
-              {experiment.inputType === "Microphone" && "🎤"}
-              {experiment.inputType === "Camera" && "📷"}
-              {experiment.inputType === "Mouse / Touch" && "🖱"}
-              {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
-            </span>
-          )}
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              textTransform: "uppercase",
+              color: "var(--v2-text-tertiary)",
+              background: "var(--v2-tag-bg)",
+              border: "1px solid var(--v2-tag-border)",
+              padding: "4px 12px",
+              borderRadius: "2px",
+            }}
+          >
+            {/* Input icon — simple unicode indicator */}
+            {experiment.inputType === "Microphone" && "🎤"}
+            {experiment.inputType === "Camera" && "📷"}
+            {experiment.inputType === "Mouse / Touch" && "🖱"}
+            {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
+          </span>
           <StatusIndicator status={experiment.status} />
         </div>
       </section>
 
-      {/* Experiment canvas area — renders live component or placeholder.
-          margin-top: 0 so dark-background experiments (e.g. EXP_009 Dashboard)
-          butt directly against the header section with no page-bg gap visible.
-          margin-bottom preserved for breathing room below the canvas. */}
+      {/* Experiment canvas area — renders live component or placeholder */}
       <section
         style={{
           width: "100%",
-          margin: "0 0 var(--v2-space-lg) 0",
+          margin: "var(--v2-space-lg) 0",
           position: "relative",
         }}
       >
