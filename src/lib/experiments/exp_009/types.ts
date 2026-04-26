@@ -150,6 +150,60 @@ export const TaskResultSchema = z.object({
 export type TaskResult = z.infer<typeof TaskResultSchema>;
 
 // ---------------------------------------------------------------------------
+// API request / response shapes
+// ---------------------------------------------------------------------------
+
+/**
+ * Request body for POST /api/experiments/exp_009/run.
+ * taskIds: subset of task IDs to run; omit/empty → run all loaded tasks.
+ * modelIds: subset of model IDs to run; omit/empty → run all three models.
+ */
+export const RunRequestSchema = z.object({
+  taskIds: z.array(z.string()).optional(),
+  modelIds: z.array(z.enum(MODEL_IDS)).optional(),
+});
+
+export type RunRequest = z.infer<typeof RunRequestSchema>;
+
+/**
+ * Response body for POST /api/experiments/exp_009/run.
+ * runId is used to subscribe to the SSE stream at GET /results?runId=<runId>.
+ */
+export const RunResponseSchema = z.object({
+  runId: z.string(),
+});
+
+export type RunResponse = z.infer<typeof RunResponseSchema>;
+
+/**
+ * SSE event shapes for GET /api/experiments/exp_009/results.
+ *
+ * Clients receive two event types:
+ *   event: task_result  — emitted for each completed TaskResult
+ *   event: done         — emitted once all tasks across all models are complete
+ *   event: error        — emitted if the run fails fatally before completing
+ */
+export const SseTaskResultEventSchema = z.object({
+  type: z.literal('task_result'),
+  data: TaskResultSchema,
+});
+
+export const SseDoneEventSchema = z.object({
+  type: z.literal('done'),
+  runId: z.string(),
+  totalResults: z.number().int().nonnegative(),
+});
+
+export const SseErrorEventSchema = z.object({
+  type: z.literal('error'),
+  message: z.string(),
+});
+
+export type SseTaskResultEvent = z.infer<typeof SseTaskResultEventSchema>;
+export type SseDoneEvent = z.infer<typeof SseDoneEventSchema>;
+export type SseErrorEvent = z.infer<typeof SseErrorEventSchema>;
+
+// ---------------------------------------------------------------------------
 // Run summary (aggregate stats per model for a completed suite run)
 // ---------------------------------------------------------------------------
 
