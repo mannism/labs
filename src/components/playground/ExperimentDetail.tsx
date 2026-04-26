@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useState, useEffect, useCallback } from "react";
 import type { Experiment } from "@/types/experiment";
 import { StatusIndicator } from "./StatusIndicator";
 
@@ -161,12 +162,65 @@ const INPUT_LABELS: Record<string, string> = {
   None: "NO INPUT REQUIRED — READ ONLY",
 };
 
+/**
+ * Run status for "Click to run" experiments.
+ * Received via the `playground:experiment-status` custom event emitted by
+ * the mounted experiment component (e.g. Dashboard). The pill button is
+ * disabled while status is "running" so users cannot double-trigger a run.
+ */
+type RunStatus = "idle" | "running" | "done";
+
 export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
   /** Format experiment number for breadcrumb display, e.g. EXP_001 -> 001 */
   const expNum = experiment.experimentNumber.replace("EXP_", "");
 
   /** Look up the live experiment component by slug — undefined means placeholder */
   const ExperimentComponent = EXPERIMENT_COMPONENTS[experiment.slug] ?? null;
+
+  /**
+   * Run status for "Click to run" pill — mirrors the mounted experiment's
+   * own status, received via playground:experiment-status custom events.
+   * Only relevant when inputType === "Click to run"; harmlessly idle otherwise.
+   */
+  const [runStatus, setRunStatus] = useState<RunStatus>("idle");
+
+  /**
+   * Dispatch the run trigger event and update local status to "running".
+   * The mounted experiment (e.g. Dashboard) listens for playground:experiment-run
+   * and executes the actual POST + SSE flow. The pill is disabled while running
+   * so duplicate dispatches are blocked at source.
+   */
+  const handleRunClick = useCallback(() => {
+    if (runStatus === "running") return;
+    setRunStatus("running");
+    window.dispatchEvent(
+      new CustomEvent("playground:experiment-run", {
+        detail: { slug: experiment.slug },
+      })
+    );
+  }, [runStatus, experiment.slug]);
+
+  /**
+   * Listen for status feedback from the mounted experiment component.
+   * The experiment emits playground:experiment-status events on each transition
+   * (idle → running → done). ExperimentDetail stays experiment-agnostic:
+   * it only checks detail.slug so the pattern works for any future experiment
+   * that adopts the "Click to run" inputType.
+   */
+  useEffect(() => {
+    if (experiment.inputType !== "Click to run") return;
+
+    function onStatus(e: Event) {
+      const ev = e as CustomEvent<{ slug: string; status: RunStatus }>;
+      if (ev.detail.slug !== experiment.slug) return;
+      setRunStatus(ev.detail.status);
+    }
+
+    window.addEventListener("playground:experiment-status", onStatus);
+    return () => {
+      window.removeEventListener("playground:experiment-status", onStatus);
+    };
+  }, [experiment.slug, experiment.inputType]);
 
   return (
     <>
@@ -300,27 +354,82 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             flexWrap: "wrap",
           }}
         >
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              fontFamily: "var(--v2-font-mono)",
-              fontSize: "var(--v2-font-size-xs)",
-              textTransform: "uppercase",
-              color: "var(--v2-text-tertiary)",
-              background: "var(--v2-tag-bg)",
-              border: "1px solid var(--v2-tag-border)",
-              padding: "4px 12px",
-              borderRadius: "2px",
-            }}
-          >
-            {/* Input icon — simple unicode indicator */}
-            {experiment.inputType === "Microphone" && "🎤"}
-            {experiment.inputType === "Camera" && "📷"}
-            {experiment.inputType === "Mouse / Touch" && "🖱"}
-            {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
-          </span>
+          {experiment.inputType === "Click to run" ? (
+            /*
+             * Interactive pill for "Click to run" experiments.
+             * Dispatches playground:experiment-run on click; disabled while
+             * the experiment reports status "running" via playground:experiment-status.
+             * Rendered as <button> so it is keyboard-focusable and screen-reader
+             * announced as a control. Visual styling matches the passive <span>
+             * so the pattern is visually consistent with other input-type badges.
+             */
+            <button
+              type="button"
+              onClick={handleRunClick}
+              disabled={runStatus === "running"}
+              aria-label={
+                runStatus === "running"
+                  ? "Benchmark run in progress"
+                  : "Click to start the benchmark run"
+              }
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                textTransform: "uppercase",
+                color: runStatus === "running" ? "var(--v2-text-tertiary)" : "var(--v2-accent)",
+                background: "var(--v2-tag-bg)",
+                border: `1px solid ${runStatus === "running" ? "var(--v2-tag-border)" : "var(--v2-accent)"}`,
+                padding: "4px 12px",
+                borderRadius: "2px",
+                cursor: runStatus === "running" ? "not-allowed" : "pointer",
+                opacity: runStatus === "running" ? 0.5 : 1,
+                transition: "opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.15s ease",
+                outline: "none",
+              }}
+              onMouseEnter={(e) => {
+                if (runStatus !== "running") {
+                  e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "none";
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {runStatus === "running" ? "RUNNING…" : "CLICK TO RUN"}
+            </button>
+          ) : (
+            /* Passive badge for all other input types */
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                textTransform: "uppercase",
+                color: "var(--v2-text-tertiary)",
+                background: "var(--v2-tag-bg)",
+                border: "1px solid var(--v2-tag-border)",
+                padding: "4px 12px",
+                borderRadius: "2px",
+              }}
+            >
+              {/* Input icon — simple unicode indicator */}
+              {experiment.inputType === "Microphone" && "🎤"}
+              {experiment.inputType === "Camera" && "📷"}
+              {experiment.inputType === "Mouse / Touch" && "🖱"}
+              {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
+            </span>
+          )}
           <StatusIndicator status={experiment.status} />
         </div>
       </section>

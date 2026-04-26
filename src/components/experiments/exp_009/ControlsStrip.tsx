@@ -1,12 +1,14 @@
 "use client";
 
 /**
- * ControlsStrip — sticky control bar above the benchmark grid.
+ * ControlsStrip — sticky status bar above the benchmark grid.
  *
- * Contents (left to right):
- *   1. RUN SUITE button — triggers POST /run; disables during active run
- *   2. Status badge — pulsing dot + state text (hidden pre-run)
- *   3. Task counter + elapsed timer (hidden pre-run)
+ * The run trigger has moved to ExperimentDetail's "CLICK TO RUN" pill
+ * (dispatches playground:experiment-run; Dashboard subscribes and executes).
+ * This component is now a pure status display:
+ *   1. Status badge — pulsing dot + state text (hidden pre-run)
+ *   2. Task counter + elapsed timer (hidden pre-run)
+ *   3. Error message (shown when status === "error")
  *
  * The strip is sticky (z-index: 30, below navbar at z-40) with glass blur.
  * Elapsed timer uses setInterval updated every second by the parent Dashboard.
@@ -17,16 +19,12 @@ import type { StreamStatus } from "@/hooks/useExp009Stream";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ControlsStripProps {
-  /** Current SSE stream status — drives button state and badge copy. */
+  /** Current SSE stream status — drives badge copy and counter visibility. */
   status: StreamStatus;
-  /** True while the POST /run fetch is in flight. */
-  isStarting: boolean;
   /** Total tasks in the suite (shown in counter). */
   totalTasks: number;
   /** Elapsed seconds since the run started (shown in counter). */
   elapsedSeconds: number;
-  /** Callback to trigger a new run. */
-  onRunClick: () => void;
   /** Non-null when status === "error". */
   error: string | null;
 }
@@ -40,11 +38,6 @@ function formatElapsed(seconds: number): string {
     .padStart(2, "0");
   const s = (seconds % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
-}
-
-/** True when the run button should be disabled */
-function isRunDisabled(status: StreamStatus, isStarting: boolean): boolean {
-  return isStarting || status === "connecting" || status === "streaming";
 }
 
 // ─── Status badge config ──────────────────────────────────────────────────────
@@ -73,13 +66,10 @@ function getStatusConfig(status: StreamStatus): StatusConfig | null {
 
 export function ControlsStrip({
   status,
-  isStarting,
   totalTasks,
   elapsedSeconds,
-  onRunClick,
   error,
 }: ControlsStripProps) {
-  const disabled = isRunDisabled(status, isStarting);
   const statusConfig = getStatusConfig(status);
   const showCounter =
     status === "connecting" ||
@@ -90,7 +80,7 @@ export function ControlsStrip({
   return (
     <div
       role="region"
-      aria-label="Run controls"
+      aria-label="Run status"
       style={{
         position: "sticky",
         top: 0,
@@ -107,7 +97,7 @@ export function ControlsStrip({
         flexWrap: "wrap",
       }}
     >
-      {/* ── Left group: button + status ───────────────────────── */}
+      {/* ── Left group: status badge ──────────────────────────── */}
       <div
         style={{
           display: "flex",
@@ -116,47 +106,6 @@ export function ControlsStrip({
           flexWrap: "wrap",
         }}
       >
-        {/* RUN SUITE button */}
-        <button
-          type="button"
-          onClick={onRunClick}
-          disabled={disabled}
-          aria-label="Start agentic reliability test run"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--v2-space-xs)",
-            padding: "0.625rem 1.25rem",
-            background: disabled ? "var(--v2-text-tertiary)" : "var(--v2-accent)",
-            color: "var(--v2-text-primary)",
-            border: "none",
-            borderRadius: "0.25rem",
-            fontFamily: "var(--v2-font-display)",
-            fontSize: "var(--v2-font-size-sm)",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            cursor: disabled ? "not-allowed" : "pointer",
-            opacity: disabled ? 0.6 : 1,
-            transition: "opacity 0.2s ease, background 0.2s ease",
-            boxShadow: disabled ? "none" : undefined,
-          }}
-          onMouseEnter={(e) => {
-            if (!disabled) {
-              e.currentTarget.style.opacity = "0.85";
-              e.currentTarget.style.boxShadow = "0 0 20px rgba(200, 255, 0, 0.3)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!disabled) {
-              e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.boxShadow = "none";
-            }
-          }}
-        >
-          {isStarting ? "STARTING…" : "RUN SUITE"}
-        </button>
-
         {/* Status badge — hidden pre-run */}
         {statusConfig && (
           <div
