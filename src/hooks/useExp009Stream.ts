@@ -121,8 +121,9 @@ export function useExp009Stream(runId: string | null): UseExp009StreamReturn {
           }
 
           if (eventType === "task_result") {
-            // Cast is safe: server validates with TaskResultSchema before emitting.
-            setResults((prev) => [...prev, parsed as TaskResult]);
+            // SSE payload shape is { type: 'task_result', data: TaskResult }.
+            const payload = parsed as { type: "task_result"; data: TaskResult };
+            setResults((prev) => [...prev, payload.data]);
           } else if (eventType === "done") {
             const doneData = parsed as { runId: string; totalResults: number };
             setTotalResults(doneData.totalResults ?? 0);
