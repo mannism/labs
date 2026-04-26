@@ -72,11 +72,14 @@ export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 // Tool definition (provider-agnostic subset)
 // ---------------------------------------------------------------------------
 
-const ToolParameterSchema: z.ZodType<ToolParameter> = z.lazy(() =>
+// Zod v4: ZodType<Output, Input> — Input defaults to Output for non-transformed schemas.
+// The explicit annotation is required to break the circular type reference in z.lazy.
+const ToolParameterSchema: z.ZodType<ToolParameter, ToolParameter> = z.lazy(() =>
   z.object({
     type: z.enum(['object', 'string', 'number', 'boolean', 'array']),
     description: z.string().optional(),
-    properties: z.record(ToolParameterSchema).optional(),
+    // z.record in Zod v4 requires two args: key schema + value schema.
+    properties: z.record(z.string(), ToolParameterSchema).optional(),
     items: ToolParameterSchema.optional(),
     required: z.array(z.string()).optional(),
     enum: z.array(z.union([z.string(), z.number()])).optional(),
