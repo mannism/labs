@@ -373,32 +373,42 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
                   : "Click to start the benchmark run"
               }
               style={{
+                /*
+                 * Solid chartreuse fill + near-black text — lifted from the
+                 * old ControlsStrip "RUN SUITE" button for maximum contrast.
+                 * Opacity dims to 0.6 while running so the busy state is clear
+                 * without removing the chartreuse fill entirely.
+                 */
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                fontFamily: "var(--v2-font-mono)",
+                fontFamily: "var(--v2-font-display)",
                 fontSize: "var(--v2-font-size-xs)",
+                fontWeight: 600,
                 textTransform: "uppercase",
-                color: runStatus === "running" ? "var(--v2-text-tertiary)" : "var(--v2-accent)",
-                background: "var(--v2-tag-bg)",
-                border: `1px solid ${runStatus === "running" ? "var(--v2-tag-border)" : "var(--v2-accent)"}`,
-                padding: "4px 12px",
+                letterSpacing: "0.08em",
+                color: "var(--v2-bg-primary)",
+                background: "var(--v2-accent)",
+                border: "none",
+                padding: "6px 14px",
                 borderRadius: "2px",
                 cursor: runStatus === "running" ? "not-allowed" : "pointer",
-                opacity: runStatus === "running" ? 0.5 : 1,
-                transition: "opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.15s ease",
+                opacity: runStatus === "running" ? 0.6 : 1,
+                transition: "opacity 0.2s ease, box-shadow 0.15s ease",
                 outline: "none",
               }}
               onMouseEnter={(e) => {
                 if (runStatus !== "running") {
-                  e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent)";
+                  e.currentTarget.style.opacity = "0.85";
+                  e.currentTarget.style.boxShadow = "0 0 20px rgba(200, 255, 0, 0.3)";
                 }
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = runStatus === "running" ? "0.6" : "1";
                 e.currentTarget.style.boxShadow = "none";
               }}
               onFocus={(e) => {
-                e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent)";
+                e.currentTarget.style.boxShadow = "0 0 0 2px var(--v2-accent), 0 0 0 4px var(--v2-bg-primary)";
               }}
               onBlur={(e) => {
                 e.currentTarget.style.boxShadow = "none";
@@ -434,11 +444,14 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         </div>
       </section>
 
-      {/* Experiment canvas area — renders live component or placeholder */}
+      {/* Experiment canvas area — renders live component or placeholder.
+          margin-top: 0 so dark-background experiments (e.g. EXP_009 Dashboard)
+          butt directly against the header section with no page-bg gap visible.
+          margin-bottom preserved for breathing room below the canvas. */}
       <section
         style={{
           width: "100%",
-          margin: "var(--v2-space-lg) 0",
+          margin: "0 0 var(--v2-space-lg) 0",
           position: "relative",
         }}
       >
