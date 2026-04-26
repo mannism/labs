@@ -97,6 +97,14 @@ function getPreviewPattern(slug: string): string {
 export function ExperimentCard({ experiment }: { experiment: Experiment }) {
   const prefersReduced = useReducedMotion();
 
+  /**
+   * Resolve the card's destination URL.
+   * When demoUrl is present the experiment's live UI lives outside
+   * /playground/[slug] (e.g. EXP_009 at /experiments/agentic-reliability/).
+   * Fall back to the standard playground route for all other experiments.
+   */
+  const cardHref = experiment.demoUrl ?? `/playground/${experiment.slug}`;
+
   /** Hover in — lift + chartreuse inset shadow (no layout shift) */
   const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const el = e.currentTarget;
@@ -127,7 +135,7 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <Link
-        href={`/playground/${experiment.slug}`}
+        href={cardHref}
         style={{
           display: "block",
           textDecoration: "none",
