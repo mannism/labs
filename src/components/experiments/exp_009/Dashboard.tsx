@@ -7,6 +7,8 @@
  *   - Run trigger (POST /api/experiments/exp_009/run)
  *   - SSE subscription via useExp009Stream
  *   - Elapsed timer (setInterval, cleared on run completion)
+ *   - Cooldown state: reads localStorage on mount, writes on 200/429, passes
+ *     cooldownStartedAt down to ControlsStrip which drives the countdown label.
  *   - aria-live region for screen reader announcements of SSE events
  *   - Layout: sticky ControlsStrip (RUN button + status) → 3-column task grid → MetricsRow
  *
@@ -27,10 +29,57 @@ import { ControlsStrip } from "./ControlsStrip";
 import { ModelColumn } from "./ModelColumn";
 import { MetricsRow } from "./MetricsRow";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 /** Total tasks in the suite (shown in controls; updated from SSE done event) */
 const PLACEHOLDER_TASK_COUNT = 20;
+
+/** localStorage key for persisting the cooldown start timestamp across page loads. */
+const COOLDOWN_LS_KEY = 'exp009:lastRunAt';
+
+/**
+ * Cooldown window in ms — must match RATE_LIMIT_WINDOW_SECONDS in rate-limiter.ts.
+ * Kept local to avoid importing a server-only module into a client component.
+ */
+const COOLDOWN_WINDOW_MS = 180_000;
+
+/** Stale-value guard: ignore lastRunAt values older than 1 hour. */
+const COOLDOWN_MAX_AGE_MS = 3_600_000;
+
+// ─── localStorage helpers ─────────────────────────────────────────────────────
+
+/**
+ * Safely read the cooldown start time from localStorage.
+ * Returns null if localStorage is unavailable (SSR, privacy mode) or the
+ * value is absent, invalid, or stale (> 1 hour old).
+ */
+function readCooldownStartedAt(): number | null {
+  try {
+    const raw = localStorage.getItem(COOLDOWN_LS_KEY);
+    if (!raw) return null;
+    const ts = parseInt(raw, 10);
+    if (isNaN(ts)) return null;
+    if (Date.now() - ts > COOLDOWN_MAX_AGE_MS) return null;
+    // Only return if still within the active window.
+    if (Date.now() - ts >= COOLDOWN_WINDOW_MS) return null;
+    return ts;
+  } catch {
+    // localStorage not available (SSR guard, privacy mode, etc.)
+    return null;
+  }
+}
+
+/**
+ * Safely write the cooldown start timestamp to localStorage.
+ * No-ops silently on unavailability — in-memory state handles the session.
+ */
+function writeCooldownStartedAt(ts: number): void {
+  try {
+    localStorage.setItem(COOLDOWN_LS_KEY, String(ts));
+  } catch {
+    // Privacy mode or storage quota — degraded gracefully.
+  }
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -39,6 +88,14 @@ export function Dashboard() {
   const [runId, setRunId] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+
+  // ── Cooldown state ───────────────────────────────────────────────────────
+  /**
+   * Epoch ms when the active cooldown window started.
+   * Null = no cooldown. ControlsStrip derives seconds-remaining from this.
+   * Initialised to null; set from localStorage on mount (useEffect below).
+   */
+  const [cooldownStartedAt, setCooldownStartedAt] = useState<number | null>(null);
 
   // ── Elapsed timer ────────────────────────────────────────────────────────
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -99,6 +156,16 @@ export function Dashboard() {
 
   // ── "Has started" — first result received ───────────────────────────────
   const hasStarted = results.length > 0 || status === "connecting" || status === "streaming";
+
+  // ── Cooldown: read localStorage on mount ────────────────────────────────
+  useEffect(() => {
+    // Runs client-side only (component is dynamically imported with ssr:false).
+    // Restores cooldown state across page refreshes and tab opens.
+    const restored = readCooldownStartedAt();
+    if (restored !== null) {
+      setCooldownStartedAt(restored);
+    }
+  }, []);
 
   // ── Elapsed timer management ─────────────────────────────────────────────
   useEffect(() => {
@@ -161,12 +228,37 @@ export function Dashboard() {
         body: JSON.stringify({}),
       });
 
+      if (response.status === 429) {
+        // Server-enforced rate limit. Parse retryAfterSeconds from the body so
+        // the client cooldown reflects the server's remaining window, not a
+        // fresh 180s — important if this tab was idle while another tab ran.
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          retryAfterSeconds?: number;
+        };
+        const retryAfter = typeof body.retryAfterSeconds === "number" ? body.retryAfterSeconds : 180;
+        // Reconstruct lastRunAt from retryAfterSeconds so the countdown is accurate:
+        //   lastRunAt = now - (COOLDOWN_WINDOW_MS - retryAfterSeconds * 1000)
+        const reconstructed = Date.now() - (COOLDOWN_WINDOW_MS - retryAfter * 1000);
+        setCooldownStartedAt(reconstructed);
+        writeCooldownStartedAt(reconstructed);
+        throw new Error("Rate limit reached. Please wait for the cooldown to expire.");
+      }
+
       if (!response.ok) {
         const body = (await response.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? `POST /run failed: ${response.status}`);
       }
 
       const data = (await response.json()) as { runId: string };
+
+      // ── Record cooldown start — server has accepted the run ──────────────
+      // Write before setting runId so ControlsStrip enters cooldown state
+      // immediately, even if the SSE stream is slow to connect.
+      const now = Date.now();
+      setCooldownStartedAt(now);
+      writeCooldownStartedAt(now);
+
       setRunId(data.runId);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to start run";
@@ -215,6 +307,7 @@ export function Dashboard() {
         elapsedSeconds={elapsedSeconds}
         onRunClick={handleRunClick}
         error={displayError}
+        cooldownStartedAt={cooldownStartedAt}
       />
 
       {/* ── Task grid ────────────────────────────────────────── */}

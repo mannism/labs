@@ -9,33 +9,48 @@
  *   modelIds? ModelId[] — subset of MODEL_IDS; omit/[] → all three models
  *
  * Responses:
- *   200  { runId: string }             — run enqueued
- *   400  { error: string }             — invalid request body
- *   429  { error: string }             — IP rate limit exceeded
- *   500  { error: string }             — unexpected server error
+ *   200  { runId: string }
+ *   400  { error: string }
+ *   429  { error: 'rate_limited', retryAfterSeconds: number, layer: 'cookie' | 'ip' }
+ *        Retry-After header set per RFC 7231 §7.1.3
+ *   500  { error: string }
  *
- * Rate limit: 10 requests per IP per 60 seconds. Fails closed (Redis down → blocked).
+ * Rate limiting — two independent layers, both must pass:
+ *   cookie layer: 1 request per client (HttpOnly cookie) per 180 seconds.
+ *   ip layer:     5 requests per egress IP per 3600 seconds.
+ * Fails closed (Redis down → blocked).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { RunRequestSchema, MODEL_IDS } from '../../../../../lib/experiments/exp_009/types';
 import { loadTasks } from '../../../../../lib/experiments/exp_009/task-loader';
 import { checkExp009RateLimit } from '../../../../../lib/experiments/exp_009/rate-limiter';
+import type { RateLimitResult } from '../../../../../lib/experiments/exp_009/rate-limiter';
 import { initRun } from '../../../../../lib/experiments/exp_009/store';
 import { orchestrateRun } from '../../../../../lib/experiments/exp_009/orchestrator';
 import type { ModelId } from '../../../../../lib/experiments/exp_009/types';
 
 // ---------------------------------------------------------------------------
-// Run ID generation — crypto.randomUUID is available in Node 22 / Edge Runtime.
+// Constants
+// ---------------------------------------------------------------------------
+
+/** Cookie that identifies a browser for the per-client rate limit layer. */
+const CLIENT_COOKIE_NAME = 'exp009_client_id';
+
+/**
+ * Cookie TTL — 1 year. Long-lived so incognito sessions cycling cookies don't
+ * trivially bypass the per-client layer. The IP floor remains the hard cap.
+ */
+const CLIENT_COOKIE_MAX_AGE = 31_536_000; // seconds
+
+// ---------------------------------------------------------------------------
+// Helpers
 // ---------------------------------------------------------------------------
 
 function generateRunId(): string {
+  // crypto.randomUUID is available in Node 22 and Edge Runtime.
   return crypto.randomUUID();
 }
-
-// ---------------------------------------------------------------------------
-// IP extraction
-// ---------------------------------------------------------------------------
 
 function getClientIp(req: NextRequest): string {
   // Vercel / Railway forward the real IP in x-forwarded-for.
@@ -47,28 +62,72 @@ function getClientIp(req: NextRequest): string {
   return req.headers.get('x-real-ip') ?? 'unknown';
 }
 
+/**
+ * Read or generate the client ID from/for the exp009_client_id cookie.
+ *
+ * Returns:
+ *   clientId — the UUID to use for rate-limit keying
+ *   isNew    — true if we generated a new ID (caller must Set-Cookie in response)
+ */
+function getOrCreateClientId(req: NextRequest): { clientId: string; isNew: boolean } {
+  const existing = req.cookies.get(CLIENT_COOKIE_NAME)?.value;
+  // Basic validation: must look like a UUID v4 to avoid Redis key injection.
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (existing && uuidPattern.test(existing)) {
+    return { clientId: existing, isNew: false };
+  }
+  return { clientId: crypto.randomUUID(), isNew: true };
+}
+
+/** Build the Set-Cookie header value for the client ID cookie. */
+function buildClientIdCookieHeader(clientId: string): string {
+  return [
+    `${CLIENT_COOKIE_NAME}=${clientId}`,
+    `HttpOnly`,
+    `Secure`,
+    `SameSite=Lax`,
+    `Path=/`,
+    `Max-Age=${CLIENT_COOKIE_MAX_AGE}`,
+  ].join('; ');
+}
+
 // ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  // ── Rate limit ──────────────────────────────────────────────────────────
+  // ── Cookie: read or generate client ID ──────────────────────────────────
   const ip = getClientIp(req);
-  let allowed: boolean;
+  const { clientId, isNew } = getOrCreateClientId(req);
+
+  // ── Rate limit (two layers: cookie + IP) ────────────────────────────────
+  let rateLimitResult: RateLimitResult;
   try {
-    allowed = await checkExp009RateLimit(ip);
+    rateLimitResult = await checkExp009RateLimit(clientId, ip);
   } catch (err: unknown) {
-    // checkExp009RateLimit wraps its own errors and returns false — this catch
-    // is a final defensive layer.
+    // checkExp009RateLimit wraps its own errors — this is a final defensive
+    // layer that should never fire in practice.
     console.error('[exp_009][run] Rate limiter threw unexpectedly:', err);
-    allowed = false;
+    rateLimitResult = { allowed: false, retryAfterSeconds: 180, layer: 'cookie' };
   }
 
-  if (!allowed) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please wait before starting another run.' },
-      { status: 429 },
+  if (!rateLimitResult.allowed) {
+    const { retryAfterSeconds, layer } = rateLimitResult;
+    const response = NextResponse.json(
+      { error: 'rate_limited', retryAfterSeconds, layer },
+      {
+        status: 429,
+        headers: {
+          // RFC 7231 §7.1.3 — seconds until the client may retry.
+          'Retry-After': String(retryAfterSeconds),
+        },
+      },
     );
+    // Set cookie even on 429 so new clients get their ID for subsequent requests.
+    if (isNew) {
+      response.headers.set('Set-Cookie', buildClientIdCookieHeader(clientId));
+    }
+    return response;
   }
 
   // ── Parse + validate body ───────────────────────────────────────────────
@@ -129,16 +188,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // ── Fire-and-forget orchestration ───────────────────────────────────────
   // orchestrateRun pushes TaskResults into the store as they complete.
   // The SSE /results route polls the store and streams them to the client.
-  // We do NOT await here — the response is returned immediately with the runId.
+  // We do NOT await — the response is returned immediately with the runId.
   orchestrateRun(runId, resolvedTasks, resolvedModelIds).catch((err: unknown) => {
-    // orchestrateRun catches its own errors internally; this handles the case
-    // where the function itself throws (should not happen, but belt-and-suspenders).
+    // orchestrateRun catches its own errors internally; this handles the rare
+    // case where the function itself throws (belt-and-suspenders).
     console.error(`[exp_009][run] orchestrateRun error for run ${runId}:`, err);
   });
 
   console.log(
-    `[exp_009][run] enqueued run=${runId} tasks=${resolvedTasks.length} models=${resolvedModelIds.join(',')} total=${totalResults} ip=${ip}`,
+    `[exp_009][run] enqueued run=${runId} tasks=${resolvedTasks.length} models=${resolvedModelIds.join(',')} total=${totalResults} ip=${ip} clientId=${clientId}`,
   );
 
-  return NextResponse.json({ runId }, { status: 200 });
+  // ── Build response — set cookie if newly issued ──────────────────────────
+  const response = NextResponse.json({ runId }, { status: 200 });
+  if (isNew) {
+    response.headers.set('Set-Cookie', buildClientIdCookieHeader(clientId));
+  }
+  return response;
 }

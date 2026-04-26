@@ -4,10 +4,19 @@
  * ControlsStrip — sticky control bar above the benchmark grid.
  *
  * Contains:
- *   1. RUN SUITE button — chartreuse fill, dark text, disabled while running.
+ *   1. RUN SUITE button — chartreuse fill, dark text, disabled while running or
+ *      in cooldown (post-run 3-minute server-enforced window).
  *   2. Status badge — pulsing dot + state text (hidden pre-run).
  *   3. Task counter + elapsed timer (hidden pre-run).
  *   4. Error message (shown when status === "error").
+ *
+ * Cooldown UX:
+ *   After a successful run starts the button enters a 180-second cooldown.
+ *   The label changes to "AVAILABLE IN M:SS" and counts down each second.
+ *   When the countdown hits 0 the button re-enables and label restores.
+ *
+ *   Cooldown state is driven by the `cooldownStartedAt` prop (set by Dashboard
+ *   on 200 response or on 429). ControlsStrip owns the countdown interval only.
  *
  * Design pattern: interactive controls live inside the dark canvas area.
  * The top input-type pill in ExperimentDetail is a passive descriptive tag only.
@@ -18,7 +27,13 @@
  * the strip shows only the run button and nothing else.
  */
 
+import { useEffect, useRef, useState } from "react";
 import type { StreamStatus } from "@/hooks/useExp009Stream";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+/** Must match the server-side RATE_LIMIT_WINDOW_SECONDS in rate-limiter.ts */
+const COOLDOWN_WINDOW_MS = 180_000;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,9 +50,22 @@ interface ControlsStripProps {
   onRunClick: () => void;
   /** Non-null when status === "error". */
   error: string | null;
+  /**
+   * Epoch ms at which the current cooldown window started.
+   * Set by Dashboard on 200 (run accepted) or on 429 (rate limit hit).
+   * Null means no active cooldown.
+   */
+  cooldownStartedAt: number | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Format remaining seconds as M:SS (e.g. 2:47) */
+function formatCountdown(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
 
 /** Format elapsed seconds as MM:SS */
 function formatElapsed(seconds: number): string {
@@ -48,9 +76,13 @@ function formatElapsed(seconds: number): string {
   return `${m}:${s}`;
 }
 
-/** Determines whether the run button should be disabled. */
-function isRunDisabled(status: StreamStatus, isStarting: boolean): boolean {
-  return isStarting || status === "connecting" || status === "streaming";
+/** Determines whether the run button should be disabled (run in-flight or in cooldown). */
+function isRunDisabled(
+  status: StreamStatus,
+  isStarting: boolean,
+  cooldownSecondsLeft: number,
+): boolean {
+  return isStarting || status === "connecting" || status === "streaming" || cooldownSecondsLeft > 0;
 }
 
 // ─── Status badge config ──────────────────────────────────────────────────────
@@ -84,14 +116,77 @@ export function ControlsStrip({
   elapsedSeconds,
   onRunClick,
   error,
+  cooldownStartedAt,
 }: ControlsStripProps) {
+  // ── Cooldown countdown ────────────────────────────────────────────────────
+  /**
+   * cooldownSecondsLeft is the source of truth for rendering.
+   * Updated exclusively from within the setInterval callback (never
+   * synchronously in an effect body) to satisfy react-hooks/set-state-in-effect.
+   * Date.now() is called only inside the interval callback, not during render,
+   * to satisfy react-hooks/purity.
+   *
+   * The interval is recreated whenever cooldownStartedAt changes (new run or
+   * 429 received). The ref tracks the interval ID for cleanup only.
+   */
+  const [cooldownSecondsLeft, setCooldownSecondsLeft] = useState<number>(0);
+  const tickIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    // Clear any stale interval whenever cooldownStartedAt changes.
+    if (tickIntervalRef.current) {
+      clearInterval(tickIntervalRef.current);
+      tickIntervalRef.current = null;
+    }
+
+    if (cooldownStartedAt === null) {
+      // No active cooldown — no interval needed. cooldownSecondsLeft stays at
+      // its current value (0 on initial mount; the interval self-clears to 0
+      // when the window expires, so no manual reset is needed here).
+      return;
+    }
+
+    // Start a 1-second ticker. cooldownStartedAt is captured in closure —
+    // the effect re-runs if it changes, so the closure is always fresh.
+    tickIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - cooldownStartedAt;
+      const remaining = Math.ceil((COOLDOWN_WINDOW_MS - elapsed) / 1000);
+      const left = remaining > 0 ? remaining : 0;
+      setCooldownSecondsLeft(left);
+      if (left <= 0 && tickIntervalRef.current) {
+        clearInterval(tickIntervalRef.current);
+        tickIntervalRef.current = null;
+      }
+    }, 1_000);
+
+    return () => {
+      if (tickIntervalRef.current) {
+        clearInterval(tickIntervalRef.current);
+        tickIntervalRef.current = null;
+      }
+    };
+  }, [cooldownStartedAt]);
+
   const statusConfig = getStatusConfig(status);
   const showCounter =
     status === "connecting" ||
     status === "streaming" ||
     status === "done" ||
     status === "error";
-  const disabled = isRunDisabled(status, isStarting);
+  const disabled = isRunDisabled(status, isStarting, cooldownSecondsLeft);
+
+  // Button label hierarchy: running > cooldown > default
+  const buttonLabel = (() => {
+    if (isStarting || status === "connecting" || status === "streaming") return "RUNNING\u2026";
+    if (cooldownSecondsLeft > 0) return `AVAILABLE IN ${formatCountdown(cooldownSecondsLeft)}`;
+    return "RUN SUITE";
+  })();
+
+  const ariaLabel = (() => {
+    if (isStarting || status === "connecting" || status === "streaming") return "Run in progress";
+    if (cooldownSecondsLeft > 0) return `Run available in ${cooldownSecondsLeft} seconds`;
+    return "Run benchmark suite";
+  })();
 
   return (
     <div
@@ -128,7 +223,7 @@ export function ControlsStrip({
           type="button"
           onClick={onRunClick}
           disabled={disabled}
-          aria-label={disabled ? "Run in progress" : "Run benchmark suite"}
+          aria-label={ariaLabel}
           style={{
             background: "var(--v2-accent)",
             color: "var(--v2-text-primary)",
@@ -142,6 +237,8 @@ export function ControlsStrip({
             padding: "0.5rem 1.25rem",
             cursor: disabled ? "not-allowed" : "pointer",
             opacity: disabled ? 0.6 : 1,
+            // Min-width prevents layout shift as countdown text changes width.
+            minWidth: "10rem",
             transition: "opacity 0.15s ease, box-shadow 0.15s ease",
           }}
           onMouseEnter={(e) => {
@@ -155,7 +252,7 @@ export function ControlsStrip({
             (e.currentTarget as HTMLButtonElement).style.opacity = disabled ? "0.6" : "1";
           }}
         >
-          {disabled ? "RUNNING…" : "RUN SUITE"}
+          {buttonLabel}
         </button>
 
         {/* Status badge — hidden pre-run */}
