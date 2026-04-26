@@ -21,12 +21,6 @@ export interface Experiment {
   experimentNumber: string;
   /** Grouping collection (e.g. "webgpu"). */
   collection: string;
-  /**
-   * Optional external URL for experiments whose live UI lives outside the
-   * /playground/[slug] route (e.g. EXP_009 at /experiments/agentic-reliability/).
-   * When present, ExperimentCard links here instead of /playground/[slug].
-   */
-  demoUrl?: string;
   /** Short concept statement — what it is and what it proves. */
   conceptStatement?: string;
   /** How It Works — detailed explanation paragraphs (array of {title, body}). */

@@ -343,7 +343,6 @@
     "inputType": "Click to run",
     "experimentNumber": "EXP_009",
     "collection": "agent-ops",
-    "demoUrl": "/experiments/agentic-reliability",
     "conceptStatement": "A benchmark suite tests identical tool-calling tasks against three frontier models in parallel. Fifteen standardised tasks drawn from Diana\u2019s actual orchestration patterns \u2014 simple tool calls, parallel function invocations, structured JSON responses, and multi-step reasoning with tool use \u2014 execute with a 30-second timeout per task, 10-minute total suite limit. Each task validates the response against a Zod schema, scoring JSON validity, tool-call correctness, and parameter accuracy. This is not a synthetic benchmark. Production agent pipelines fail on patterns that vendor benchmarks do not capture.",
     "howItWorks": [
       {

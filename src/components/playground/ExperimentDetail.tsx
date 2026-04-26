@@ -135,6 +135,21 @@ const EXPERIMENT_COMPONENTS: Record<
       loading: LOADING_PLACEHOLDER,
     }
   ),
+  /* EXP_009: Agentic Reliability Dashboard — SSE benchmark runner, 3-column task grid.
+     Imports DashboardClient (the thin next/dynamic wrapper) from the exp_009 component
+     directory. DashboardClient itself loads Dashboard with ssr: false, satisfying
+     Next.js 16+ Turbopack's requirement that ssr:false be declared inside a Client
+     Component. Re-using the existing component — no duplication. */
+  "agentic-reliability": dynamic(
+    () =>
+      import("../experiments/exp_009/DashboardClient").then(
+        (mod) => mod.DashboardClient
+      ),
+    {
+      ssr: false,
+      loading: LOADING_PLACEHOLDER,
+    }
+  ),
 };
 
 /** Map input types to their descriptive requirement text. */
