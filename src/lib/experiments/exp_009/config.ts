@@ -17,5 +17,5 @@ export const EXP009_OPENAI_MODEL_PRIMARY = 'gpt-5.5' as const;
 export const EXP009_OPENAI_MODEL_FALLBACK = 'gpt-4.1' as const;
 export const EXP009_OPENAI_MODEL_OVERRIDE = process.env.EXP009_OPENAI_MODEL_OVERRIDE ?? '';
 
-export const EXP009_ANTHROPIC_MODEL = 'claude-opus-4-5' as const;
-export const EXP009_GOOGLE_MODEL = 'gemini-2.5-pro-preview-03-25' as const;
+export const EXP009_ANTHROPIC_MODEL = 'claude-opus-4-7' as const;
+export const EXP009_GOOGLE_MODEL = 'gemini-3.1-pro' as const;

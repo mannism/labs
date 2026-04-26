@@ -45,7 +45,7 @@ function pad(s: string, n: number): string {
 
 async function main(): Promise<void> {
   console.log('\n=== EXP_009 Validation Run ===\n');
-  console.log('Models under test: OpenAI (gpt-5.5 → gpt-4.1 fallback), Anthropic (claude-opus-4-5)');
+  console.log('Models under test: OpenAI (gpt-5.5 → gpt-4.1 fallback), Anthropic (claude-opus-4-7)');
   console.log('Gemini: skipped at runtime (GOOGLE_AI_API_KEY pending), verified by code inspection.\n');
 
   let tasks: Task[];
