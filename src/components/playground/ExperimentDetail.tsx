@@ -300,8 +300,9 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
           {experiment.description}
         </p>
 
-        {/* Input indicator badge + status — always a passive tag.
-            Interactive controls (run buttons etc.) live inside the dark canvas. */}
+        {/* Meta strip — input-type pill, creation date, status indicator.
+            All items use the same passive-tag treatment (var(--v2-tag-bg) +
+            var(--v2-tag-border)); interactive controls live in the canvas. */}
         <div
           style={{
             display: "flex",
@@ -310,6 +311,7 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             flexWrap: "wrap",
           }}
         >
+          {/* Input-type badge */}
           <span
             style={{
               display: "inline-flex",
@@ -331,6 +333,27 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             {experiment.inputType === "Mouse / Touch" && "🖱"}
             {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
           </span>
+
+          {/* Publication date — same passive-tag styling as the input badge.
+              Format: CREATED YYYY.MM.DD. Mirrors ProjectDetailV2 MetaBlock label/value pattern. */}
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              textTransform: "uppercase",
+              color: "var(--v2-text-tertiary)",
+              background: "var(--v2-tag-bg)",
+              border: "1px solid var(--v2-tag-border)",
+              padding: "4px 12px",
+              borderRadius: "2px",
+              letterSpacing: "0.02em",
+            }}
+          >
+            {`CREATED ${experiment.createdAt.split("-").join(".")}`}
+          </span>
+
           <StatusIndicator status={experiment.status} />
         </div>
       </section>

@@ -21,6 +21,8 @@ export interface Experiment {
   experimentNumber: string;
   /** Grouping collection (e.g. "webgpu"). */
   collection: string;
+  /** ISO date when this experiment was first published. Used for card metadata + detail page header. */
+  createdAt: string;
   /** Short concept statement — what it is and what it proves. */
   conceptStatement?: string;
   /** How It Works — detailed explanation paragraphs (array of {title, body}). */

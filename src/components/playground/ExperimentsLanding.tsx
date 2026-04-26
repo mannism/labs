@@ -15,7 +15,9 @@ import { useReducedMotion } from "@/components/v2/useReducedMotion";
  * WebGPU browser support banner shown when navigator.gpu is unavailable.
  */
 
-const experiments = experimentsData as Experiment[];
+const experiments = (experimentsData as Experiment[])
+  .slice()
+  .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
 /** Stagger container for card entrance animation */
 const gridVariants = {

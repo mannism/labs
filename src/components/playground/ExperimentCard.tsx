@@ -243,6 +243,24 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
               </span>
             ))}
           </div>
+
+          {/* Publication date — mirrors ProjectCardV2 bottom metadata line.
+              experimentNumber is already shown as the top system label so
+              this line shows date only (no double-up). Format: YYYY.MM.DD. */}
+          <div
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.02em",
+              marginTop: "var(--v2-space-sm)",
+            }}
+          >
+            {(() => {
+              const [yyyy, mm, dd] = experiment.createdAt.split("-");
+              return `${yyyy}.${mm}.${dd}`;
+            })()}
+          </div>
         </div>
       </Link>
     </motion.div>
