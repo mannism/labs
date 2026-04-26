@@ -161,6 +161,19 @@ html.v2 {
   /* Experiment canvas area */
   --exp-canvas-bg: #1A1D23;
 
+  /* EXP_009 — Model provider brand colours for column headers and metric accents */
+  --model-gpt-55-brand: #10A37F;
+  --model-claude-brand: #FF8A00;
+  --model-gemini-brand: #4285F4;
+
+  /* EXP_009 — Task card state colours */
+  --status-passed: #22C55E;
+  --status-failed: #EF4444;
+  --status-running: #22C55E;
+
+  /* EXP_009 — Running card pulse animation */
+  /* card-running-pulse and skeleton-shimmer are defined further below */
+
   /* Article detail navigation and series labels */
   --article-nav-border: rgba(0, 0, 0, 0.06);
   --article-nav-bg: rgba(0, 0, 0, 0.02);
@@ -333,6 +346,20 @@ html.light .bg-orb-purple { opacity: 0.12; }
 
 .animate-pulse-dot {
   animation: pulse-dot 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ─── EXP_009 Task card animations ──────────────────────────── */
+
+/* Running state: slow background-colour pulse between two green tints */
+@keyframes card-running-pulse {
+  0%, 100% { background-color: rgba(34, 197, 94, 0.08); }
+  50%       { background-color: rgba(34, 197, 94, 0.12); }
+}
+
+/* Skeleton cards in pre-run state: subtle opacity pulse */
+@keyframes skeleton-shimmer {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.65; }
 }
 
 /* ─── Navbar ─────────────────────────────────────────────────── */
@@ -627,6 +654,36 @@ html.light .bg-orb-purple { opacity: 0.12; }
   .chat-toggle-btn {
     bottom: 30px;
     right: 16px;
+  }
+}
+
+/* ─── EXP_009 Dashboard responsive grid ─────────────────────── */
+
+/* Three-column task grid — collapses to single column on mobile */
+.exp-009-task-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--v2-space-lg);
+}
+
+@media (max-width: 767px) {
+  .exp-009-task-grid {
+    grid-template-columns: 1fr;
+    gap: var(--v2-space-md);
+  }
+}
+
+/* Aggregate metrics grid — mirrors task grid breakpoints */
+.exp-009-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--v2-space-lg);
+}
+
+@media (max-width: 767px) {
+  .exp-009-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--v2-space-md);
   }
 }
 
