@@ -109,6 +109,9 @@ export function ExperimentsLanding() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
+            /* align-items: stretch ensures every grid cell (motion.div) fills
+               the row's implicit track height, giving cards equal height. */
+            alignItems: "stretch",
             gap: "var(--v2-space-lg)",
             marginBottom: "var(--v2-space-3xl)",
           }}

@@ -54,7 +54,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_002",
     "collection": "webgpu",
-    "createdAt": "2026-04-11",
+    "createdAt": "2026-04-13",
     "conceptStatement": "A 256\u00d7256 Eulerian fluid grid runs Jos Stam's Stable Fluids algorithm entirely on the CPU, rendered to Canvas 2D. Moving your pointer injects velocity and density into the grid \u2014 the fluid advects, diffuses, and conserves mass in real time, producing ink-in-water trails that respond to gesture speed and direction. Four selectable colour palettes map fluid density to visual output.",
     "howItWorks": [
       {
@@ -94,7 +94,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_003",
     "collection": "webgpu",
-    "createdAt": "2026-04-11",
+    "createdAt": "2026-04-15",
     "conceptStatement": "10,000 autonomous agents run a flocking algorithm, leaving density trails on a grid as they move. Those trails feed a Gray-Scott reaction-diffusion system \u2014 a cellular automaton that transforms raw crowd density data into emergent organic structures resembling coral, lichen, and chemical wavefronts. The result is a crowd simulation that visualises density not as a heatmap but as a living pattern.",
     "howItWorks": [
       {
