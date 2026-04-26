@@ -1,6 +1,7 @@
 {
   "id": "task-002-parallel-tool-calls",
   "category": "parallel_tool_calls",
+  "source": "synthetic",
   "description": "Model must issue two tool calls in a single turn — one for weather and one for an exchange rate — without waiting for either to resolve first. Tests whether the model correctly batches independent tool calls rather than sequencing them.",
   "prompt": "I need two things at once: the current weather in Tokyo, and the exchange rate from GBP to JPY. Fetch both using the available tools.",
   "expectedSchema": "parallel_weather_currency",

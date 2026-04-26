@@ -1,0 +1,8 @@
+{
+  "id": "task-011-structured-json",
+  "category": "structured_json",
+  "source": "synthetic",
+  "description": "Model must classify a support ticket into a structured record with category, priority, sentiment, suggested team, and a short summary — all constrained to enum values or length limits. No tool call is required; tests structured output fidelity under multiple simultaneous constraints.",
+  "prompt": "Classify the following support ticket and return a JSON object with these fields: category (one of: billing, technical, account, feature_request, other), priority (one of: low, medium, high, urgent), sentiment (one of: positive, neutral, negative), suggested_team (string: name of the internal team to route to), and summary (string: max 200 characters).\n\nTicket: 'Hi, I was charged twice for my subscription this month — I can see two identical transactions on my bank statement dated the 3rd. This is really frustrating as it is the second time this has happened. Please refund the duplicate charge ASAP and confirm it will not happen again. My account email is the one on this ticket.'",
+  "expectedSchema": "support_ticket_classification"
+}

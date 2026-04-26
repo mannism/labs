@@ -1,6 +1,7 @@
 {
   "id": "task-001-simple-tool-call",
   "category": "simple_tool_call",
+  "source": "synthetic",
   "description": "Model must issue a single get_weather tool call with the correct location argument extracted from a natural-language prompt. Validates that the model chooses the right tool and populates required parameters.",
   "prompt": "What is the current weather in Edinburgh? Use the available tool to fetch it.",
   "expectedSchema": "weather_tool_call",

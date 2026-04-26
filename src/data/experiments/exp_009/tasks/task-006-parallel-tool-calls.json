@@ -1,0 +1,38 @@
+{
+  "id": "task-006-parallel-tool-calls",
+  "category": "parallel_tool_calls",
+  "source": "synthetic",
+  "description": "Model must issue two independent tool calls in a single turn — one to retrieve a user profile and one to retrieve their account's subscription plan — without serialising them. Tests parallel dispatch of unrelated lookups that share only a loose contextual connection.",
+  "prompt": "I need to display the dashboard for user ID 'usr_8f3k2p' who belongs to account 'acc_9d1m7r'. Fetch their profile and their subscription plan at the same time using the available tools.",
+  "expectedSchema": "parallel_user_subscription",
+  "toolDefinitions": [
+    {
+      "name": "get_user_profile",
+      "description": "Retrieves a user's profile details including name, email, role, and account membership.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "Unique user identifier, e.g. 'usr_8f3k2p'."
+          }
+        },
+        "required": ["user_id"]
+      }
+    },
+    {
+      "name": "get_subscription_plan",
+      "description": "Returns the current subscription plan, billing cycle, and feature entitlements for an account.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "description": "Unique account identifier, e.g. 'acc_9d1m7r'."
+          }
+        },
+        "required": ["account_id"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "task-005-simple-tool-call",
+  "category": "simple_tool_call",
+  "source": "synthetic",
+  "description": "Model must call the CMS page fetch tool with a slug derived from the page title mentioned in the prompt. Tests slug inference from a human-readable title and correct optional locale parameter handling.",
+  "prompt": "Fetch the CMS page for 'Getting Started with the API'. The locale should be British English (en-GB). Use the fetch_page tool.",
+  "expectedSchema": "cms_page_fetch",
+  "toolDefinitions": [
+    {
+      "name": "fetch_page",
+      "description": "Retrieves a CMS page by its URL slug. Returns the full page content and metadata.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "URL-safe page identifier, e.g. 'getting-started-with-the-api'."
+          },
+          "locale": {
+            "type": "string",
+            "description": "BCP-47 locale code for localised content, e.g. 'en-GB'. Defaults to 'en-US' if omitted."
+          }
+        },
+        "required": ["slug"]
+      }
+    }
+  ]
+}

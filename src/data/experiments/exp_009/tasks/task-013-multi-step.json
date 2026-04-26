@@ -1,0 +1,8 @@
+{
+  "id": "task-013-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must validate a webhook payload, flag any missing required fields, and then make a routing decision based on the event type — all in a single structured output. Tests conditional reasoning across multiple steps without tool calls: validation → decision → justification.",
+  "prompt": "You have received the following webhook payload from an integration partner. Validate it against these requirements: the payload must have an 'event_type' string, a 'timestamp' ISO 8601 string, and a 'data' object. Then decide where to route it based on the event_type: 'contact.created' or 'contact.updated' → crm_sync; 'invoice.paid' or 'invoice.overdue' → billing_update; 'message.received' → notification; anything else or invalid → discard.\n\nReturn a JSON object with: payload_valid (boolean), validation_errors (array of strings, empty if valid), route_to (one of: crm_sync, billing_update, notification, discard), and reason (string explaining the routing decision).\n\nPayload: {\"event_type\": \"invoice.paid\", \"data\": {\"invoice_id\": \"inv_8842\", \"amount_gbp\": 499.00}}",
+  "expectedSchema": "webhook_routing"
+}

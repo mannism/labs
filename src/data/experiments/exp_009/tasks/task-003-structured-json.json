@@ -1,6 +1,7 @@
 {
   "id": "task-003-structured-json",
   "category": "structured_json",
+  "source": "synthetic",
   "description": "Model must extract named entities from an unstructured paragraph and return them in a strict JSON schema — no tool call required. Tests structured output fidelity: correct types, required fields, and confidence scores bounded between 0 and 1.",
   "prompt": "Extract all named entities from the following text and return a JSON object matching the schema exactly. For each entity include: text (the exact span), type (one of: person, organisation, location, date, product), and confidence (0.0–1.0).\n\nText: 'On 14 March, Aria Chen, a senior researcher at Meridian Systems, published a report from their Glasgow office citing findings from the Atlas-7 language model evaluation suite.'",
   "expectedSchema": "entity_extraction"

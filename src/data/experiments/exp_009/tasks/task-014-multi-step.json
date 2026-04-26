@@ -1,0 +1,8 @@
+{
+  "id": "task-014-multi-step",
+  "category": "multi_step",
+  "source": "synthetic",
+  "description": "Model must evaluate a candidate against a job specification across multiple criteria and produce a structured shortlisting decision with a match score, strengths, gaps, and recommended interview questions. Tests multi-criteria analytical reasoning under a strict output schema.",
+  "prompt": "You are a technical recruiter assistant. Evaluate the following candidate summary against the job specification and return a JSON object with: decision (one of: shortlist, hold, reject), match_score (integer 0–100), strengths (array of 1–5 strings), gaps (array of strings, empty if none), interview_questions (array of 2–5 strings), and summary (string, max 300 characters).\n\nJob spec: Senior DevOps Engineer. Requirements: 5+ years DevOps experience, strong Kubernetes and Terraform expertise, CI/CD pipeline ownership, experience with cloud cost optimisation, excellent communication skills for cross-functional collaboration.\n\nCandidate: 'Seven years in platform engineering. Led Kubernetes migration for a 40-service microservice architecture. Certified Terraform Associate. Owns GitHub Actions CI/CD pipelines for three product teams. Has given internal talks on cost reduction strategies that saved £120k annually. No experience with Helm charts or GitOps workflows. Communication described as strong by two references.'",
+  "expectedSchema": "candidate_shortlist"
+}

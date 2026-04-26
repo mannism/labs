@@ -1,0 +1,8 @@
+{
+  "id": "task-012-structured-json",
+  "category": "structured_json",
+  "source": "synthetic",
+  "description": "Model must parse a free-text job posting into a structured vacancy record with title, location, employment type, remote policy, optional salary range, required skills array, and seniority level — all under strict enum and type constraints. Tests multi-field extraction accuracy and optional field handling.",
+  "prompt": "Parse the following job posting into a structured JSON object with these fields: title (string), location (string), employment_type (one of: full_time, part_time, contract, internship), remote_policy (one of: on_site, hybrid, remote), salary_range (object with min, max as numbers and currency as 3-letter ISO code — omit if not mentioned), required_skills (array of strings, at least one), and seniority (one of: junior, mid, senior, lead, principal).\n\nPosting: 'We are hiring a Senior Backend Engineer to join our platform team in Manchester. This is a full-time hybrid role — three days in office, two remote. Salary: £70,000–£90,000. You will need strong experience in TypeScript, PostgreSQL, and distributed systems. Knowledge of Redis and Kubernetes is a plus. You will own critical infrastructure, so we need someone who has shipped production systems at scale.'",
+  "expectedSchema": "job_posting_parse"
+}

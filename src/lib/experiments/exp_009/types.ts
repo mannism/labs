@@ -127,6 +127,12 @@ export const TaskSchema = z.object({
   toolDefinitions: z.array(ToolDefinitionSchema).optional(),
   /** Human-readable description of what this task tests. */
   description: z.string(),
+  /**
+   * Whether this task originated from a real production orchestration pattern
+   * ('production') or was authored as a representative synthetic example
+   * ('synthetic'). Used to filter and label tasks in the dashboard.
+   */
+  source: z.enum(['synthetic', 'production']),
 });
 
 export type Task = z.infer<typeof TaskSchema>;
@@ -230,6 +236,10 @@ export type RunSummary = z.infer<typeof RunSummarySchema>;
 // ---------------------------------------------------------------------------
 
 export const schemaRegistry: Record<string, z.ZodTypeAny> = {
+  // -------------------------------------------------------------------------
+  // simple_tool_call (tasks 001, 004, 005)
+  // -------------------------------------------------------------------------
+
   /** task-001: single weather tool call */
   weather_tool_call: z.object({
     tool_name: z.literal('get_weather'),
@@ -238,6 +248,27 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
       unit: z.enum(['celsius', 'fahrenheit']).optional(),
     }),
   }),
+
+  /** task-004: single CRM contact lookup by email */
+  crm_contact_lookup: z.object({
+    tool_name: z.literal('lookup_contact'),
+    arguments: z.object({
+      email: z.string().email(),
+    }),
+  }),
+
+  /** task-005: single CMS page fetch by slug */
+  cms_page_fetch: z.object({
+    tool_name: z.literal('fetch_page'),
+    arguments: z.object({
+      slug: z.string(),
+      locale: z.string().optional(),
+    }),
+  }),
+
+  // -------------------------------------------------------------------------
+  // parallel_tool_calls (tasks 002, 006, 007)
+  // -------------------------------------------------------------------------
 
   /** task-002: parallel weather + currency tool calls */
   parallel_weather_currency: z.object({
@@ -260,6 +291,125 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
       .min(2),
   }),
 
+  /** task-006: parallel user profile + subscription plan lookups */
+  parallel_user_subscription: z.object({
+    tool_calls: z
+      .array(
+        z.union([
+          z.object({
+            tool_name: z.literal('get_user_profile'),
+            arguments: z.object({ user_id: z.string() }),
+          }),
+          z.object({
+            tool_name: z.literal('get_subscription_plan'),
+            arguments: z.object({ account_id: z.string() }),
+          }),
+        ]),
+      )
+      .min(2),
+  }),
+
+  /** task-007: parallel inventory check + shipping estimate */
+  parallel_inventory_shipping: z.object({
+    tool_calls: z
+      .array(
+        z.union([
+          z.object({
+            tool_name: z.literal('check_inventory'),
+            arguments: z.object({ sku: z.string(), warehouse_id: z.string().optional() }),
+          }),
+          z.object({
+            tool_name: z.literal('estimate_shipping'),
+            arguments: z.object({ destination_postcode: z.string(), weight_kg: z.number() }),
+          }),
+        ]),
+      )
+      .min(2),
+  }),
+
+  // -------------------------------------------------------------------------
+  // chained_tool_calls (tasks 008, 009, 010)
+  // -------------------------------------------------------------------------
+  //
+  // Chained tasks ask the model to plan a multi-step sequence in a single
+  // turn. The runner returns { tool_calls: [...] } for all tool-calling
+  // categories. For chained tasks the model must emit both calls in the
+  // correct order without executing them. We validate the full tool_calls
+  // array shape — both tool names and required arguments must be present.
+  //
+  // Note: because no real tool execution occurs, the model cannot actually
+  // thread a real draft_id or slug from step 1 into step 2. The schema
+  // accepts any non-empty string for those pass-through fields — the
+  // structural planning (correct tool names + argument keys) is what's
+  // being tested, not runtime values.
+
+  /**
+   * task-008: plan a two-step chain — get_user_profile then get_billing_status.
+   * Validates that both tool calls are present in the correct order with the
+   * required argument keys populated.
+   */
+  chained_user_org_billing: z.object({
+    tool_calls: z
+      .tuple([
+        z.object({
+          tool_name: z.literal('get_user_profile'),
+          arguments: z.object({ user_id: z.string() }),
+        }),
+        z.object({
+          tool_name: z.literal('get_billing_status'),
+          arguments: z.object({ org_id: z.string() }),
+        }),
+      ]),
+  }),
+
+  /**
+   * task-009: plan a two-step CMS chain — search_articles then fetch_article.
+   * Validates both calls are present in order with required argument keys.
+   */
+  chained_cms_search_fetch: z.object({
+    tool_calls: z
+      .tuple([
+        z.object({
+          tool_name: z.literal('search_articles'),
+          arguments: z.object({ tag: z.string(), limit: z.number().int().positive().optional() }),
+        }),
+        z.object({
+          tool_name: z.literal('fetch_article'),
+          arguments: z.object({ slug: z.string() }),
+        }),
+      ]),
+  }),
+
+  /**
+   * task-010: plan a two-step email chain — create_email_draft then schedule_email.
+   * Validates both calls are in order with the required argument keys.
+   * draft_id in step 2 must be a non-empty string (runtime value unknown at plan time).
+   */
+  chained_draft_schedule: z.object({
+    tool_calls: z
+      .tuple([
+        z.object({
+          tool_name: z.literal('create_email_draft'),
+          arguments: z.object({
+            to: z.string().email(),
+            subject: z.string(),
+            body: z.string(),
+          }),
+        }),
+        z.object({
+          tool_name: z.literal('schedule_email'),
+          arguments: z.object({
+            draft_id: z.string().min(1),
+            send_at: z.string().datetime(),
+          }),
+        }),
+      ]),
+  }),
+
+  // -------------------------------------------------------------------------
+  // structured_json (tasks 003, 011, 012)
+  // -------------------------------------------------------------------------
+
   /** task-003: entity extraction into a strict schema */
   entity_extraction: z.object({
     entities: z.array(
@@ -269,5 +419,85 @@ export const schemaRegistry: Record<string, z.ZodTypeAny> = {
         confidence: z.number().min(0).max(1),
       }),
     ),
+  }),
+
+  /** task-011: classify a support ticket into category, priority, and sentiment */
+  support_ticket_classification: z.object({
+    category: z.enum(['billing', 'technical', 'account', 'feature_request', 'other']),
+    priority: z.enum(['low', 'medium', 'high', 'urgent']),
+    sentiment: z.enum(['positive', 'neutral', 'negative']),
+    suggested_team: z.string(),
+    summary: z.string().max(200),
+  }),
+
+  /**
+   * task-012: parse a free-text job posting into a structured vacancy record.
+   * Tests JSON fidelity across multiple fields with type constraints.
+   */
+  job_posting_parse: z.object({
+    title: z.string(),
+    location: z.string(),
+    employment_type: z.enum(['full_time', 'part_time', 'contract', 'internship']),
+    remote_policy: z.enum(['on_site', 'hybrid', 'remote']),
+    salary_range: z
+      .object({
+        min: z.number().nonnegative(),
+        max: z.number().nonnegative(),
+        currency: z.string().length(3),
+      })
+      .optional(),
+    required_skills: z.array(z.string()).min(1),
+    seniority: z.enum(['junior', 'mid', 'senior', 'lead', 'principal']),
+  }),
+
+  // -------------------------------------------------------------------------
+  // multi_step (tasks 013, 014, 015)
+  // -------------------------------------------------------------------------
+
+  /**
+   * task-013: ingest a webhook payload, validate required fields, then decide
+   * which downstream action to route it to. Tests conditional branching
+   * within a structured output — the model must reason about the payload
+   * before emitting the routing decision.
+   */
+  webhook_routing: z.object({
+    payload_valid: z.boolean(),
+    validation_errors: z.array(z.string()),
+    route_to: z.enum(['crm_sync', 'billing_update', 'notification', 'discard']),
+    reason: z.string(),
+  }),
+
+  /**
+   * task-014: given a candidate CV summary and a job spec, produce a structured
+   * shortlisting decision with justification and recommended interview questions.
+   * Tests multi-criteria reasoning output under a strict schema.
+   */
+  candidate_shortlist: z.object({
+    decision: z.enum(['shortlist', 'hold', 'reject']),
+    match_score: z.number().min(0).max(100),
+    strengths: z.array(z.string()).min(1).max(5),
+    gaps: z.array(z.string()),
+    interview_questions: z.array(z.string()).min(2).max(5),
+    summary: z.string().max(300),
+  }),
+
+  /**
+   * task-015: analyse a set of API error logs, identify the root cause category,
+   * and produce an incident triage record with suggested remediation steps.
+   * Tests analytical reasoning + structured multi-field output.
+   */
+  incident_triage: z.object({
+    root_cause_category: z.enum([
+      'rate_limit',
+      'auth_failure',
+      'upstream_timeout',
+      'malformed_payload',
+      'config_error',
+      'unknown',
+    ]),
+    severity: z.enum(['low', 'medium', 'high', 'critical']),
+    affected_services: z.array(z.string()).min(1),
+    remediation_steps: z.array(z.string()).min(1).max(6),
+    requires_escalation: z.boolean(),
   }),
 };
