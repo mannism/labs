@@ -89,6 +89,115 @@ function getPreviewPattern(slug: string): string {
         "linear-gradient(to right, rgba(200,255,0,0.6) 0%, rgba(200,255,0,0.6) 55%, transparent 55%) 20px 144px / 200px 1px no-repeat",
       ].join(", ");
 
+    case "autonomous-brand-pipeline":
+      /* Sequential connected nodes: three dots top-to-bottom joined by faint vertical lines.
+         Chartreuse start → cyan mid → white terminus. */
+      return [
+        /* Connecting line — full vertical spine */
+        "linear-gradient(to bottom, rgba(200,255,0,0.25) 0%, rgba(34,211,238,0.2) 50%, rgba(255,255,255,0.15) 100%) 50% 20% / 1px 60% no-repeat",
+        /* Node 1 — chartreuse (top) */
+        "radial-gradient(5px 5px at 50% 22%, #C8FF00 100%, transparent)",
+        "radial-gradient(10px 10px at 50% 22%, rgba(200,255,0,0.15) 100%, transparent)",
+        /* Node 2 — cyan (mid) */
+        "radial-gradient(5px 5px at 50% 50%, #22D3EE 100%, transparent)",
+        "radial-gradient(10px 10px at 50% 50%, rgba(34,211,238,0.15) 100%, transparent)",
+        /* Node 3 — white (terminus) */
+        "radial-gradient(4px 4px at 50% 78%, #FFFFFF 100%, transparent)",
+        "radial-gradient(9px 9px at 50% 78%, rgba(255,255,255,0.12) 100%, transparent)",
+      ].join(", ");
+
+    case "adk-visualizer":
+      /* Tree/graph: root node branching into two children below.
+         Cyan root, chartreuse leaf nodes, thin gradient lines as branches. */
+      return [
+        /* Left branch line */
+        "linear-gradient(to bottom right, rgba(34,211,238,0.3) 0%, rgba(200,255,0,0.2) 100%) 28% 42% / 1px 28% no-repeat",
+        /* Right branch line */
+        "linear-gradient(to bottom left, rgba(34,211,238,0.3) 0%, rgba(200,255,0,0.2) 100%) 72% 42% / 1px 28% no-repeat",
+        /* Root node — cyan */
+        "radial-gradient(6px 6px at 50% 30%, #22D3EE 100%, transparent)",
+        "radial-gradient(12px 12px at 50% 30%, rgba(34,211,238,0.18) 100%, transparent)",
+        /* Child left — chartreuse */
+        "radial-gradient(5px 5px at 28% 72%, #C8FF00 100%, transparent)",
+        "radial-gradient(10px 10px at 28% 72%, rgba(200,255,0,0.15) 100%, transparent)",
+        /* Child right — chartreuse */
+        "radial-gradient(5px 5px at 72% 72%, #C8FF00 100%, transparent)",
+        "radial-gradient(10px 10px at 72% 72%, rgba(200,255,0,0.15) 100%, transparent)",
+      ].join(", ");
+
+    case "orchestration-map":
+      /* Sparse constellation: five nodes at irregular positions with connecting lines.
+         Mixed accents — chartreuse, cyan, white, amber — non-linear layout. */
+      return [
+        /* Edge lines between nodes */
+        "linear-gradient(to bottom right, rgba(34,211,238,0.2) 0%, rgba(200,255,0,0.15) 100%) 30% 22% / 28% 1px no-repeat",
+        "linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(245,158,11,0.2) 100%) 50% 55% / 30% 1px no-repeat",
+        "linear-gradient(to bottom, rgba(200,255,0,0.2) 0%, rgba(34,211,238,0.15) 100%) 65% 30% / 1px 32% no-repeat",
+        "linear-gradient(to bottom left, rgba(245,158,11,0.2) 0%, rgba(255,255,255,0.1) 100%) 42% 40% / 1px 25% no-repeat",
+        /* Node A — chartreuse (upper left) */
+        "radial-gradient(4px 4px at 22% 25%, #C8FF00 100%, transparent)",
+        "radial-gradient(9px 9px at 22% 25%, rgba(200,255,0,0.15) 100%, transparent)",
+        /* Node B — cyan (upper right) */
+        "radial-gradient(5px 5px at 72% 20%, #22D3EE 100%, transparent)",
+        "radial-gradient(10px 10px at 72% 20%, rgba(34,211,238,0.15) 100%, transparent)",
+        /* Node C — white (centre) */
+        "radial-gradient(4px 4px at 48% 52%, #FFFFFF 100%, transparent)",
+        "radial-gradient(8px 8px at 48% 52%, rgba(255,255,255,0.12) 100%, transparent)",
+        /* Node D — amber (lower left) */
+        "radial-gradient(4px 4px at 30% 75%, #F59E0B 100%, transparent)",
+        "radial-gradient(9px 9px at 30% 75%, rgba(245,158,11,0.15) 100%, transparent)",
+        /* Node E — chartreuse (lower right) */
+        "radial-gradient(3px 3px at 70% 78%, #C8FF00 100%, transparent)",
+        "radial-gradient(7px 7px at 70% 78%, rgba(200,255,0,0.12) 100%, transparent)",
+      ].join(", ");
+
+    case "generative-ui-renderer":
+      /* Faint grid of small rectangles in varying sizes — UI blocks being assembled.
+         Low contrast, chartreuse accent on one block, others in white/dim. */
+      return [
+        /* Row 1 — wide header block */
+        "linear-gradient(rgba(200,255,0,0.18), rgba(200,255,0,0.18)) 12% 15% / 76% 10% no-repeat",
+        /* Row 2 — two smaller blocks side by side */
+        "linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)) 12% 32% / 36% 9% no-repeat",
+        "linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) 52% 32% / 36% 9% no-repeat",
+        /* Row 3 — three narrow blocks */
+        "linear-gradient(rgba(255,255,255,0.07), rgba(255,255,255,0.07)) 12% 48% / 22% 8% no-repeat",
+        "linear-gradient(rgba(34,211,238,0.1), rgba(34,211,238,0.1)) 37% 48% / 22% 8% no-repeat",
+        "linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) 62% 48% / 26% 8% no-repeat",
+        /* Row 4 — medium block */
+        "linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.05)) 12% 63% / 54% 9% no-repeat",
+        /* Row 5 — thin footer strip */
+        "linear-gradient(rgba(200,255,0,0.08), rgba(200,255,0,0.08)) 12% 78% / 76% 5% no-repeat",
+      ].join(", ");
+
+    case "agentic-reliability":
+      /* Three parallel vertical columns of small dots: chartreuse / cyan / amber.
+         Abstract cue for three-model dashboard — OpenAI / Anthropic / Google. */
+      return [
+        /* Column 1 — chartreuse dots (left) */
+        "radial-gradient(3px 3px at 28% 20%, #C8FF00 100%, transparent)",
+        "radial-gradient(3px 3px at 28% 35%, #C8FF00 100%, transparent)",
+        "radial-gradient(3px 3px at 28% 50%, rgba(200,255,0,0.6) 100%, transparent)",
+        "radial-gradient(3px 3px at 28% 65%, rgba(200,255,0,0.4) 100%, transparent)",
+        "radial-gradient(3px 3px at 28% 80%, rgba(200,255,0,0.2) 100%, transparent)",
+        /* Column 2 — cyan dots (centre) */
+        "radial-gradient(3px 3px at 50% 20%, #22D3EE 100%, transparent)",
+        "radial-gradient(3px 3px at 50% 35%, #22D3EE 100%, transparent)",
+        "radial-gradient(3px 3px at 50% 50%, rgba(34,211,238,0.7) 100%, transparent)",
+        "radial-gradient(3px 3px at 50% 65%, rgba(34,211,238,0.4) 100%, transparent)",
+        "radial-gradient(3px 3px at 50% 80%, rgba(34,211,238,0.2) 100%, transparent)",
+        /* Column 3 — amber dots (right) */
+        "radial-gradient(3px 3px at 72% 20%, #F59E0B 100%, transparent)",
+        "radial-gradient(3px 3px at 72% 35%, #F59E0B 100%, transparent)",
+        "radial-gradient(3px 3px at 72% 50%, rgba(245,158,11,0.6) 100%, transparent)",
+        "radial-gradient(3px 3px at 72% 65%, rgba(245,158,11,0.4) 100%, transparent)",
+        "radial-gradient(3px 3px at 72% 80%, rgba(245,158,11,0.2) 100%, transparent)",
+        /* Faint vertical guide lines for each column */
+        "linear-gradient(to bottom, rgba(200,255,0,0.08) 0%, transparent 100%) 28% 0 / 1px 100% no-repeat",
+        "linear-gradient(to bottom, rgba(34,211,238,0.08) 0%, transparent 100%) 50% 0 / 1px 100% no-repeat",
+        "linear-gradient(to bottom, rgba(245,158,11,0.08) 0%, transparent 100%) 72% 0 / 1px 100% no-repeat",
+      ].join(", ");
+
     default:
       return "none";
   }
@@ -115,7 +224,8 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
 
   return (
     <motion.div
-      /* Stagger-fade entrance — parent sets staggerChildren */
+      /* Stagger-fade entrance — parent sets staggerChildren.
+         height: 100% propagates the grid cell's stretch to the Link below. */
       variants={
         prefersReduced
           ? undefined
@@ -125,11 +235,16 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
             }
       }
       transition={{ duration: 0.3, ease: "easeOut" }}
+      style={{ height: "100%" }}
     >
       <Link
         href={`/playground/${experiment.slug}`}
         style={{
-          display: "block",
+          /* flex column so the body section can grow to fill card height,
+             pinning the date line to the bottom via margin-top: auto */
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
           textDecoration: "none",
           color: "inherit",
           background: "var(--v2-bg-surface)",
@@ -156,8 +271,15 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
           }}
         />
 
-        {/* Card body */}
-        <div style={{ padding: "var(--v2-space-lg)" }}>
+        {/* Card body — flex column, grows to fill remaining card height */}
+        <div
+          style={{
+            padding: "var(--v2-space-lg)",
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+          }}
+        >
           {/* System label + status row */}
           <div
             style={{
@@ -242,6 +364,26 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
                 {tag}
               </span>
             ))}
+          </div>
+
+          {/* Publication date — mirrors ProjectCardV2 bottom metadata line.
+              experimentNumber is already shown as the top system label so
+              this line shows date only (no double-up). Format: YYYY.MM.DD.
+              margin-top: auto pins this to the card bottom regardless of description length. */}
+          <div
+            style={{
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              color: "var(--v2-text-tertiary)",
+              letterSpacing: "0.02em",
+              marginTop: "auto",
+              paddingTop: "var(--v2-space-sm)",
+            }}
+          >
+            {(() => {
+              const [yyyy, mm, dd] = experiment.createdAt.split("-");
+              return `${yyyy}.${mm}.${dd}`;
+            })()}
           </div>
         </div>
       </Link>

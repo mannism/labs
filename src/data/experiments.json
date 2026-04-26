@@ -14,6 +14,7 @@
     "inputType": "Microphone",
     "experimentNumber": "EXP_001",
     "collection": "webgpu",
+    "createdAt": "2026-04-11",
     "conceptStatement": "150,000 GPU-instanced particles respond to your microphone in real time. Frequency bands from the audio signal drive particle groups in different directions and colours \u2014 bass down, treble up, mids left and right \u2014 turning your voice into a visible, physical force. The experiment maps the Web Audio API directly to per-particle physics on the GPU.",
     "howItWorks": [
       {
@@ -53,6 +54,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_002",
     "collection": "webgpu",
+    "createdAt": "2026-04-13",
     "conceptStatement": "A 256\u00d7256 Eulerian fluid grid runs Jos Stam's Stable Fluids algorithm entirely on the CPU, rendered to Canvas 2D. Moving your pointer injects velocity and density into the grid \u2014 the fluid advects, diffuses, and conserves mass in real time, producing ink-in-water trails that respond to gesture speed and direction. Four selectable colour palettes map fluid density to visual output.",
     "howItWorks": [
       {
@@ -92,6 +94,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_003",
     "collection": "webgpu",
+    "createdAt": "2026-04-15",
     "conceptStatement": "10,000 autonomous agents run a flocking algorithm, leaving density trails on a grid as they move. Those trails feed a Gray-Scott reaction-diffusion system \u2014 a cellular automaton that transforms raw crowd density data into emergent organic structures resembling coral, lichen, and chemical wavefronts. The result is a crowd simulation that visualises density not as a heatmap but as a living pattern.",
     "howItWorks": [
       {
@@ -132,6 +135,7 @@
     "inputType": "None",
     "experimentNumber": "EXP_004",
     "collection": "agent-ops",
+    "createdAt": "2026-04-18",
     "conceptStatement": "A scheduled Claude Code session runs nightly on Anthropic's cloud infrastructure. It checks each of my 6 repos against 5 health signals \u2014 manifest integrity, CI status, Dependabot PR age, leftover worktrees from agent sessions, and branch hygiene \u2014 then posts a structured Slack summary. The routine uses 1 of 15 daily Routines runs. Everything is read-only; no files are modified, no branches deleted, no PRs closed.",
     "howItWorks": [
       {
@@ -178,6 +182,7 @@
     "inputType": "Text (Brief + Rules)",
     "experimentNumber": "EXP_005",
     "collection": "agent-ops",
+    "createdAt": "2026-04-19",
     "conceptStatement": "A three-stage agentic pipeline runs entirely on the server: a generate step produces N brand concept variants from a brief and brand rules, an evaluate step scores each variant for rule compliance, and a rank step selects the top K results. Every LLM call streams token-by-token over SSE so you watch the pipeline think in real time \u2014 not a progress bar, but the actual model output.",
     "howItWorks": [
       {
@@ -220,6 +225,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_007",
     "collection": "agent-ops",
+    "createdAt": "2026-04-21",
     "conceptStatement": "You see two agent architecture patterns displayed side by side: a monolithic topology (one agent, four inline tools) and an orchestrated topology (a SequentialAgent with five specialist agents and shared session state). Click any node in either pattern. The model streams a three-sentence annotation explaining what that architectural element is, when to use it, and what breaks if misapplied. The diagram itself is static and pre-positioned for pedagogical contrast. The annotation layer makes the architectural decision-making explicit \u2014 every node is an interrogable surface.",
     "howItWorks": [
       {
@@ -262,6 +268,7 @@
     "inputType": "Mouse / Touch",
     "experimentNumber": "EXP_008",
     "collection": "agent-ops",
+    "createdAt": "2026-04-23",
     "conceptStatement": "You drag nodes (Orchestrator, Specialist, Tool, Memory) from a palette onto a canvas and draw edges to define delegation relationships. Double-click any node to rename it. As you build, an LLM annotates your topology: select a node, and it streams a three-sentence explanation of what that node type does architecturally and how it fits into your system. Select an edge, and it explains the delegation semantics \u2014 what happens when that call fails, whether the orchestrator retries or surfaces the error, what assumptions you're making. Export your topology as JSON (for persistence) or PNG (for sharing). The interaction model is direct manipulation; the mental model you're building is explicit agent coordination.",
     "howItWorks": [
       {
@@ -303,6 +310,7 @@
     "inputType": "Text",
     "experimentNumber": "EXP_006",
     "collection": "agent-ops",
+    "createdAt": "2026-04-25",
     "conceptStatement": "Type a plain-text description of a UI layout. The model generates a structured component tree \u2014 headings, stats, buttons, cards, forms, badges \u2014 and streams each block as it completes. The canvas renders live, block by block, before the full response arrives. This is not a wireframing tool. It is a demonstration that a language model can output typed, renderable UI structure directly, and that a frontend can consume that structure progressively over SSE.",
     "howItWorks": [
       {
@@ -343,6 +351,7 @@
     "inputType": "Click to run",
     "experimentNumber": "EXP_009",
     "collection": "agent-ops",
+    "createdAt": "2026-04-26",
     "conceptStatement": "A benchmark suite tests identical tool-calling tasks against three frontier models in parallel. Fifteen standardised tasks drawn from Diana\u2019s actual orchestration patterns \u2014 simple tool calls, parallel function invocations, structured JSON responses, and multi-step reasoning with tool use \u2014 execute with a 30-second timeout per task, 10-minute total suite limit. Each task validates the response against a Zod schema, scoring JSON validity, tool-call correctness, and parameter accuracy. This is not a synthetic benchmark. Production agent pipelines fail on patterns that vendor benchmarks do not capture.",
     "howItWorks": [
       {

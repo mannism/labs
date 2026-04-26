@@ -15,7 +15,9 @@ import { useReducedMotion } from "@/components/v2/useReducedMotion";
  * WebGPU browser support banner shown when navigator.gpu is unavailable.
  */
 
-const experiments = experimentsData as Experiment[];
+const experiments = (experimentsData as Experiment[])
+  .slice()
+  .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
 /** Stagger container for card entrance animation */
 const gridVariants = {
@@ -107,6 +109,9 @@ export function ExperimentsLanding() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
+            /* align-items: stretch ensures every grid cell (motion.div) fills
+               the row's implicit track height, giving cards equal height. */
+            alignItems: "stretch",
             gap: "var(--v2-space-lg)",
             marginBottom: "var(--v2-space-3xl)",
           }}
