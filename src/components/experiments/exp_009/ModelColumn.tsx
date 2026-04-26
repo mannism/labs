@@ -11,7 +11,7 @@
  * Framer Motion staggerChildren drives the 80ms stagger between card entries.
  */
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TaskCard, SkeletonCard, type CardState } from "./TaskCard";
 import type { TaskResult, ModelId, ModelConfig } from "@/lib/experiments/exp_009/types";
 
@@ -153,18 +153,27 @@ export function ModelColumn({
           style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-sm)" }}
           aria-label={`${config.label} task results`}
         >
-          {taskIds.map((taskId) => {
-            const result = resultsByTaskId.get(taskId) ?? null;
-            const state = getCardState(taskId);
-            return (
-              <TaskCard
-                key={taskId}
-                taskId={taskId}
-                result={result}
-                state={state}
-              />
-            );
-          })}
+          {/*
+           * AnimatePresence is required here: TaskCard's outer motion.div uses both
+           * `variants` (for stagger) and `layout`. Without AnimatePresence, framer's
+           * child-tracking logic fires a React key warning from the parent motion.div
+           * even though each TaskCard is correctly keyed. AnimatePresence gives framer
+           * the exit lifecycle it needs to resolve child identity cleanly.
+           */}
+          <AnimatePresence initial={false}>
+            {taskIds.map((taskId) => {
+              const result = resultsByTaskId.get(taskId) ?? null;
+              const state = getCardState(taskId);
+              return (
+                <TaskCard
+                  key={taskId}
+                  taskId={taskId}
+                  result={result}
+                  state={state}
+                />
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
       )}
     </div>
