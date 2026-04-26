@@ -289,12 +289,16 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
         </ol>
       </nav>
 
-      {/* Concept header */}
+      {/* Concept header.
+          paddingBottom: 0 so dark-background experiments (EXP_009) have no
+          light-bg strip between the header's last element and the canvas edge.
+          Internal content spacing is handled by each child element's own margins.
+          paddingTop preserved for separation from the breadcrumb nav above. */}
       <section
         className="max-w-7xl mx-auto w-full px-6"
         style={{
           paddingTop: "var(--v2-space-lg)",
-          paddingBottom: "var(--v2-space-lg)",
+          paddingBottom: 0,
         }}
       >
         {/* System label */}
@@ -387,7 +391,9 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "var(--v2-bg-primary)",
+                /* --v2-text-primary = #1A1D23 (near-black) — correct contrast on chartreuse fill.
+                   --v2-bg-primary = #F0F2F5 (near-white) — wrong, was prior commit's mistake. */
+                color: "var(--v2-text-primary)",
                 background: "var(--v2-accent)",
                 border: "none",
                 padding: "6px 14px",
