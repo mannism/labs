@@ -1,8 +1,5 @@
 {
   "permissions": {
-    "additionalDirectories": [
-      "/Users/mann/Documents/Claude/Owner-Inbox/labs"
-    ],
     "allow": [
       "Bash(python3:*)",
       "Bash(find . -not -path './node_modules/*' -not -path './.git/*' -not -path './output/*' -type f -exec wc -l {} +)",
@@ -35,7 +32,18 @@
       "mcp__notion__notion-update-page",
       "Bash(xargs -r git branch -d)",
       "Bash(npm view *)",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(launchctl list *)",
+      "Read(//Users/mann/Library/LaunchAgents/**)",
+      "Bash(crontab -l)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(sort -k3 -r)",
+      "Bash(mkdir -p /Users/mann/.claude/state)",
+      "Bash(touch /Users/mann/.claude/state/last-handoff.md)"
+    ],
+    "additionalDirectories": [
+      "/Users/mann/Documents/Claude/Owner-Inbox/labs"
     ]
   }
 }

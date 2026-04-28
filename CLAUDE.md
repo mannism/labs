@@ -14,6 +14,10 @@ The app has two layers:
 
 ---
 
+## Content Standards
+- **Voice system:** All article and experiment copy must follow `/Users/mann/Documents/Claude/voice-system.md` — tone, register (Labs = "professional but edgier, thinking in public"), owned vocabulary, and off-limits language. Read before drafting any article or experiment description.
+- **UK English only** — all published copy (articles, experiment descriptions, UI text).
+
 ## Conventions
 
 - **CSS classes:** kebab-case with BEM-style prefixes (`glass-*`, `card-*`, `filter-*`).
@@ -84,43 +88,10 @@ Full cross-project checklist: `Owner-Inbox/research/security-audit-cross-project
 | `npm audit --production` | Zero high/critical |
 | View source — no server secrets | No API keys in client bundle |
 
-### CI Security (mandatory)
-- **Dependabot** enabled (`.github/dependabot.yml`)
-- **npm audit** step in CI: `npm audit --production --audit-level=high`
-- **Quarterly review:** Sable runs OWASP ZAP against staging first Monday of each quarter
-
----
-
 ## Code Quality
 
-- All PRs must include comprehension gate answers — see `.claude/rules/pr-review.md`.
 - Do not duplicate the `Project` interface — it is exported from `src/types/project.ts` and imported wherever needed.
 - Keep components focused. `ProjectGridV2` owns filtering state and category tabs. Individual cards are stateless display components.
 - Keep `src/lib/twin/messages.ts` as the single source for all user-facing strings. Do not inline error or reply text in route handlers or engine code.
 
 ---
-
-## Git Workflow
-
-### Branching
-One branch per task: `<type>/<short-description>`
-
-| Type | When to use |
-|------|-------------|
-| `feature/` | New functionality |
-| `bugfix/` | Bug fixes |
-| `refactor/` | Code restructuring |
-| `chore/` | Config, deps, tooling |
-
-### Commits
-Standard Conventional Commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `perf:`, `test:`, `ci:`
-
-### Versioning
-semantic-release handles versioning, CHANGELOG, tags, and GitHub Releases automatically on merge to `main` — no manual bumps, no manual changelog entries, no manual tags.
-
-The Labs entry in `src/data/projects.json` (`version` and `lastUpdated`) is patched automatically by semantic-release in the `prepareCmd` step of `.releaserc.json`. All other project entries in `projects.json` are maintained by the nightly sync workflow (`.github/workflows/sync-project-versions.yml`).
-
-### Merge to main
-**Never push or merge directly to `main`.** Only merge when explicitly requested.
-
-Configuration: `.releaserc.json` — workflow: `.github/workflows/release.yml`
