@@ -3,7 +3,7 @@
     "id": "1",
     "slug": "voice-particles",
     "title": "Voice Particle Instrument",
-    "description": "Microphone input drives GPU-accelerated particles and terrain mesh deformation in real-time. Speak, sing, or make noise to shape the visual landscape.",
+    "description": "This experiment demonstrates that 150,000 GPU-instanced particles respond to microphone input at 60fps in the browser without WASM or native code. Audio frequency data drives per-particle physics on the GPU; no client-to-GPU bridge latency limits the scale. The terrain mesh deforms in sync, anchoring the particle field.",
     "tags": [
       "WebGPU",
       "Web Audio",
@@ -43,7 +43,7 @@
     "id": "2",
     "slug": "gesture-fluid",
     "title": "Gesture Fluid Wall",
-    "description": "Pointer-driven Eulerian fluid simulation using Jos Stam's Stable Fluids algorithm. Move your mouse or finger to inject velocity and density into a real-time fluid field.",
+    "description": "This experiment runs a full Navier-Stokes fluid solver — diffusion, advection, pressure projection — at 60fps on a 256×256 grid using only CPU and Canvas 2D. No WebGPU, no WebGL. Stam's unconditionally stable semi-Lagrangian advection translates directly from offline VFX to interactive use. The simulation never blows up regardless of pointer speed.",
     "tags": [
       "Canvas 2D",
       "Stable Fluids",
@@ -83,7 +83,7 @@
     "id": "3",
     "slug": "crowd-flow",
     "title": "Crowd Flow Twin",
-    "description": "Cellular automata meets agent-based crowd simulation. Draw walls and obstacles, then watch emergent flow patterns form in real-time.",
+    "description": "This experiment couples three simulations: 10,000 autonomous agents running Boids flocking, a density trail grid tracking where agents have travelled, and a Gray-Scott reaction-diffusion system transforming raw crowd density into emergent organic patterns. Each subsystem reads and writes shared state. The result is a crowd simulation that visualises density as living structures, not heatmaps.",
     "tags": [
       "Canvas 2D",
       "Boids",
