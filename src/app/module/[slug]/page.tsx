@@ -64,9 +64,14 @@ export async function generateMetadata({
   };
 }
 
+/** Canonical Person entity — portfolio domain is authoritative across both sites. */
+const PORTFOLIO_PERSON_ID = "https://dianaismail.me/#person";
+
 /**
  * Per-project JSON-LD structured data.
- * SoftwareApplication schema for project pages, Article schema for article pages.
+ * - Articles: TechArticle (upgraded from Article) — signals technical practitioner authorship.
+ * - Projects: SoftwareApplication — with datePublished/dateModified from createdDate/lastUpdated.
+ * - All types: author uses canonical @id (GEO entity graph fix, P0).
  */
 function buildJsonLd(project: Project) {
   const canonicalUrl = `${seo.siteUrl}/module/${project.slug}`;
@@ -75,20 +80,22 @@ function buildJsonLd(project: Project) {
   if (isArticle) {
     return {
       "@context": "https://schema.org",
-      "@type": "Article",
+      // TechArticle (subtype of Article) signals technical expertise to AI engines.
+      "@type": "TechArticle",
       headline: project.title,
       description: project.shortDescription,
       url: canonicalUrl,
-      author: {
-        "@type": "Person",
-        name: seo.author,
-        url: "https://dianaismail.me",
-      },
-      publisher: {
-        "@type": "Person",
-        name: seo.author,
-      },
+      // @id reference connects this page to the canonical entity graph (not a name string).
+      author: { "@id": PORTFOLIO_PERSON_ID },
+      publisher: { "@id": `${seo.siteUrl}/#website` },
+      proficiencyLevel: "Expert",
       ...(project.createdDate && { datePublished: project.createdDate }),
+      // dateModified falls back to createdDate when lastUpdated is absent (articles without GitHub repos).
+      ...(project.createdDate && {
+        dateModified: project.lastUpdated ?? project.createdDate,
+      }),
+      ...(project.wordCount && { wordCount: project.wordCount }),
+      mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
       keywords: project.tags.join(", "),
     };
   }
@@ -101,12 +108,13 @@ function buildJsonLd(project: Project) {
     url: project.demoUrl || canonicalUrl,
     applicationCategory: "WebApplication",
     operatingSystem: "Web",
-    author: {
-      "@type": "Person",
-      name: seo.author,
-      url: "https://dianaismail.me",
-    },
+    // @id reference connects this page to the canonical entity graph (not a name string).
+    author: { "@id": PORTFOLIO_PERSON_ID },
     ...(project.version && { softwareVersion: project.version }),
+    // Date signals for AI engine recency scoring (GEO P0).
+    ...(project.createdDate && { datePublished: project.createdDate }),
+    ...(project.lastUpdated && { dateModified: project.lastUpdated }),
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
     keywords: project.tags.join(", "),
   };
 }

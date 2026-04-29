@@ -80,7 +80,14 @@ export const metadata: Metadata = {
  * JSON-LD structured data for search engines and AI crawlers.
  * Graph includes: WebSite, Person (Diana Ismail), and ItemList of projects.
  * Data sourced from seo.json and projects.json — no hardcoded values.
+ *
+ * Entity graph strategy (GEO P0):
+ * Labs is a satellite domain of dianaismail.me. The canonical Person @id lives at
+ * the portfolio domain so AI knowledge graphs merge both domains into one entity.
+ * The WebSite author and all per-page author fields reference this canonical @id.
  */
+const PORTFOLIO_PERSON_ID = "https://dianaismail.me/#person";
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -90,20 +97,23 @@ const jsonLd = {
       name: seo.siteName,
       url: seo.siteUrl,
       description: seo.description,
-      author: { "@id": `${seo.siteUrl}/#person` },
+      // @id reference (not name string) connects this site to the canonical entity graph
+      author: { "@id": PORTFOLIO_PERSON_ID },
     },
     {
+      // Person @id uses portfolio domain — Labs is the same entity, not a separate one.
+      // sameAs includes labs.dianaismail.me so AI engines resolve Labs content to this entity.
       "@type": "Person",
-      "@id": `${seo.siteUrl}/#person`,
+      "@id": PORTFOLIO_PERSON_ID,
       name: seo.author,
-      url: seo.siteUrl,
+      url: "https://dianaismail.me",
       jobTitle: "Agentic AI Builder",
       description:
         "Agentic AI builder creating at the intersection of AI, interactive design, and brand experience.",
       sameAs: [
         `https://twitter.com/${seo.twitterHandle.replace("@", "")}`,
         "https://www.linkedin.com/in/dee-ismail/",
-        "https://dianaismail.me",
+        seo.siteUrl,
       ],
     },
     {
