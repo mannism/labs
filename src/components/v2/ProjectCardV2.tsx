@@ -7,6 +7,7 @@ import { useReducedMotion } from "./useReducedMotion";
 import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
 import { CardProximityData } from "./useProximityField";
 import projectsData from "@/lib/projects";
+import { formatRelativeUpdated } from "@/lib/relativeTime";
 
 /**
  * ProjectCardV2 — Speculative Interface project card with selective motion.
@@ -279,33 +280,63 @@ export function ProjectCardV2({
         ))}
       </div>
 
-      {/* Version + date metadata line — suppressHydrationWarning for nightly sync version drift */}
-      <div
-        suppressHydrationWarning
-        style={{
-          fontFamily: "var(--v2-font-mono)",
-          fontSize: "var(--v2-font-size-xs)",
-          color: "var(--v2-text-tertiary)",
-          letterSpacing: "0.02em",
-        }}
-      >
-        {[
-          project.version && `v${project.version}`,
-          (() => {
-            const dateStr =
-              project.type === "article"
-                ? project.createdDate
-                : project.lastUpdated;
-            if (!dateStr) return null;
-            const d = new Date(dateStr);
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, "0");
-            const dd = String(d.getDate()).padStart(2, "0");
-            return `${yyyy}.${mm}.${dd}`;
-          })(),
-        ]
-          .filter(Boolean)
-          .join(" // ")}
+      {/*
+       * Metadata footer — version + primary created date.
+       * All cards (project and article) show createdDate as the primary date for
+       * uniform index semantics. suppressHydrationWarning for nightly sync version drift.
+       */}
+      <div suppressHydrationWarning>
+        {/* Primary line: version // created date */}
+        <div
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+            letterSpacing: "0.02em",
+          }}
+        >
+          {[
+            project.version && `v${project.version}`,
+            (() => {
+              /* All card types use createdDate for uniform index date semantics */
+              const dateStr = project.createdDate;
+              if (!dateStr) return null;
+              const d = new Date(dateStr);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return `${yyyy}.${mm}.${dd}`;
+            })(),
+          ]
+            .filter(Boolean)
+            .join(" // ")}
+        </div>
+
+        {/*
+         * Secondary relative-time line — projects only.
+         * Shows "updated 3d ago" to signal active maintenance without breaking
+         * primary date semantics. Suppressed for articles (their date IS the update),
+         * when lastUpdated === createdDate (no real edit), and past ~6 months
+         * (stale "updated 14mo ago" undermines the active signal it's meant to provide).
+         */}
+        {!isArticle && (() => {
+          const rel = formatRelativeUpdated(project.createdDate, project.lastUpdated);
+          if (!rel) return null;
+          return (
+            <div
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "10px",
+                color: "var(--v2-text-tertiary)",
+                letterSpacing: "0.02em",
+                opacity: 0.65,
+                marginTop: "2px",
+              }}
+            >
+              {rel}
+            </div>
+          );
+        })()}
       </div>
     </motion.div>
   );

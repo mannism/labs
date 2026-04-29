@@ -667,23 +667,41 @@ function ProjectLayout({
         {project.version && (
           <MetaBlock label="VERSION" value={`v${project.version}`} />
         )}
-        {(() => {
-          const isArticle = project.type === "article";
-          const dateStr = isArticle
-            ? project.createdDate
-            : project.lastUpdated;
-          if (!dateStr) return null;
-          const d = new Date(dateStr);
-          const yyyy = d.getFullYear();
-          const mm = String(d.getMonth() + 1).padStart(2, "0");
-          const dd = String(d.getDate()).padStart(2, "0");
-          return (
-            <MetaBlock
-              label={isArticle ? "PUBLISHED" : "DEPLOYED"}
-              value={`${yyyy}.${mm}.${dd}`}
-            />
-          );
-        })()}
+        {/*
+         * Date blocks — project detail shows both dates, clearly labelled,
+         * so visitors can see when the project launched and how recently it was maintained.
+         * Article detail shows only the published date (lastUpdated is not a meaningful
+         * signal for editorial content).
+         */}
+        {project.type === "article" ? (
+          /* Article: published date only */
+          (() => {
+            if (!project.createdDate) return null;
+            const d = new Date(project.createdDate);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return <MetaBlock label="PUBLISHED" value={`${yyyy}.${mm}.${dd}`} />;
+          })()
+        ) : (
+          /* Project: created date + last-updated date, both labelled */
+          <>
+            {project.createdDate && (() => {
+              const d = new Date(project.createdDate);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return <MetaBlock label="CREATED" value={`${yyyy}.${mm}.${dd}`} />;
+            })()}
+            {project.lastUpdated && (() => {
+              const d = new Date(project.lastUpdated);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return <MetaBlock label="LAST_UPDATED" value={`${yyyy}.${mm}.${dd}`} />;
+            })()}
+          </>
+        )}
         <MetaBlock label="STABILITY" value={project.status.toUpperCase()} />
         <div style={{ marginBottom: "var(--v2-space-xl)" }}>
           <p
