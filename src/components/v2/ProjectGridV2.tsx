@@ -153,14 +153,14 @@ export function ProjectGridV2({
     }
   }, []);
 
-  /* Sort by recency (newest first): projects by lastUpdated, articles by createdDate */
+  /* Sort by createdDate (newest first) — matches the primary date now shown on cards */
   const visibleProjects = useMemo(
     () =>
       (projectsData as Project[])
         .filter((p) => p.display !== false)
         .sort((a, b) => {
-          const dateA = a.type === "article" ? a.createdDate : a.lastUpdated;
-          const dateB = b.type === "article" ? b.createdDate : b.lastUpdated;
+          const dateA = a.createdDate;
+          const dateB = b.createdDate;
           if (!dateA && !dateB) return 0;
           if (!dateA) return 1;
           if (!dateB) return -1;
