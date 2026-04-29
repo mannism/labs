@@ -21,7 +21,10 @@ export interface Project {
   version?: string;
   /** ISO date string of the last push to the GitHub repo, e.g. "2026-03-25". */
   lastUpdated?: string;
-  /** ISO date string of original publication date, e.g. "2026-04-05". Primarily used for articles. */
+  /** ISO date string of original publication / first-launch date, e.g. "2026-04-05".
+   *  Used by all entry types: articles use it as the published date; projects use it as the
+   *  created/launched date. This is the primary date shown on index cards for all entries,
+   *  ensuring uniform date semantics across the mixed-content grid. */
   createdDate?: string;
   /** When true, spans 2 columns in the v2 bento grid for emphasis. */
   highlight?: boolean;
