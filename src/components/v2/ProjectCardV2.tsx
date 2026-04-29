@@ -189,7 +189,7 @@ export function ProjectCardV2({
             aria-hidden="true"
             animate={
               isActive && !prefersReduced
-                ? { opacity: [1, 0.3, 1] }
+                ? { opacity: [1, 0.6, 1] }
                 : undefined
             }
             transition={
@@ -198,10 +198,13 @@ export function ProjectCardV2({
                 : undefined
             }
             style={{
-              width: "6px",
-              height: "6px",
+              width: "10px",
+              height: "10px",
               borderRadius: "50%",
               background: isActive ? "var(--v2-accent)" : "var(--v2-text-tertiary)",
+              boxShadow: isActive
+                ? "0 0 0 1px rgba(0, 0, 0, 0.22), 0 0 8px rgba(200, 255, 0, 0.55)"
+                : "0 0 0 1px rgba(0, 0, 0, 0.18)",
               display: "inline-block",
             }}
           />
