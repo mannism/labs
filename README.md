@@ -54,7 +54,7 @@ The app has two layers:
 ```
 src/
 ├── app/
-│   ├── layout.tsx              # Root layout: fonts, SEO metadata, JSON-LD, Google Analytics
+│   ├── layout.tsx              # Root layout: fonts, SEO metadata, root JSON-LD (`WebSite` + `Person @id` referencing canonical `https://dianaismail.me/#person`), Google Analytics
 │   ├── page.tsx                # Renders AppShell
 │   ├── globals.css             # Design tokens (v2 Speculative Interface), animations, chat widget styles
 │   ├── icon.tsx                # Route-based favicon — chartreuse "D" on dark background
@@ -65,13 +65,13 @@ src/
 │   ├── opengraph-image.tsx     # Root OG image (1200×630) — site-wide fallback
 │   ├── llms.txt/route.ts       # LLM discovery endpoint — serves llms.txt for AI crawlers
 │   ├── module/[slug]/
-│   │   ├── page.tsx            # Per-project SSR: generateMetadata (title, desc, keywords), JSON-LD
+│   │   ├── page.tsx            # Per-project SSR: generateMetadata (title, desc, keywords), JSON-LD (`SoftwareApplication` for projects, `TechArticle` for articles)
 │   │   ├── ModuleDetailClient.tsx # Client wrapper: datamosh transitions, back navigation
 │   │   └── opengraph-image.tsx # Per-project OG image: title + category badge + MODULE/ARTICLE label
 │   ├── playground/
 │   │   ├── layout.tsx          # Shared playground layout: metadata, ExperimentsShell wrapper
 │   │   ├── page.tsx            # Landing page: hero + card grid of all experiments
-│   │   └── [slug]/page.tsx     # Individual experiment: per-experiment metadata, dynamic canvas
+│   │   └── [slug]/page.tsx     # Individual experiment: per-experiment metadata, JSON-LD (`SoftwareApplication`), dynamic canvas
 │   └── api/
 │       ├── chat/
 │       │   ├── stream/         # POST — SSE streaming endpoint for the chat widget
