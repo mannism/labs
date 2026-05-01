@@ -8,7 +8,7 @@ import { Project } from "@/types/project";
 import { trackEvent } from "@/lib/analytics";
 import { useReducedMotion } from "./useReducedMotion";
 import { useTextScramble } from "./useTextScramble";
-import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
+import { MarkdownInline } from "./MarkdownInline";
 import projectsData from "@/lib/projects";
 
 /**
@@ -325,7 +325,7 @@ function ArticleLayout({
                 margin: "0 0 var(--v2-space-3xl) 0",
               }}
             >
-              {renderWithCodeHighlights(para)}
+              <MarkdownInline>{para}</MarkdownInline>
             </p>
           ))}
 
@@ -357,7 +357,7 @@ function ArticleLayout({
                     margin: pi === 0 ? 0 : "var(--v2-space-lg) 0 0 0",
                   }}
                 >
-                  {renderWithCodeHighlights(para)}
+                  <MarkdownInline>{para}</MarkdownInline>
                 </p>
               ))}
             </div>
@@ -450,7 +450,7 @@ function ArticleLayout({
                         fontStyle: "italic",
                       }}
                     >
-                      {renderWithCodeHighlights(learning)}
+                      <MarkdownInline>{learning}</MarkdownInline>
                     </p>
                   </div>
                 ))}
@@ -506,7 +506,7 @@ function ArticleLayout({
                         fontStyle: "italic",
                       }}
                     >
-                      {renderWithCodeHighlights(learning)}
+                      <MarkdownInline>{learning}</MarkdownInline>
                     </p>
                   </div>
                 ))}
@@ -782,7 +782,7 @@ function ProjectLayout({
               margin: "0 0 var(--v2-space-2xl) 0",
             }}
           >
-            {renderWithCodeHighlights(para)}
+            <MarkdownInline>{para}</MarkdownInline>
           </p>
         ))}
 
@@ -838,7 +838,7 @@ function ProjectLayout({
                       fontStyle: "italic",
                     }}
                   >
-                    {renderWithCodeHighlights(learning)}
+                    <MarkdownInline>{learning}</MarkdownInline>
                   </p>
                 </div>
               ))}

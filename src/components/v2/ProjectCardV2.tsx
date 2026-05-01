@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
-import { renderWithCodeHighlights } from "./renderWithCodeHighlights";
+import { MarkdownInline } from "./MarkdownInline";
 import { CardProximityData } from "./useProximityField";
 import projectsData from "@/lib/projects";
 import { formatRelativeUpdated } from "@/lib/relativeTime";
@@ -258,7 +258,7 @@ export function ProjectCardV2({
           flex: 1,
         }}
       >
-        {renderWithCodeHighlights(project.shortDescription)}
+        <MarkdownInline>{project.shortDescription}</MarkdownInline>
       </p>
 
       {/* Tech tags — all tags shown, outlined chips matching Stitch treatment */}
