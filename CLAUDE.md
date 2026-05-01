@@ -23,6 +23,7 @@ The app has two layers:
 - **CSS classes:** kebab-case with BEM-style prefixes (`glass-*`, `card-*`, `filter-*`).
 - **Fonts:** Space Grotesk (display/headings + body), Geist Mono (badges/code).
 - **Colors:** always via CSS custom properties — `var(--bg-primary)`, `var(--accent-blue)`, `var(--text-primary)`. Never raw hex values in components.
+- **Chartreuse rule:** `var(--v2-accent)` (`#C8FF00`) is a **fill, underline, marker, and dot** colour only. It is **never** a text colour on the pale `#F0F2F5` body bg — luminance is too close (~0.93 vs ~0.91) and contrast fails. For chartreuse-coloured text on pale bg use `var(--v2-accent-deep)` (`#5A7000`). For chartreuse-filled chips use a `1.5px solid var(--v2-accent-border)` (`#3F5400`) outline so the chip defines against the page. Brand-coloured emphasis on text/links uses dark text + chartreuse `textDecoration` underline (Sharpie treatment), not coloured text.
 
 ---
 
