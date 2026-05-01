@@ -40,7 +40,12 @@
       "Bash(pkill -f \"next dev\")",
       "Bash(sort -k3 -r)",
       "Bash(mkdir -p /Users/mann/.claude/state)",
-      "Bash(touch /Users/mann/.claude/state/last-handoff.md)"
+      "Bash(touch /Users/mann/.claude/state/last-handoff.md)",
+      "Bash(echo \"---EXIT:$?---\")",
+      "Bash(cp /tmp/projects-backup.json src/data/projects.json)",
+      "Bash(npx tsx *)",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(echo \"POS_EXIT:$?\")"
     ],
     "additionalDirectories": [
       "/Users/mann/Documents/Claude/Owner-Inbox/labs"
