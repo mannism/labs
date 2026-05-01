@@ -739,5 +739,54 @@
       "Centralised skill stores treat all capability as a retrieval problem. Some capability isn't. A voice rule that fires on every turn isn't a candidate for vector retrieval — the retrieval step itself introduces the failure mode you're trying to eliminate.",
       "Capability inherits meaning from its location. The voice system isn't just a file of rules; it lives alongside the agent roster, the routing map, and the decisions log. A centralised store severs this relationship. Distribution is structural, not incidental."
     ]
+  },
+  {
+    "id": "28",
+    "slug": "when-something-earns-skill-status",
+    "order": 15,
+    "createdDate": "2026-05-01",
+    "seriesTitle": "Earned Layers",
+    "sequenceNumber": 2,
+    "title": "When Something Earns SKILL.md Status",
+    "shortDescription": "This article examines the criteria that justify promoting a procedure to SKILL.md status — and argues that one criterion, the gate, separates skills from well-written rules. Most procedures that earn repetition, shape, and trigger clarity still don't need formal specification.",
+    "detailedDescription": "When does a procedure deserve its own SKILL.md file? The instinct to codify can be strong — formalised steps feel precise, safe, and defensible. But SKILL.md comes with ceremony: invocation cost, file maintenance, the cognitive load of one more reference. This article explores the question from the layering perspective: which layer does this knowledge naturally inhabit? The four-criteria framework reveals that three conditions are necessary but not sufficient. The gate — the confirmation step, irreversibility check, or idempotency verification — is what justifies the ceremony. Without it, you have built a checklist with extra steps.",
+    "category": "Research",
+    "status": "Active",
+    "display": true,
+    "highlight": false,
+    "type": "article",
+    "tags": [
+      "Claude Code",
+      "Agentic AI",
+      "Skill Architecture",
+      "SKILL.md",
+      "Agent Governance",
+      "Workflow Design"
+    ],
+    "demoUrl": "",
+    "githubUrl": "#",
+    "articleSections": [
+      {
+        "title": "Why SKILL.md Is the Wrong Default",
+        "body": "In April 2026, I closed a codification programme that turned four workflow procedures into formally specified skills. Handoff, decision logging, brief formatting, and new repository setup each got a SKILL.md file — a self-contained procedure with a trigger condition and a gate. The more interesting list is what didn't make the cut. Dozens of candidates fell away. Not because they weren't important. Because they didn't need the ceremony.\n\nA skill is expensive to invoke. It requires an agent to recognise that this moment calls for the procedure, locate the file, read it, and execute step-by-step. A CLAUDE.md rule that fires on every turn is structurally superior to a skill the user has to summon — because the rule can't be forgotten.\n\nAsk the right question first: not \"should this be codified?\" but \"which layer does this knowledge naturally inhabit?\" (as the [skill architecture piece](/labs/skill-architecture-prompt-engineering) maps in full). Bias toward the lightest layer that works. A rule that governs every agent spawn on every project belongs in the always-on layer. A procedure that runs three times a year when circumstances demand it belongs in skills. Conflating them costs clarity."
+      },
+      {
+        "title": "The Four Criteria, and Why One Matters Most",
+        "body": "Four conditions favour SKILL.md promotion — but one separates skills from well-written CLAUDE.md rules. **Repetition:** has this procedure run 3+ times? **Shape:** are there discrete steps with a clear entry and exit? **Trigger clarity:** can the agent reliably know when to invoke it? **Gate:** is there a confirmation, an irreversibility check, or an idempotency verification that benefits from formalisation?\n\nThe first three are necessary. The gate is decisive.\n\nAny procedure that passes repetition, shape, and trigger clarity but has no gate belongs in a standing reference document or a CLAUDE.md rule. The gate is what justifies the ceremony. Without it, you have a checklist with extra steps."
+      },
+      {
+        "title": "The Lived Evidence",
+        "body": "The `/decision` skill exists because decisions are binding policy. Once an entry lands in decisions.md, it is locked — not reversible, not negotiable. The skill's entire architecture is built around that irreversibility. Step 4 is a non-skippable confirmation gate: the Owner must explicitly ratify the decision before the session commits the entry. Remove that gate and the skill collapses. It would be better as a CLAUDE.md rule — \"log cross-project decisions\" — firing ambiently whenever one arises. The ceremony serves no purpose without the gate.\n\nModel tiering is the inverse case. The rule — which agents run on Sonnet, which on Haiku — has repetition (every agent spawn), shape (which model, when to override), and trigger clarity (every invocation). It has no gate. There is no confirmation step, no irreversibility, no idempotency check that changes the outcome by running through the procedure. A `/check-model` skill would add friction without benefit. The rule lives in CLAUDE.md, fires on every spawn, and doesn't require invocation. That's the right layer."
+      },
+      {
+        "title": "The Closing Claim",
+        "body": "The gate is the point. If your skill doesn't have one, you wrote a checklist with extra steps. The discipline of skill promotion isn't about how complex the procedure is or how often it runs. It's about whether formalising the confirmation changes the outcome. That's a narrow bar. It should be."
+      }
+    ],
+    "keyLearnings": [
+      "The gate is the decisive criterion. Repetition, shape, and trigger clarity are necessary but not separating — they describe many good CLAUDE.md rules too. The gate is what distinguishes a skill.",
+      "Formalising a gate changes the outcome. If there is no confirmation step, no irreversibility, or no idempotency verification that differs by going through the procedure, the ceremony adds friction without benefit — the knowledge belongs in a lighter layer.",
+      "Ask the right question first. Not \"should this be codified?\" but \"which layer does this knowledge naturally inhabit?\" — bias toward the lightest layer that works, then check if a gate justifies moving it up."
+    ]
   }
 ]
