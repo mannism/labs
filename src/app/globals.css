@@ -116,6 +116,13 @@ html.v2 {
   --v2-bg-surface: #FFFFFF;
   --v2-accent: #C8FF00;
   --v2-accent-muted: rgba(200, 255, 0, 0.15);
+  /* Deep chartreuse for text on pale bg — same hue family as --v2-accent,
+     dark enough to pass WCAG AA against #F0F2F5 (~12:1). Use this for any
+     chartreuse-coloured text. Never set color: var(--v2-accent) on pale bg. */
+  --v2-accent-deep: #5A7000;
+  /* Dark-green chip outline — defines chartreuse-filled chips against pale bg
+     without resorting to a black border that clashes with the soft palette. */
+  --v2-accent-border: #3F5400;
   --v2-text-primary: #1A1D23;
   --v2-text-secondary: #5C6370;
   --v2-text-tertiary: #545B67;
@@ -177,7 +184,10 @@ html.v2 {
   /* Article detail navigation and series labels */
   --article-nav-border: rgba(0, 0, 0, 0.06);
   --article-nav-bg: rgba(0, 0, 0, 0.02);
-  --article-series-color: var(--v2-accent);
+  /* Series label: dark text + chartreuse underline (Sharpie treatment).
+     Previously chartreuse text — failed contrast on pale bg. */
+  --article-series-color: var(--v2-text-primary);
+  --article-series-underline: var(--v2-accent);
 
   /* Spacing */
   --v2-space-xs: 0.25rem;
