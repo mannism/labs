@@ -38,9 +38,11 @@ const CODE_CHIP_STYLE: React.CSSProperties = {
 };
 
 const LINK_STYLE: React.CSSProperties = {
-  color: "var(--v2-accent)",
+  color: "var(--v2-text-primary)",
   textDecoration: "underline",
-  textUnderlineOffset: "2px",
+  textDecorationColor: "var(--v2-accent)",
+  textDecorationThickness: "2px",
+  textUnderlineOffset: "3px",
 };
 
 /**

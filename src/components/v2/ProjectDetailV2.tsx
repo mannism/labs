@@ -146,12 +146,13 @@ export function ProjectDetailV2({
             fontFamily: "var(--v2-font-mono)",
             fontSize: "var(--v2-font-size-xs)",
             color: "var(--v2-text-primary)",
-            background: "var(--v2-accent-muted)",
-            border: "1px solid var(--v2-accent)",
+            background: "var(--v2-accent)",
+            border: "1.5px solid var(--v2-accent-border)",
             borderRadius: "9999px",
-            padding: "3px 12px",
+            padding: "2.5px 12px",
             textTransform: "uppercase",
             letterSpacing: "0.06em",
+            fontWeight: 600,
           }}
         >
           {project.category}
@@ -275,7 +276,9 @@ function ArticleLayout({
       >
         {/* Left — article content */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Series label — shown above article body when part of a named arc */}
+          {/* Series label — shown above article body when part of a named arc.
+              Dark text + chartreuse underline (Sharpie mark) keeps the brand
+              colour while remaining legible on pale bg. */}
           {seriesLabel && (
             <p
               style={{
@@ -290,7 +293,16 @@ function ArticleLayout({
                 textOverflow: "ellipsis",
               }}
             >
-              {seriesLabel}
+              <span
+                style={{
+                  textDecoration: "underline",
+                  textDecorationColor: "var(--article-series-underline)",
+                  textDecorationThickness: "2px",
+                  textUnderlineOffset: "4px",
+                }}
+              >
+                {seriesLabel}
+              </span>
             </p>
           )}
 
