@@ -134,7 +134,8 @@ src/
 │   ├── projects.ts             # Canonical projects loader — resolves Labs version from package.json
 │   ├── analytics.ts            # Thin wrapper around gtag (injected by @next/third-parties)
 │   ├── schemas/
-│   │   └── uiBlocks.ts         # Zod discriminated union for 9 UI block types (EXP_006)
+│   │   ├── uiBlocks.ts         # Zod discriminated union for 9 UI block types (EXP_006)
+│   │   └── content-descriptions.ts # Zod schemas enforcing GEO/AI-discoverability description thresholds (project ≥50w, article ≥36w, experiment ≥20w) + hedging/off-limits register filters
 │   ├── prompts/
 │   │   ├── generativeUI.ts     # System prompt for UI block generation (EXP_006)
 │   │   ├── orchestrationAnnotation.ts # System prompt for topology annotation (EXP_007/EXP_008)
@@ -326,7 +327,7 @@ The Docker build uses a three-stage pipeline (deps → builder → runner) with 
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | Push/PR to main | Runs lint, typecheck (`tsc --noEmit`), build, and `npm audit --production --audit-level=high` |
+| `ci.yml` | Push/PR to main | Runs lint, typecheck (`tsc --noEmit`), `validate-content` (Zod content-description thresholds — see `npm run validate:content`), build, and `npm audit --production --audit-level=high` |
 | `release.yml` | Push to main | Creates GitHub Releases via semantic-release |
 | `sync-project-versions.yml` | Daily 02:00 UTC | Syncs `version` and `lastUpdated` in `projects.json` from GitHub API |
 
