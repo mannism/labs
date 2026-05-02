@@ -41,7 +41,7 @@ const MAX_TILT = 5;
 /** Radius within which cards are affected by the cursor */
 const EFFECT_RADIUS = 250;
 /** Depth lift for the nearest card */
-const LIFT_Z = 12;
+const LIFT_Z = 24;
 /** Depth compression for adjacent cards */
 const COMPRESS_Z = -3;
 
@@ -95,13 +95,23 @@ export function useProximityField({
 
     window.addEventListener("resize", onResize);
 
-    /** Recalculate rects on scroll — positions shift in viewport coords */
-    const onScroll = () => updateRects();
+    /* rAF-throttle scroll-driven rect updates — getBoundingClientRect is viewport-relative,
+     * so positions do shift on scroll, but coalescing to one update per frame avoids jank. */
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        updateRects();
+      });
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
 
     /** Mousemove handler on the grid container */
     const onMouseMove = (e: MouseEvent) => {
-      /* Refresh rects each move to account for any layout shifts */
+      /* Refresh rects on every move — getBoundingClientRect is viewport-relative,
+       * so positions shift on scroll. Without this, fast inertial scroll causes
+       * the cursor distance calc to use stale rect.top and the proximity glow drops out. */
       updateRects();
       const rects = rectsRef.current;
       if (rects.length === 0) return;
@@ -178,6 +188,7 @@ export function useProximityField({
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onScroll);
       clearTimeout(resizeTimer);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
     };
   }, [disabled, cardCount, updateRects]);
 

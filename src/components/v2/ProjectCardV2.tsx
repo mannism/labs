@@ -74,31 +74,37 @@ export function ProjectCardV2({
     ? `perspective(800px) rotateX(${proximity.rotateX.toFixed(2)}deg) rotateY(${proximity.rotateY.toFixed(2)}deg) translateZ(${proximity.translateZ.toFixed(1)}px)`
     : undefined;
 
-  /** Enhanced shadow when the card is lifted by proximity */
+  /** Enhanced shadow when the card is lifted by proximity — softer + larger reads as "floating". */
   const proximityShadow =
     hasProximity && proximity.translateZ > 2
-      ? "0 8px 24px rgba(0, 0, 0, 0.12)"
+      ? "0 16px 40px rgba(0, 0, 0, 0.18)"
       : undefined;
 
-  /** Handle hover in — inset box-shadow instead of borderLeftWidth to avoid layout shift */
-  const handleMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    if (!hasProximity) {
-      el.style.transform = "translateY(-2px)";
-    }
-    el.style.boxShadow = "inset 3px 0 0 0 var(--v2-accent), var(--v2-shadow-hover)";
-    el.style.borderColor = "var(--v2-border-hover)";
-  }, [hasProximity]);
+  /* Hover state lives in React, not DOM mutation, so it composes cleanly with
+   * proximity-driven inline style updates instead of being overwritten on each render. */
+  const [isHovered, setIsHovered] = useState(false);
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
-  /** Handle hover out — restore default state */
-  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    if (!hasProximity) {
-      el.style.transform = "translateY(0)";
-    }
-    el.style.boxShadow = "var(--v2-shadow)";
-    el.style.borderColor = "var(--v2-border)";
-  }, [hasProximity]);
+  /* Compose box-shadow from independent layers so they stack instead of clobbering:
+   * chartreuse left inset (hover) + lifted shadow (proximity nearest) + base/hover shadow. */
+  const composedBoxShadow = [
+    isHovered ? "inset 3px 0 0 0 var(--v2-accent)" : null,
+    proximityShadow,
+    isHovered ? "var(--v2-shadow-hover)" : "var(--v2-shadow)",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  /* Hover lift only when not in proximity (proximity owns the transform via translateZ). */
+  const hoverTransform = isHovered && !hasProximity ? "translateY(-2px)" : undefined;
+  const composedTransform = proximityTransform ?? hoverTransform;
+
+  /* Borders split per-side so the article chartreuse top survives hover —
+   * the original `borderColor` shorthand wiped all four sides including the top. */
+  const sideBorderColor = isHovered ? "var(--v2-border-hover)" : "var(--v2-border)";
+  const sideBorder = `1px solid ${sideBorderColor}`;
+  const topBorder = isArticle ? "2px solid var(--v2-accent)" : sideBorder;
 
   return (
     <motion.div
@@ -124,8 +130,10 @@ export function ProjectCardV2({
       transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
       style={{
         background: "var(--v2-bg-surface)",
-        border: "1px solid var(--v2-border)",
-        borderTop: isArticle ? "2px dashed var(--v2-accent)" : undefined,
+        borderTop: topBorder,
+        borderRight: sideBorder,
+        borderBottom: sideBorder,
+        borderLeft: sideBorder,
         borderRadius: "0.5rem",
         padding: isLarge ? "var(--v2-space-2xl)" : "var(--v2-space-xl)",
         cursor: "pointer",
@@ -133,10 +141,10 @@ export function ProjectCardV2({
         position: "relative",
         height: "100%",
         boxSizing: "border-box",
-        boxShadow: proximityShadow ?? "var(--v2-shadow)",
+        boxShadow: composedBoxShadow,
         display: "flex",
         flexDirection: "column",
-        transform: proximityTransform,
+        transform: composedTransform,
         willChange: hasProximity ? "transform" : undefined,
         overflow: "hidden",
       }}
