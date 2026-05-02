@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
 
 /**
@@ -122,7 +123,7 @@ export function DatamoshTransition({
             )}
 
             {/* Chartreuse scan-line sweep */}
-            <motion.div
+            <m.div
               initial={{ top: "0%" }}
               animate={{ top: "100%" }}
               transition={{ duration, ease: "linear" }}
@@ -159,7 +160,7 @@ function FullGlitch({ duration }: { duration: number }) {
   return (
     <>
       {/* Brief dark flash at the start — creates "freeze frame" visual */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0.15, 0] }}
         transition={{ duration: 0.1, ease: "easeOut" }}
@@ -183,7 +184,7 @@ function FullGlitch({ duration }: { duration: number }) {
 
       {/* Displaced horizontal slices with solid color overlays */}
       {slices.map((slice, i) => (
-        <motion.div
+        <m.div
           key={i}
           initial={{ x: 0, opacity: 0 }}
           animate={{
@@ -214,7 +215,7 @@ function FullGlitch({ duration }: { duration: number }) {
       ))}
 
       {/* Full-screen RGB noise overlay — boosted opacity */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0.3, 0.15, 0] }}
         transition={{ duration, ease: "easeOut" }}
@@ -241,7 +242,7 @@ function FullGlitch({ duration }: { duration: number }) {
  */
 function MildGlitch({ duration }: { duration: number }) {
   return (
-    <motion.div
+    <m.div
       initial={{ x: 0, opacity: 0 }}
       animate={{
         x: [0, 15, 0],

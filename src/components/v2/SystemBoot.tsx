@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "./useReducedMotion";
 import packageJson from "../../../package.json";
 import projectsData from "@/lib/projects";
@@ -231,7 +232,7 @@ export function SystemBoot({ onComplete }: { onComplete?: () => void } = {}) {
   return (
     <AnimatePresence>
       {shouldRender && (
-        <motion.div
+        <m.div
           ref={containerRef}
           onClick={handleSkip}
           role="presentation"
@@ -289,7 +290,7 @@ export function SystemBoot({ onComplete }: { onComplete?: () => void } = {}) {
               ))}
             </div>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

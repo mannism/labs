@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import seo from "@/data/seo.json";
 import projects from "@/lib/projects";
+import { MotionProvider } from "@/components/MotionProvider";
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -156,10 +157,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Page content */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          {children}
-        </div>
+        {/* Page content — MotionProvider supplies LazyMotion features to all m.X components */}
+        <MotionProvider>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {children}
+          </div>
+        </MotionProvider>
 
         {/* Google Analytics — only loads when NEXT_PUBLIC_GA_ID is set */}
         {gaId && <GoogleAnalytics gaId={gaId} />}

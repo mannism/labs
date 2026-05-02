@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { Project } from "@/types/project";
 import { useReducedMotion } from "./useReducedMotion";
 import { MarkdownInline } from "./MarkdownInline";
@@ -107,7 +107,7 @@ export function ProjectCardV2({
   const topBorder = isArticle ? "2px solid var(--v2-accent)" : sideBorder;
 
   return (
-    <motion.div
+    <m.div
       role="button"
       tabIndex={0}
       aria-label={`View details for ${project.title}`}
@@ -193,7 +193,7 @@ export function ProjectCardV2({
           }}
         >
           {/* WCAG: decorative indicator — status communicated via adjacent text label. aria-hidden applied. */}
-          <motion.span
+          <m.span
             aria-hidden="true"
             animate={
               isActive && !prefersReduced
@@ -349,7 +349,7 @@ export function ProjectCardV2({
           );
         })()}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import experimentsData from "@/data/experiments.json";
 import type { Experiment } from "@/types/experiment";
 import { ExperimentCard } from "./ExperimentCard";
@@ -203,7 +203,7 @@ export function ExperimentsLanding() {
         </div>
 
         {/* Card grid — re-triggers stagger entrance on collection change via `key` */}
-        <motion.div
+        <m.div
           key={activeCollection}
           variants={prefersReduced ? undefined : gridVariants}
           initial={prefersReduced ? undefined : "hidden"}
@@ -240,7 +240,7 @@ export function ExperimentsLanding() {
               no experiments in this collection yet
             </p>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Experiment counter — mono/xs/tertiary, mirrors ProjectGridV2 module counter */}
         <p

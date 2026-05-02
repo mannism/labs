@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import type { VariantResult } from "@/types/brandPipeline";
 import { useReducedMotion } from "@/components/v2/useReducedMotion";
 
@@ -146,7 +147,7 @@ export function ResultPanel({ results }: ResultPanelProps) {
       {/* Result cards */}
       <AnimatePresence>
         {results.map((result, idx) => (
-          <motion.article
+          <m.article
             key={result.id}
             initial={prefersReduced ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -282,7 +283,7 @@ export function ResultPanel({ results }: ResultPanelProps) {
                 {result.rationale}
               </p>
             </div>
-          </motion.article>
+          </m.article>
         ))}
       </AnimatePresence>
     </section>

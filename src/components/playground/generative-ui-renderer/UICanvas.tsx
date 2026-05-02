@@ -10,7 +10,8 @@
 
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence, useReducedMotion } from "framer-motion";
 import type { UIBlock } from "@/lib/schemas/uiBlocks";
 import { BlockRenderer } from "./BlockRenderer";
 
@@ -55,7 +56,7 @@ export function UICanvas({ blocks }: UICanvasProps) {
     >
       <AnimatePresence initial={false}>
         {blocks.map((block) => (
-          <motion.div
+          <m.div
             key={block.id}
             variants={variants}
             initial="hidden"
@@ -64,7 +65,7 @@ export function UICanvas({ blocks }: UICanvasProps) {
             transition={transition}
           >
             <BlockRenderer block={block} />
-          </motion.div>
+          </m.div>
         ))}
       </AnimatePresence>
     </div>

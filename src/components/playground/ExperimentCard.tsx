@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import Link from "next/link";
 import type { Experiment } from "@/types/experiment";
 import { StatusIndicator } from "./StatusIndicator";
@@ -348,7 +348,7 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
   }, []);
 
   return (
-    <motion.div
+    <m.div
       /* Stagger-fade entrance — parent sets staggerChildren.
          height: 100% propagates the grid cell's stretch to the Link below. */
       variants={
@@ -521,6 +521,6 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }

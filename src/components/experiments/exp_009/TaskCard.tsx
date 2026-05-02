@@ -12,7 +12,8 @@
  */
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import type { TaskResult } from "@/lib/experiments/exp_009/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -236,7 +237,7 @@ export function TaskCard({ result, taskId, state, elapsedMs, attempt = 1 }: Task
   const errorCount = result?.validationErrors?.length ?? 0;
 
   return (
-    <motion.div
+    <m.div
       variants={cardVariants}
       initial="initial"
       animate="animate"
@@ -357,7 +358,7 @@ export function TaskCard({ result, taskId, state, elapsedMs, attempt = 1 }: Task
       {/* ── Expandable error details (failed state only) ───────── */}
       <AnimatePresence initial={false}>
         {state === "failed" && isExpanded && result && (
-          <motion.div
+          <m.div
             variants={errorDetailsVariants}
             initial="collapsed"
             animate="expanded"
@@ -450,9 +451,9 @@ export function TaskCard({ result, taskId, state, elapsedMs, attempt = 1 }: Task
               {result.rawResponse.slice(0, 300)}
               {result.rawResponse.length > 300 ? "…" : ""}
             </pre>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

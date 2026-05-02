@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { ProjectCardV2 } from "./ProjectCardV2";
 import { FillerCard } from "./FillerCard";
 import { Project } from "@/types/project";
@@ -293,7 +293,7 @@ export function ProjectGridV2({
       </p>
 
       {/* 3-column highlight-aware bento grid with stagger entrance + proximity field */}
-      <motion.div
+      <m.div
         ref={gridRef}
         style={{
           display: "grid",
@@ -310,7 +310,7 @@ export function ProjectGridV2({
         key={activeCategory} /* Re-trigger stagger on category change */
       >
         {gridItems}
-      </motion.div>
+      </m.div>
 
       {/* Responsive overrides + scrollbar hiding moved to globals.css */}
     </div>
