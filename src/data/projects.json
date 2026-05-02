@@ -31,7 +31,7 @@
       "Canvas-based cursor animations require bounding-box culling — the Signal Field only recalculates dots within a radius around the pointer, skipping the full grid each frame, which is the difference between 60fps and dropped frames on lower-end devices.",
       "Scoping v2 design tokens under a class selector (`html.v2`) while leaving v1 on `:root` avoided a full migration — but every v2 component now carries non-portable variable references, a tradeoff that only works because v1 is frozen."
     ],
-    "version": "2.35.5",
+    "version": "2.35.6",
     "lastUpdated": "2026-05-02"
   },
   {
