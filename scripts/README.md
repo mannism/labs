@@ -38,6 +38,22 @@ npm run capture-experiments -- --slug voice-particles
 
 ---
 
+### Preview mode dependency
+
+The script navigates to `${BASE_URL}/playground/${slug}?preview=1` — not the bare slug URL. The `?preview=1` query parameter is handled by Nix's Stage 3a-frontend change (`feat/experiment-preview-mode-route`), which hides LABS page chrome (top nav, experiment title, description block, metadata row) so the experiment canvas fills the full viewport.
+
+**Why this matters:** without preview mode, the chromed layout consumed ~50% of the 640×360 output frame at Stage 3 dry-run, leaving the experiment canvas squished into the lower half.
+
+**Merge order:** this script PR and Nix's frontend PR can merge in any order. However:
+
+> Owner must not run `npm run capture-experiments` until Nix's `feat/experiment-preview-mode-route` PR has merged and the dev server has been restarted with that build.
+
+If captures are run before Nix's PR lands, the `?preview=1` parameter is silently ignored by the server (the URL still resolves to the chromed experiment page) and all clips will include the page chrome. Re-run after Nix's PR merges to produce correct output.
+
+**If preview mode is removed in future:** the script will revert to capturing the full chromed page. Update `page.goto` in `captureExperiment()` to remove `?preview=1` and re-run all captures.
+
+---
+
 ### Asset format and path convention
 
 This is the contract Nix reads in Stage 2 (frontend wiring).
@@ -67,7 +83,7 @@ The `EXPERIMENT_CONFIGS` map in `capture-experiments.ts` controls capture behavi
 
 | Field | Purpose |
 |---|---|
-| `path` | URL path on the dev server |
+| `path` | URL path on the dev server (without query string — `?preview=1` is appended by the script at capture time) |
 | `viewportWidth` / `viewportHeight` | Browser viewport for capture (1280×720) |
 | `idleWaitMs` | Warmup time after page load before recording content |
 | `captureMs` | Duration of the recording window (before ffmpeg trim to 3s) |
@@ -79,7 +95,7 @@ The `EXPERIMENT_CONFIGS` map in `capture-experiments.ts` controls capture behavi
 
 | Experiment | `idleWaitMs` | Reason |
 |---|---|---|
-| `voice-particles` | 4000ms | WebGPU + Three.js shader compilation |
+| `voice-particles` | 10000ms | WebGPU + Three.js shader compilation. Stage 3 dry-run showed 4s insufficient — "LOADING EXPERIMENT…" overlay still visible at capture time. 10s is a safe margin. |
 | `gesture-fluid` | 3000ms | Canvas 2D solver init + idle wisps |
 | `crowd-flow` | 3500ms | Boids init + RD pattern emergence |
 | `routines-repo-audit` | 1500ms | React hydration only |
