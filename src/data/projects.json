@@ -738,7 +738,8 @@
       "The load profile determines the surface. Capability that must be active on every turn lives in the always-on layer (`CLAUDE.md` cascades); capability that fires on demand lives in separately retrieved files (`SKILL.md`); capability that needs no model involvement lives in hooks and automated checks.",
       "Centralised skill stores treat all capability as a retrieval problem. Some capability isn't. A voice rule that fires on every turn isn't a candidate for vector retrieval — the retrieval step itself introduces the failure mode you're trying to eliminate.",
       "Capability inherits meaning from its location. The voice system isn't just a file of rules; it lives alongside the agent roster, the routing map, and the decisions log. A centralised store severs this relationship. Distribution is structural, not incidental."
-    ]
+    ],
+    "wordCount": 2129
   },
   {
     "id": "28",
@@ -787,6 +788,7 @@
       "The gate is the decisive criterion. Repetition, shape, and trigger clarity are necessary but not separating — they describe many good CLAUDE.md rules too. The gate is what distinguishes a skill.",
       "Formalising a gate changes the outcome. If there is no confirmation step, no irreversibility, or no idempotency verification that differs by going through the procedure, the ceremony adds friction without benefit — the knowledge belongs in a lighter layer.",
       "Ask the right question first. Not \"should this be codified?\" but \"which layer does this knowledge naturally inhabit?\" — bias toward the lightest layer that works, then check if a gate justifies moving it up."
-    ]
+    ],
+    "wordCount": 809
   }
 ]
