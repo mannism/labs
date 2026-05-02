@@ -57,8 +57,8 @@ contracts:
     notes: All fields typed strictly — no optional fields may be removed without updating all 11+ consumers. Adding optional fields is backward compatible
   - name: Experiment interface shape
     type: schema_contract
-    value: "slug, title, status (ExperimentStatus), tags[], description, launchedAt"
-    notes: ExperimentStatus is a string union — additions are non-breaking; removals break StatusIndicator
+    value: "slug, title, status (ExperimentStatus), tags[], description, createdAt, previewVideo? (optional)"
+    notes: "ExperimentStatus is a string union — additions are non-breaking; removals break StatusIndicator. previewVideo is an optional asset path; when set, ExperimentCard renders a lazy-loaded looping <video>; when absent, on 404, or on codec error, falls back to getPreviewPattern() CSS treatment. prefers-reduced-motion users always receive the CSS pattern regardless of field presence."
   - name: ArticleSection interface shape
     type: schema_contract
     value: "heading: string; body: string"
