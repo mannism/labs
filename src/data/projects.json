@@ -648,7 +648,8 @@
       "Four kinds of text files — `CLAUDE.md`, `manifest.yaml`, `MEMORY.md`, and handoff documents — each with a specific purpose and maintenance discipline, are sufficient to maintain coherence across twelve agents and six repositories. The system is file-based and manual in ways that more sophisticated architectures point past, but it works because it solves the actual production problem: what survives a session ending.",
       "The knowledge base that's useful to an agent is not the one that looks impressive in a diagram — it's the one that hands off everything the next session needs to not repeat work or break coherence. Writing for AI readability before human browsability is a design choice that compounds over months of production use.",
       "The gap between file-based persistence and graph-based retrieval is the honest frontier. No semantic query, no automated staleness detection, no real-time consistency checking — the system depends on discipline and agents that think before writing. Naming the gap matters as much as building what exists."
-    ]
+    ],
+    "wordCount": 1513
   },
   {
     "id": "25",
