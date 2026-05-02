@@ -43,3 +43,6 @@ next-env.d.ts
 
 # claude code — local-only state
 .claude/worktrees/
+
+# capture-experiments — raw Playwright video output before ffmpeg trim
+.playwright-capture-tmp/
