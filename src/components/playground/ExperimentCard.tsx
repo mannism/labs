@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import type { Experiment } from "@/types/experiment";
@@ -203,6 +203,131 @@ function getPreviewPattern(slug: string): string {
   }
 }
 
+/**
+ * ExperimentVideoPreview — renders a looping WebM preview clip inside the
+ * 180px-tall card preview area when `src` is provided.
+ *
+ * Behaviour matrix:
+ *   • `src` absent               → CSS pattern (getPreviewPattern)
+ *   • `src` present + reduced    → CSS pattern (no video fetched — avoids bandwidth
+ *                                   waste for users who have opted out of motion)
+ *   • `src` present + no reduced → <video> autoplay loop; onError → CSS pattern
+ *   • below viewport             → preload="none" until card enters viewport,
+ *                                   then preload="metadata" + play() (lazy-load)
+ *
+ * The video element is aria-hidden="true" — it is a decorative preview,
+ * not meaningful content. All meaningful content is in the card body below.
+ */
+function ExperimentVideoPreview({
+  src,
+  slug,
+  prefersReduced,
+}: {
+  src: string;
+  slug: string;
+  prefersReduced: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  /** Falls back to CSS pattern when video errors out at runtime. */
+  const [hasError, setHasError] = useState(false);
+  /** Tracks whether the card has entered the viewport (lazy-load gate). */
+  const [inView, setInView] = useState(false);
+
+  /** IntersectionObserver — set inView when card is within 200px of viewport. */
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  /**
+   * Once in view, promote preload to "metadata" and trigger play.
+   * Play returns a Promise — catch is required to silence AbortError
+   * when the component unmounts before play resolves (React StrictMode
+   * double-invoke, fast navigation, etc).
+   */
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !inView) return;
+
+    el.preload = "metadata";
+    el.play().catch(() => {
+      /* AbortError on unmount — not a failure, no fallback needed. */
+    });
+  }, [inView]);
+
+  /** Runtime error handler — swap to CSS pattern. */
+  const handleError = useCallback(() => {
+    setHasError(true);
+  }, []);
+
+  /* Reduced-motion or runtime error → CSS-only pattern. */
+  if (prefersReduced || hasError) {
+    return (
+      <div
+        aria-hidden="true"
+        style={{
+          height: "180px",
+          background: "var(--exp-canvas-bg)",
+          backgroundImage: getPreviewPattern(slug),
+          borderRadius: "4px 4px 0 0",
+          overflow: "hidden",
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        height: "180px",
+        background: "var(--exp-canvas-bg)",
+        borderRadius: "4px 4px 0 0",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        autoPlay
+        loop
+        playsInline
+        /**
+         * preload="none" on mount — do not fetch until IntersectionObserver
+         * fires (set inView → true → useEffect upgrades to "metadata" + play).
+         * First-row cards will be in view on mount, so the upgrade fires
+         * immediately; below-fold cards wait until they scroll close.
+         */
+        preload="none"
+        aria-hidden="true"
+        onError={handleError}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    </div>
+  );
+}
+
 export function ExperimentCard({ experiment }: { experiment: Experiment }) {
   const prefersReduced = useReducedMotion();
 
@@ -259,17 +384,26 @@ export function ExperimentCard({ experiment }: { experiment: Experiment }) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Dark preview area — CSS-only abstract pattern */}
-        <div
-          aria-hidden="true"
-          style={{
-            height: "180px",
-            background: `var(--exp-canvas-bg)`,
-            backgroundImage: getPreviewPattern(experiment.slug),
-            borderRadius: "4px 4px 0 0",
-            overflow: "hidden",
-          }}
-        />
+        {/* Preview area — video clip when available, CSS pattern as fallback */}
+        {experiment.previewVideo ? (
+          <ExperimentVideoPreview
+            src={experiment.previewVideo}
+            slug={experiment.slug}
+            prefersReduced={prefersReduced}
+          />
+        ) : (
+          /* No previewVideo field → CSS-only pattern (all cards in current main) */
+          <div
+            aria-hidden="true"
+            style={{
+              height: "180px",
+              background: "var(--exp-canvas-bg)",
+              backgroundImage: getPreviewPattern(experiment.slug),
+              borderRadius: "4px 4px 0 0",
+              overflow: "hidden",
+            }}
+          />
+        )}
 
         {/* Card body — flex column, grows to fill remaining card height */}
         <div

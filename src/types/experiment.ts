@@ -23,6 +23,13 @@ export interface Experiment {
   collection: string;
   /** ISO date when this experiment was first published. Used for card metadata + detail page header. */
   createdAt: string;
+  /**
+   * Path to the looping WebM preview clip, relative to /public.
+   * Example: "/experiment-previews/voice-particles.webm"
+   * When absent, ExperimentCard renders the CSS-only getPreviewPattern() fallback.
+   * Populated by Owner in Stage 3 after running npm run capture-experiments.
+   */
+  previewVideo?: string;
   /** Short concept statement — what it is and what it proves. */
   conceptStatement?: string;
   /** How It Works — detailed explanation paragraphs (array of {title, body}). */
