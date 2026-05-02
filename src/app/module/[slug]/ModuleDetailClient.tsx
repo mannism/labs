@@ -8,7 +8,7 @@ import { ProjectDetailV2 } from "@/components/v2/ProjectDetailV2";
 import { SignalField } from "@/components/v2/SignalField";
 import { ScanLine } from "@/components/v2/ScanLine";
 import { DatamoshTransition } from "@/components/v2/DatamoshTransition";
-import { ChatWidget } from "@/components/ChatWidget";
+import { ChatWidgetLazy } from "@/components/ChatWidgetLazy";
 
 /**
  * ModuleDetailClient — client wrapper for the /module/[slug] route.
@@ -51,8 +51,8 @@ export function ModuleDetailClient({ project }: { project: Project }) {
         <ProjectDetailV2 project={project} onBack={goBack} />
       </LayoutShellV2>
 
-      {/* Floating chat widget — always present */}
-      <ChatWidget />
+      {/* Floating chat widget — always present (lazy-loaded, code-split from critical bundle) */}
+      <ChatWidgetLazy />
     </main>
   );
 }

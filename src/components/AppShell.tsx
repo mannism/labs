@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChatWidget } from "./ChatWidget";
+import { ChatWidgetLazy } from "./ChatWidgetLazy";
 import { Project } from "@/types/project";
 
 /* v2 components */
@@ -73,8 +73,8 @@ export function AppShell() {
         <ProjectGridV2 key="grid" onSelectProject={selectProject} />
       </LayoutShellV2>
 
-      {/* Floating chat widget — always present */}
-      <ChatWidget />
+      {/* Floating chat widget — always present (lazy-loaded, code-split from critical bundle) */}
+      <ChatWidgetLazy />
     </main>
   );
 }
