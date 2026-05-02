@@ -2,6 +2,7 @@
   {
     "id": "1",
     "slug": "voice-particles",
+    "previewVideo": "/experiment-previews/voice-particles.webm",
     "title": "Voice Particle Instrument",
     "description": "This experiment demonstrates that 150,000 GPU-instanced particles respond to microphone input at 60fps in the browser without WASM or native code. Audio frequency data drives per-particle physics on the GPU; no client-to-GPU bridge latency limits the scale. The terrain mesh deforms in sync, anchoring the particle field.",
     "tags": [
@@ -82,6 +83,7 @@
   {
     "id": "3",
     "slug": "crowd-flow",
+    "previewVideo": "/experiment-previews/crowd-flow.webm",
     "title": "Crowd Flow Twin",
     "description": "This experiment couples three simulations: 10,000 autonomous agents running Boids flocking, a density trail grid tracking where agents have travelled, and a Gray-Scott reaction-diffusion system transforming raw crowd density into emergent organic patterns. Each subsystem reads and writes shared state. The result is a crowd simulation that visualises density as living structures, not heatmaps.",
     "tags": [
@@ -122,6 +124,7 @@
   {
     "id": "4",
     "slug": "routines-repo-audit",
+    "previewVideo": "/experiment-previews/routines-repo-audit.webm",
     "title": "Routines Repo Audit",
     "description": "Anthropic Routines powers a nightly Claude Code session that audits 6 repos for stale manifests, CI failures, open Dependabot PRs, uncommitted worktrees, and stale branches \u2014 then posts a structured summary to Slack.",
     "tags": [
@@ -167,6 +170,7 @@
   {
     "id": "5",
     "slug": "autonomous-brand-pipeline",
+    "previewVideo": "/experiment-previews/autonomous-brand-pipeline.webm",
     "title": "Autonomous Brand Pipeline",
     "description": "Submit a creative brief and brand rules. A three-stage LLM pipeline generates N concept variants, evaluates each against your rules, and ranks the top K \u2014 streamed live as it runs.",
     "tags": [
@@ -210,6 +214,7 @@
   {
     "id": "7",
     "slug": "adk-visualizer",
+    "previewVideo": "/experiment-previews/adk-visualizer.webm",
     "title": "ADK Visualizer",
     "description": "Static interactive diagram contrasting monolithic and orchestrated agent topologies from Google's ADK case study, annotated in real time by an LLM.",
     "tags": [
@@ -338,6 +343,7 @@
   {
     "id": "9",
     "slug": "agentic-reliability",
+    "previewVideo": "/experiment-previews/agentic-reliability.webm",
     "title": "Agentic Reliability Dashboard",
     "description": "Head-to-head tool-calling reliability test across three frontier models. Run 15 tasks simultaneously against GPT-5.5, Claude Opus 4.7, and Gemini 3.1 Pro. Track pass rates, latency, and JSON validity in real time.",
     "tags": [
