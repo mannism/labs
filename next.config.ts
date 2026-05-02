@@ -30,6 +30,33 @@ const nextConfig: NextConfig = {
     ];
 
     return [
+      // Static assets under /public/ that are stable and safe to cache indefinitely.
+      // Cache-Control is set here; security headers still apply via the broader source
+      // entries below — Next.js merges headers from all matching sources.
+      //
+      // /experiment-previews/*.webm — video preview files; filenames are stable per
+      //   slug. If a capture is re-recorded the file is overwritten at the same path,
+      //   so a browser may serve the old copy until the 1-year TTL expires. Rename the
+      //   file (e.g. voice-particles-v2.webm) to bust the cache early if needed.
+      // /fonts/*.ttf — self-hosted fonts; never change in place without a rename.
+      {
+        source: "/experiment-previews/:file*.webm",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/fonts/:file*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       // Playground routes — microphone enabled, worker-src allows blob: for Three.js
       {
         source: "/playground/:path*",
