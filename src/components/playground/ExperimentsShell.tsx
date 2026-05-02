@@ -4,7 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { NavbarV2 } from "@/components/v2/NavbarV2";
 import { FooterV2 } from "@/components/v2/FooterV2";
-import { ChatWidget } from "@/components/ChatWidget";
+import { ChatWidgetLazy } from "@/components/ChatWidgetLazy";
 import { WebGPUProvider } from "./WebGPUCheck";
 
 /**
@@ -63,7 +63,7 @@ function ShellInner({ children }: { children: ReactNode }) {
       <FooterV2 />
 
       {/* Floating chat widget — matches AppShell; hidden in preview mode above */}
-      <ChatWidget />
+      <ChatWidgetLazy />
     </div>
   );
 }
@@ -89,7 +89,7 @@ export function ExperimentsShell({ children }: { children: ReactNode }) {
             <NavbarV2 />
             <div style={{ flex: 1 }}>{children}</div>
             <FooterV2 />
-            <ChatWidget />
+            <ChatWidgetLazy />
           </div>
         }
       >
