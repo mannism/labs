@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "@/components/icons/GithubIcon";
 import { trackEvent } from "@/lib/analytics";
@@ -54,7 +54,7 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
     const badgeLabel  = siteUp === false ? "Not Active" : project.status;
 
     return (
-        <motion.div
+        <m.div
             onClick={onClick}
             role="button"
             tabIndex={0}
@@ -136,6 +136,6 @@ export function ProjectCard({ project, onClick }: { project: Project; onClick?: 
                     </span>
                 ))}
             </div>
-        </motion.div>
+        </m.div>
     );
 }

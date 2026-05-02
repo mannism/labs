@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { flushSync } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import { MessageCircle, X, ExternalLink, Link, Send } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { useTextScramble } from "./v2/useTextScramble";
@@ -392,7 +393,7 @@ export function ChatWidget() {
             {/* ── Floating toggle button ─────────────────────────────────── */}
             <AnimatePresence>
                 {!isOpen && (
-                    <motion.button
+                    <m.button
                         className={`chat-toggle-btn${!prefersReducedMotion ? " chat-toggle-glow" : ""}`}
                         style={{ bottom: bottomOffset }}
                         onClick={() => { trackEvent("chat_open", {}); setIsOpen(true); }}
@@ -408,14 +409,14 @@ export function ChatWidget() {
                     >
                         <MessageCircle className="w-5 h-5" />
                         <span className="chat-toggle-label">Talk to AI Diana</span>
-                    </motion.button>
+                    </m.button>
                 )}
             </AnimatePresence>
 
             {/* ── Chat window ────────────────────────────────────────────── */}
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         className="chat-window"
                         style={{ bottom: bottomOffset, transformOrigin: "bottom right" }}
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -550,7 +551,7 @@ export function ChatWidget() {
                             {/* Inline Telegram link code input */}
                             <AnimatePresence>
                                 {showLinkInput && (
-                                    <motion.div
+                                    <m.div
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: "auto" }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -606,7 +607,7 @@ export function ChatWidget() {
                                                 Link
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </m.div>
                                 )}
                             </AnimatePresence>
                         </div>
@@ -742,7 +743,7 @@ export function ChatWidget() {
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </>

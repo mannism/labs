@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import type { ExperimentStatus } from "@/types/experiment";
 import { useReducedMotion } from "@/components/v2/useReducedMotion";
 
@@ -43,7 +43,7 @@ export function StatusIndicator({ status }: { status: ExperimentStatus }) {
       }}
     >
       {/* Status dot — pulses for LIVE, static otherwise. aria-hidden because text label conveys meaning. */}
-      <motion.span
+      <m.span
         aria-hidden="true"
         animate={
           isLive && !prefersReduced

@@ -11,7 +11,8 @@
  * Framer Motion staggerChildren drives the 80ms stagger between card entries.
  */
 
-import { motion, AnimatePresence } from "framer-motion";
+import * as m from "framer-motion/m";
+import { AnimatePresence } from "framer-motion";
 import { TaskCard, SkeletonCard, type CardState } from "./TaskCard";
 import type { TaskResult, ModelId, ModelConfig } from "@/lib/experiments/exp_009/types";
 
@@ -147,7 +148,7 @@ export function ModelColumn({
         </div>
       ) : (
         /* Live: staggered card stack */
-        <motion.div
+        <m.div
           variants={containerVariants}
           animate="animate"
           style={{ display: "flex", flexDirection: "column", gap: "var(--v2-space-sm)" }}
@@ -174,7 +175,7 @@ export function ModelColumn({
               );
             })}
           </AnimatePresence>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

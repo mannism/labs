@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "@/components/icons/GithubIcon";
 import { Project } from "@/types/project";
@@ -104,7 +104,7 @@ export function ProjectDetailV2({
   }, [project.id, project.type, project.seriesTitle, project.sequenceNumber, project.relatedSlugs]);
 
   return (
-    <motion.div
+    <m.div
       ref={detailRef}
       initial={prefersReduced ? undefined : { opacity: 0, y: 16 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
@@ -222,7 +222,7 @@ export function ProjectDetailV2({
 
       {/* Bottom spacing to separate CTAs from footer */}
       <div style={{ height: "var(--v2-space-3xl)" }} />
-    </motion.div>
+    </m.div>
   );
 }
 

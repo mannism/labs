@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useReducedMotion } from "./useReducedMotion";
 
 /**
@@ -17,7 +17,7 @@ export function ScanLine() {
   if (prefersReduced) return null;
 
   return (
-    <motion.div
+    <m.div
       aria-hidden="true"
       style={{
         position: "fixed",
