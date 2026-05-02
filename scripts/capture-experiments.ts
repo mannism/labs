@@ -22,8 +22,8 @@
  */
 
 import { chromium } from "@playwright/test";
-import { execSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, readdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, rmSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 // ---------------------------------------------------------------------------
@@ -251,9 +251,15 @@ function runPreflightChecks(): void {
   console.log("[preflight] ffmpeg: OK");
 
   // Dev server reachability check.
-  try {
-    execSync(`curl -sf ${BASE_URL} -o /dev/null`, { stdio: "pipe" });
-  } catch {
+  // spawnSync with an arg array avoids any shell-interpolation risk if
+  // BASE_URL were ever made configurable. Consistent with all other
+  // child_process calls in this script.
+  const curlResult = spawnSync(
+    "curl",
+    ["-sf", BASE_URL, "-o", "/dev/null"],
+    { encoding: "utf8", stdio: "pipe" }
+  );
+  if (curlResult.status !== 0 || curlResult.error) {
     throw new Error(
       `[preflight] FATAL: Dev server not reachable at ${BASE_URL}. ` +
         "Start with: npm run dev"
@@ -323,6 +329,10 @@ async function captureExperiment(
       "--enable-gpu",
       "--use-angle=metal", // macOS Metal backend for best WebGPU compat
       "--enable-features=WebGPU",
+      // --no-sandbox is safe here because this script only ever navigates to
+      // localhost (a trusted dev server we own). The flag is needed on some
+      // macOS setups where Chromium's sandbox conflicts with the GPU process
+      // launched non-headless — without it, the browser may fail to start.
       "--no-sandbox",
     ],
   });
@@ -401,37 +411,27 @@ async function captureExperiment(
   //   -y              : overwrite output file (idempotency)
 
   const outputFile = join(OUTPUT_DIR, `${slug}.webm`);
-  const ffmpegCmd = [
-    "ffmpeg",
+  // Single source of truth for ffmpeg args — both the log line and the
+  // spawnSync call derive from this array to stay in sync.
+  const ffmpegArgs = [
     "-y",
     "-i", rawWebm,
     "-t", String(CLIP_DURATION_SECONDS),
-    "-vf", `scale=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:(ow-iw)/2:(oh-ih)/2`,
+    "-vf",
+    `scale=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:(ow-iw)/2:(oh-ih)/2`,
     "-c:v", "libvpx-vp9",
     "-crf", String(VP9_CRF),
     "-b:v", VP9_BITRATE,
     "-an",
     outputFile,
-  ].join(" ");
+  ];
 
-  console.log(`  [ffmpeg] Encoding: ${ffmpegCmd}`);
+  console.log(`  [ffmpeg] Encoding: ffmpeg ${ffmpegArgs.join(" ")}`);
 
-  const ffmpegResult = spawnSync(
-    "ffmpeg",
-    [
-      "-y",
-      "-i", rawWebm,
-      "-t", String(CLIP_DURATION_SECONDS),
-      "-vf",
-      `scale=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:force_original_aspect_ratio=decrease,pad=${OUTPUT_WIDTH}:${OUTPUT_HEIGHT}:(ow-iw)/2:(oh-ih)/2`,
-      "-c:v", "libvpx-vp9",
-      "-crf", String(VP9_CRF),
-      "-b:v", VP9_BITRATE,
-      "-an",
-      outputFile,
-    ],
-    { encoding: "utf8", stdio: "pipe" }
-  );
+  const ffmpegResult = spawnSync("ffmpeg", ffmpegArgs, {
+    encoding: "utf8",
+    stdio: "pipe",
+  });
 
   if (ffmpegResult.status !== 0) {
     throw new Error(
@@ -441,7 +441,6 @@ async function captureExperiment(
   }
 
   // Verify output file exists and log its size.
-  const { statSync } = await import("node:fs");
   const stats = statSync(outputFile);
   const sizeKb = Math.round(stats.size / 1024);
   console.log(`  [done] ${outputFile} (${sizeKb} KB)`);
