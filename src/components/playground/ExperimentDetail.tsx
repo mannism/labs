@@ -1,7 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import type { Experiment } from "@/types/experiment";
 import { StatusIndicator } from "./StatusIndicator";
 
@@ -170,12 +172,71 @@ const INPUT_LABELS: Record<string, string> = {
   None: "NO INPUT REQUIRED — READ ONLY",
 };
 
-export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
+/**
+ * DetailInner — the full ExperimentDetail render tree.
+ * Separated from the exported ExperimentDetail so it can use useSearchParams()
+ * inside a Suspense boundary (required by Next.js for static routes).
+ *
+ * Preview mode (?preview=1): hides all page chrome (breadcrumb, concept
+ * header, meta strip, explanation section, back link) — used by the capture
+ * script. NavbarV2 / FooterV2 are suppressed one level up in ExperimentsShell.
+ * Only the experiment canvas renders, full-bleed at 100dvh.
+ *
+ * Normal mode (no param): zero change from current behaviour.
+ */
+function DetailInner({ experiment }: { experiment: Experiment }) {
   /** Format experiment number for breadcrumb display, e.g. EXP_001 -> 001 */
   const expNum = experiment.experimentNumber.replace("EXP_", "");
 
   /** Look up the live experiment component by slug — undefined means placeholder */
   const ExperimentComponent = EXPERIMENT_COMPONENTS[experiment.slug] ?? null;
+
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get("preview") === "1";
+
+  if (isPreview) {
+    return (
+      /*
+       * Preview wrapper — fills the full viewport for capture.
+       *
+       * data-preview-canvas scopes the height override below.
+       * Each canvas component sets its own height via inline style
+       * (e.g. `height: "clamp(300px, 70vh, 800px)"`). Inline styles cannot be
+       * overridden by a CSS class without !important, so we use a scoped
+       * <style> tag. This is intentional and isolated to the preview rendering
+       * context — it does not affect normal page rendering.
+       */
+      <div
+        data-preview-canvas=""
+        style={{
+          width: "100%",
+          height: "100dvh",
+          background: "var(--exp-canvas-bg)",
+          overflow: "hidden",
+        }}
+      >
+        <style>{`
+          [data-preview-canvas] > * {
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+          }
+        `}</style>
+        {ExperimentComponent ? (
+          <ExperimentComponent />
+        ) : (
+          /* Concept-phase experiments have no canvas yet — render dark fill
+             so the capture frame is well-defined rather than blank. */
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              background: "var(--exp-canvas-bg)",
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -489,6 +550,405 @@ export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
             )}
 
             {/* What This Experiment Proves */}
+            {experiment.whatItProves && experiment.whatItProves.length > 0 && (
+              <>
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-mono)",
+                    fontSize: "var(--v2-font-size-xs)",
+                    color: "var(--v2-text-tertiary)",
+                    letterSpacing: "var(--v2-letter-spacing-wide)",
+                    textTransform: "uppercase",
+                    margin: "var(--v2-space-2xl) 0 var(--v2-space-sm) 0",
+                  }}
+                >
+                  WHAT THIS PROVES
+                </p>
+                {experiment.whatItProves.map((paragraph, idx) => (
+                  <p
+                    key={idx}
+                    style={{
+                      fontFamily: "var(--v2-font-body)",
+                      fontSize: "var(--v2-font-size-sm)",
+                      color: "var(--v2-text-secondary)",
+                      lineHeight: 1.7,
+                      margin: `0 0 ${idx < experiment.whatItProves!.length - 1 ? "var(--v2-space-md)" : "0"} 0`,
+                    }}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Back link */}
+      <section
+        className="max-w-7xl mx-auto w-full px-6"
+        style={{
+          paddingTop: "var(--v2-space-3xl)",
+          paddingBottom: "var(--v2-space-3xl)",
+        }}
+      >
+        <Link
+          href="/playground"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--v2-space-xs)",
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+            textDecoration: "none",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            transition: "color 0.2s ease",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--v2-text-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--v2-text-tertiary)")
+          }
+        >
+          &larr; BACK TO PLAYGROUND
+        </Link>
+      </section>
+    </>
+  );
+}
+
+/**
+ * ExperimentDetail — public export. Wraps DetailInner in a Suspense boundary
+ * so that useSearchParams() inside DetailInner does not prevent static
+ * rendering of the /playground/[slug] route.
+ *
+ * Suspense fallback renders the full-chrome normal view (same as no-param
+ * state) — no flash of incorrect layout on first paint, and the SSR pass
+ * produces the same markup as the no-preview client state (hydration-safe).
+ */
+export function ExperimentDetail({ experiment }: { experiment: Experiment }) {
+  return (
+    <Suspense fallback={<DetailInnerFallback experiment={experiment} />}>
+      <DetailInner experiment={experiment} />
+    </Suspense>
+  );
+}
+
+/**
+ * DetailInnerFallback — static render of the normal (no-preview) view.
+ * Rendered by Suspense while useSearchParams() resolves on the client.
+ * Must not use useSearchParams() — it is a pure render from props only.
+ * Intentionally duplicates the normal-mode return of DetailInner.
+ *
+ * Note: this duplication is load-bearing. The Suspense fallback must be
+ * server-renderable (no client hooks) and must match the SSR output of
+ * the no-param case so hydration is clean.
+ */
+function DetailInnerFallback({ experiment }: { experiment: Experiment }) {
+  const expNum = experiment.experimentNumber.replace("EXP_", "");
+  const ExperimentComponent = EXPERIMENT_COMPONENTS[experiment.slug] ?? null;
+
+  return (
+    <>
+      {/* Breadcrumb navigation */}
+      <nav
+        aria-label="Breadcrumb"
+        className="max-w-7xl mx-auto w-full px-6"
+        style={{
+          padding: "var(--v2-space-md) 0",
+          paddingLeft: "1.5rem",
+          paddingRight: "1.5rem",
+        }}
+      >
+        <ol
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--v2-space-xs)",
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+          }}
+        >
+          <li>
+            <Link
+              href="/"
+              style={{
+                color: "var(--v2-text-tertiary)",
+                textDecoration: "none",
+                transition: "color 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--v2-text-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--v2-text-tertiary)")
+              }
+            >
+              LABS
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li>
+            <Link
+              href="/playground"
+              style={{
+                color: "var(--v2-text-tertiary)",
+                textDecoration: "none",
+                transition: "color 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--v2-text-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--v2-text-tertiary)")
+              }
+            >
+              PLAYGROUND
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">{experiment.experimentNumber}</li>
+        </ol>
+      </nav>
+
+      {/* Concept header */}
+      <section
+        className="max-w-7xl mx-auto w-full px-6"
+        style={{
+          paddingTop: "var(--v2-space-lg)",
+          paddingBottom: "var(--v2-space-lg)",
+        }}
+      >
+        {/* System label */}
+        <p
+          style={{
+            fontFamily: "var(--v2-font-mono)",
+            fontSize: "var(--v2-font-size-xs)",
+            color: "var(--v2-text-tertiary)",
+            letterSpacing: "var(--v2-letter-spacing-wide)",
+            textTransform: "uppercase",
+            margin: "0 0 var(--v2-space-sm) 0",
+          }}
+        >
+          {"EXPERIMENT_"}
+          {expNum}
+          {" // "}
+          {experiment.title.toUpperCase().replace(/ /g, ".")}
+        </p>
+
+        {/* Title */}
+        <h1
+          style={{
+            fontFamily: "var(--v2-font-display)",
+            fontSize:
+              "clamp(var(--v2-font-size-2xl), 4vw, var(--v2-font-size-3xl))",
+            fontWeight: 700,
+            lineHeight: 1.05,
+            letterSpacing: "var(--v2-letter-spacing-tighter)",
+            color: "var(--v2-text-primary)",
+            textTransform: "uppercase",
+            margin: "0 0 var(--v2-space-sm) 0",
+          }}
+        >
+          {experiment.title}
+        </h1>
+
+        {/* Description */}
+        <p
+          style={{
+            fontFamily: "var(--v2-font-body)",
+            fontSize: "var(--v2-font-size-base)",
+            color: "var(--v2-text-secondary)",
+            lineHeight: 1.6,
+            maxWidth: "720px",
+            margin: "0 0 var(--v2-space-md) 0",
+          }}
+        >
+          {experiment.description}
+        </p>
+
+        {/* Meta strip */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--v2-space-md)",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              textTransform: "uppercase",
+              color: "var(--v2-text-tertiary)",
+              background: "var(--v2-tag-bg)",
+              border: "1px solid var(--v2-tag-border)",
+              padding: "4px 12px",
+              borderRadius: "2px",
+            }}
+          >
+            {experiment.inputType === "Microphone" && "🎤"}
+            {experiment.inputType === "Camera" && "📷"}
+            {experiment.inputType === "Mouse / Touch" && "🖱"}
+            {INPUT_LABELS[experiment.inputType] ?? experiment.inputType.toUpperCase()}
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              fontFamily: "var(--v2-font-mono)",
+              fontSize: "var(--v2-font-size-xs)",
+              textTransform: "uppercase",
+              color: "var(--v2-text-tertiary)",
+              background: "var(--v2-tag-bg)",
+              border: "1px solid var(--v2-tag-border)",
+              padding: "4px 12px",
+              borderRadius: "2px",
+              letterSpacing: "0.02em",
+            }}
+          >
+            {`CREATED ${experiment.createdAt.split("-").join(".")}`}
+          </span>
+          <StatusIndicator status={experiment.status} />
+        </div>
+      </section>
+
+      {/* Experiment canvas area */}
+      <section
+        style={{
+          width: "100%",
+          margin: "var(--v2-space-lg) 0",
+          position: "relative",
+        }}
+      >
+        {ExperimentComponent ? (
+          <ExperimentComponent />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "clamp(300px, 70vh, 800px)",
+              background: "var(--exp-canvas-bg)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--v2-space-md)",
+            }}
+          >
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "2px solid var(--v2-accent)",
+                borderTopColor: "transparent",
+              }}
+              aria-hidden="true"
+            />
+            <p
+              style={{
+                fontFamily: "var(--v2-font-mono)",
+                fontSize: "var(--v2-font-size-xs)",
+                color: "var(--exp-glass-text-muted)",
+                letterSpacing: "var(--v2-letter-spacing-wide)",
+                textTransform: "uppercase",
+                margin: 0,
+              }}
+            >
+              EXPERIMENT COMING SOON
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--v2-font-body)",
+                fontSize: "var(--v2-font-size-sm)",
+                color: "var(--exp-glass-text-muted)",
+                margin: 0,
+                maxWidth: "400px",
+                textAlign: "center",
+                lineHeight: 1.5,
+              }}
+            >
+              This experiment is in the concept phase. The WebGPU canvas and
+              interactive controls will appear here once development begins.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Explanation section */}
+      {(experiment.conceptStatement || experiment.howItWorks || experiment.whatItProves) && (
+        <section
+          className="max-w-7xl mx-auto w-full px-6"
+          style={{ padding: "var(--v2-space-3xl) 1.5rem" }}
+        >
+          <div style={{ maxWidth: "720px" }}>
+            {experiment.conceptStatement && (
+              <p
+                style={{
+                  fontFamily: "var(--v2-font-body)",
+                  fontSize: "var(--v2-font-size-base)",
+                  color: "var(--v2-text-secondary)",
+                  lineHeight: 1.7,
+                  margin: "0 0 var(--v2-space-2xl) 0",
+                }}
+              >
+                {experiment.conceptStatement}
+              </p>
+            )}
+            {experiment.howItWorks && experiment.howItWorks.length > 0 && (
+              <>
+                <p
+                  style={{
+                    fontFamily: "var(--v2-font-mono)",
+                    fontSize: "var(--v2-font-size-xs)",
+                    color: "var(--v2-text-tertiary)",
+                    letterSpacing: "var(--v2-letter-spacing-wide)",
+                    textTransform: "uppercase",
+                    margin: "0 0 var(--v2-space-sm) 0",
+                  }}
+                >
+                  HOW IT WORKS
+                </p>
+                {experiment.howItWorks.map((section) => (
+                  <div key={section.title} style={{ marginBottom: "var(--v2-space-lg)" }}>
+                    <h3
+                      style={{
+                        fontFamily: "var(--v2-font-display)",
+                        fontSize: "var(--v2-font-size-base)",
+                        fontWeight: 600,
+                        color: "var(--v2-text-primary)",
+                        margin: "0 0 var(--v2-space-xs) 0",
+                      }}
+                    >
+                      {section.title}
+                    </h3>
+                    <p
+                      style={{
+                        fontFamily: "var(--v2-font-body)",
+                        fontSize: "var(--v2-font-size-sm)",
+                        color: "var(--v2-text-secondary)",
+                        lineHeight: 1.7,
+                        margin: 0,
+                      }}
+                    >
+                      {section.body}
+                    </p>
+                  </div>
+                ))}
+              </>
+            )}
             {experiment.whatItProves && experiment.whatItProves.length > 0 && (
               <>
                 <p
