@@ -81,10 +81,12 @@ const EXPERIMENT_CONFIGS: Record<string, ExperimentConfig> = {
     path: "/playground/voice-particles",
     viewportWidth: 1280,
     viewportHeight: 720,
-    idleWaitMs: 4000,
+    idleWaitMs: 10000,
     captureMs: 4000,
     note:
-      "WebGPU + Three.js. 4s warmup for GPU init and shader compilation. " +
+      "WebGPU + Three.js. 10s warmup — Stage 3 dry-run showed 4s was not enough: " +
+      "WebGPU shader compilation + mic-permissions UI kept the 'LOADING EXPERIMENT…' " +
+      "overlay visible at frame 1 of the clip. 10s is a safe margin. " +
       "Captured in idle breathing-sphere mode (no mic) per brief. " +
       "Particle field animates continuously without audio input.",
   },
@@ -311,7 +313,7 @@ async function captureExperiment(
   config: ExperimentConfig
 ): Promise<void> {
   console.log(`\n[capture] ${slug}`);
-  console.log(`  URL:      ${BASE_URL}${config.path}`);
+  console.log(`  URL:      ${BASE_URL}${config.path}?preview=1`);
   console.log(`  Warmup:   ${config.idleWaitMs}ms`);
   console.log(`  Capture:  ${config.captureMs}ms`);
   console.log(`  Note:     ${config.note}`);
@@ -357,8 +359,18 @@ async function captureExperiment(
   const page = await context.newPage();
 
   try {
-    // Navigate and wait for network idle (all assets loaded).
-    await page.goto(`${BASE_URL}${config.path}`, {
+    // Navigate to the preview-mode URL (?preview=1) — this hides LABS page
+    // chrome (top nav, experiment title, description block, metadata row) so
+    // the experiment canvas fills the entire 1280×720 viewport. Without this
+    // flag the chromed layout eats ~50% of the 640×360 output frame.
+    //
+    // DEPENDENCY: ?preview=1 is handled by Nix's Stage 3a-frontend PR
+    // (feat/experiment-preview-mode-route). The capture script can be merged
+    // independently, but Owner must NOT run the actual capture until that
+    // frontend PR has merged and the dev server reflects it — otherwise the
+    // script hits a URL that renders the full chromed view, not the canvas-only
+    // view, and the frame composition problem recurs.
+    await page.goto(`${BASE_URL}${config.path}?preview=1`, {
       waitUntil: "networkidle",
       timeout: 30_000,
     });
@@ -487,7 +499,7 @@ async function main(): Promise<void> {
     for (const slug of targetSlugs) {
       const config = EXPERIMENT_CONFIGS[slug];
       console.log(`  ${slug}`);
-      console.log(`    URL:     ${BASE_URL}${config.path}`);
+      console.log(`    URL:     ${BASE_URL}${config.path}?preview=1`);
       console.log(`    Warmup:  ${config.idleWaitMs}ms`);
       console.log(`    Capture: ${config.captureMs}ms`);
       console.log(`    Note:    ${config.note}`);
